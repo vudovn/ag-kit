@@ -1,26 +1,26 @@
 # Antigravity Skills
 
-> **Hướng dẫn tạo và sử dụng Skills trong Antigravity Kit**
+> **Guide to creating and using Skills in the Antigravity Kit**
 
 ---
 
-## 📋 Giới thiệu
+## 📋 Overview
 
-Mặc dù các mô hình cơ bản của Antigravity (như Gemini) là những mô hình đa năng mạnh mẽ, nhưng chúng không biết ngữ cảnh dự án cụ thể hoặc các tiêu chuẩn của nhóm bạn. Việc tải từng quy tắc hoặc công cụ vào cửa sổ ngữ cảnh của tác nhân sẽ dẫn đến tình trạng "phình to công cụ", chi phí cao hơn, độ trễ và sự nhầm lẫn.
+While Antigravity's base models (like Gemini) are powerful generalists, they don't know your specific project context or your team's standards. Loading every rule or tool into the agent's context window leads to "tool bloat," higher costs, latency, and confusion.
 
-**Antigravity Skills** giải quyết vấn đề này thông qua tính năng **Progressive Disclosure**. Kỹ năng là một gói kiến thức chuyên biệt, ở trạng thái không hoạt động cho đến khi cần. Thông tin này chỉ được tải vào ngữ cảnh của tác nhân khi yêu cầu cụ thể của bạn khớp với nội dung mô tả của kỹ năng.
+**Antigravity Skills** solve this through **Progressive Disclosure**. A Skill is a package of specialized knowledge that remains dormant until needed. This information is only loaded into the agent's context when your specific request matches the skill's description.
 
 ---
 
-## 📁 Cấu trúc và Phạm vi
+## 📁 Structure and Scope
 
-Kỹ năng là các gói dựa trên thư mục. Bạn có thể xác định các phạm vi này tuỳ thuộc vào nhu cầu:
+Skills are folder-based packages. You can define these scopes based on your needs:
 
-| Phạm vi | Đường dẫn | Mô tả |
-|---------|-----------|-------|
-| **Workspace** | `<workspace-root>/.agent/skills/` | Chỉ có trong một dự án cụ thể |
+| Scope         | Path                              | Description                          |
+| ------------- | --------------------------------- | ------------------------------------ |
+| **Workspace** | `<workspace-root>/.agent/skills/` | Available only in a specific project |
 
-### Cấu trúc thư mục kỹ năng
+### Skill Directory Structure
 
 ```
 my-skill/
@@ -32,17 +32,17 @@ my-skill/
 
 ---
 
-## 🔍 Ví dụ 1: Code Review Skill
+## 🔍 Example 1: Code Review Skill
 
-Đây là một kỹ năng chỉ có hướng dẫn (instruction-only), chỉ cần tạo file `SKILL.md`.
+This is an instruction-only skill; you only need to create the `SKILL.md` file.
 
-### Bước 1: Tạo thư mục
+### Step 1: Create the directory
 
 ```bash
-mkdir -p ~/.gemini/antigravity/skills/code-review
+mkdir -p .agent/skills/code-review
 ```
 
-### Bước 2: Tạo SKILL.md
+### Step 2: Create SKILL.md
 
 ```markdown
 ---
@@ -68,11 +68,11 @@ When reviewing code, follow these steps:
 - Suggest alternatives when possible
 ```
 
-> **Lưu ý**: File `SKILL.md` chứa siêu dữ liệu (name, description) ở trên cùng, sau đó là các chỉ dẫn. Agent sẽ chỉ đọc siêu dữ liệu và chỉ tải hướng dẫn khi cần.
+> **Note**: The `SKILL.md` file contains metadata (name, description) at the top, followed by the instructions. The agent will only read the metadata and load the full instructions only when needed.
 
-### Dùng thử
+### Try it out
 
-Tạo file `demo_bad_code.py`:
+Create a file `demo_bad_code.py`:
 
 ```python
 import time
@@ -96,10 +96,10 @@ def process_payments(items):
 def run_batch():
     users = [{'id': 1, 'name': 'Alice'}, {'id': 2, 'name': 'Bob'}]
     items = [{'price': 10}, {'price': 20}, {'price': 100}]
-    
+
     u = get_user_data(users, 3)
     print("User found: " + u['name'])  # Will crash if None
-    
+
     print("Total: " + str(process_payments(items)))
 
 if __name__ == "__main__":
@@ -108,21 +108,21 @@ if __name__ == "__main__":
 
 **Prompt**: `review the @demo_bad_code.py file`
 
-Agent sẽ tự động xác định kỹ năng `code-review`, tải thông tin và thực hiện theo hướng dẫn.
+The Agent will automatically identify the `code-review` skill, load the information, and follow the instructions.
 
 ---
 
-## 📄 Ví dụ 2: License Header Skill
+## 📄 Example 2: License Header Skill
 
-Kỹ năng này sử dụng file tham chiếu (reference file) trong thư mục `resources/`.
+This skill uses a reference file in the `resources/` (or `references/`) directory.
 
-### Bước 1: Tạo thư mục
+### Step 1: Create the directory
 
 ```bash
 mkdir -p .agent/skills/license-header-adder/resources
 ```
 
-### Bước 2: Tạo file template
+### Step 2: Create the template file
 
 **`.agent/skills/license-header-adder/resources/HEADER.txt`**:
 
@@ -134,7 +134,7 @@ mkdir -p .agent/skills/license-header-adder/resources
  */
 ```
 
-### Bước 3: Tạo SKILL.md
+### Step 3: Create SKILL.md
 
 **`.agent/skills/license-header-adder/SKILL.md`**:
 
@@ -152,26 +152,26 @@ This skill ensures that all new source files have the correct copyright header.
 
 1. **Read the Template**: Read the content of `resources/HEADER.txt`.
 2. **Apply to File**: When creating a new file, prepend this exact content.
-3. **Adapt Syntax**: 
+3. **Adapt Syntax**:
    - For C-style languages (Java, TS), keep the `/* */` block.
    - For Python/Shell, convert to `#` comments.
 ```
 
-### Dùng thử
+### Try it out
 
 **Prompt**: `Create a new Python script named data_processor.py that prints 'Hello World'.`
 
-Agent sẽ đọc template, chuyển đổi comments theo kiểu Python và tự động thêm vào đầu file.
+The Agent will read the template, convert the comments to Python style, and automatically add it to the top of the file.
 
 ---
 
-## 🎯 Kết luận
+## 🎯 Conclusion
 
-Bằng cách tạo Skills, bạn đã biến mô hình AI đa năng thành một chuyên gia cho dự án của mình:
+By creating Skills, you transform a general AI model into an expert for your project:
 
-- ✅ Hệ thống hoá các best practices
-- ✅ Tuân theo quy tắc đánh giá code
-- ✅ Tự động thêm license headers
-- ✅ Agent tự động biết cách làm việc với nhóm của bạn
+- ✅ Systematize best practices
+- ✅ Adhere to code review rules
+- ✅ Automatically add license headers
+- ✅ The Agent automatically knows how to work with your team
 
-Thay vì liên tục nhắc AI "nhớ thêm license" hoặc "sửa format commit", giờ đây Agent sẽ tự động thực hiện!
+Instead of constantly reminding the AI to "remember to add the license" or "fix the commit format," now the Agent will do it automatically!
