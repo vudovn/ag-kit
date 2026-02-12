@@ -35,9 +35,9 @@ To keep the `.agent/` folder local (not tracked by Git) while maintaining AI fun
 
 | Component     | Count | Description                                                        |
 | ------------- | ----- | ------------------------------------------------------------------ |
-| **Agents**    | 20    | Specialist AI personas (frontend, backend, security, PM, QA, etc.) |
-| **Skills**    | 37    | Domain-specific knowledge modules                                  |
-| **Workflows** | 11    | Slash command procedures                                           |
+| **Agents**    | 23    | Specialist AI personas (frontend, backend, security, PM, QA, etc.) |
+| **Skills**    | 39    | Domain-specific knowledge modules                                  |
+| **Workflows** | 13    | Slash command procedures                                           |
 
 
 ## Usage
@@ -90,6 +90,8 @@ Invoke workflows with slash commands:
 | `/status`        | Check project status                  |
 | `/test`          | Generate and run tests                |
 | `/ui-ux-pro-max` | Design with 50 styles                 |
+| `/architect-review`| 360º Architecture Review              |
+| `/diagram`       | Create technical drawings             |
 
 Example:
 

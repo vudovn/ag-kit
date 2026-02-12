@@ -140,7 +140,7 @@ File:         ./dashboard-analytics.md (project root)
 
 | Priority | Phase | Agents | When to Use |
 |----------|-------|--------|-------------|
-| **P0** | Foundation | `database-architect` → `security-auditor` | If project needs DB |
+| **P0** | Foundation | `database-architect` → `software-architect` → `data-architect` → `security-auditor` | If project needs DB or complex architecture |
 | **P1** | Core | `backend-specialist` | If project has backend |
 | **P2** | UI/UX | `frontend-specialist` OR `mobile-developer` | Web OR Mobile (not both!) |
 | **P3** | Polish | `test-engineer`, `performance-optimizer`, `seo-specialist` | Based on needs |

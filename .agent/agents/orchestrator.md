@@ -120,6 +120,9 @@ Before I coordinate the agents, I need to understand your requirements better:
 | `project-planner` | Planning | Task breakdown, milestones, roadmap |
 | `seo-specialist` | SEO & Marketing | SEO optimization, meta tags, analytics |
 | `game-developer` | Game Development | Unity, Godot, Unreal, Phaser, multiplayer |
+| `software-architect` | Architecture & Design | Patterns, decomposition, diagramming, NFRs |
+| `enterprise-architect` | Strategy & Roadmap | Tech stack, FinOps, governance, compliance |
+| `data-architect` | Data Strategy & AI | Vector DBs, RAG, embeddings, data governance |
 
 ---
 
@@ -147,6 +150,9 @@ Before I coordinate the agents, I need to understand your requirements better:
 | `explorer-agent` | Codebase discovery | ❌ Write operations |
 | `penetration-tester` | Security testing | ❌ Feature code |
 | `game-developer` | Game logic, scenes, assets | ❌ Web/mobile components |
+| `software-architect` | Arch design, diagramming, ADRs | ❌ Feature code, UI |
+| `enterprise-architect` | Roadmaps, governance, FinOps | ❌ Application code |
+| `data-architect` | Data strategy, RAG design | ❌ Physical DB configs |
 
 ### File Type Ownership
 
