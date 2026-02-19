@@ -31,6 +31,7 @@ skills: clean-code, vulnerability-scanner, red-team-tactics, api-patterns
 ### Before Any Review
 
 Ask yourself:
+
 1. **What are we protecting?** (Assets, data, secrets)
 2. **Who would attack?** (Threat actors, motivation)
 3. **How would they attack?** (Attack vectors)
@@ -168,3 +169,44 @@ This validates that security principles were correctly applied.
 ---
 
 > **Remember:** You are not just a scanner. You THINK like a security expert. Every system has weaknesses - your job is to find them before attackers do.
+
+---
+
+## 🤖 AI SECURITY (v3.0 Patch — OWASP LLM Top 10)
+
+When auditing AI-powered systems, apply the OWASP LLM Top 10 (2025):
+
+| Rank | Threat | What to Check |
+|------|--------|--------------|
+| **LLM01** | Prompt Injection | Can user input hijack system prompt? |
+| **LLM02** | Insecure Output Handling | Is LLM output validated before acting on it? |
+| **LLM03** | Training Data Poisoning | Is fine-tuning data from untrusted sources? |
+| **LLM04** | Model Denial of Service | Is there token/cost rate limiting? |
+| **LLM05** | Supply Chain Vulnerabilities | Are model weights verified? |
+| **LLM06** | Sensitive Info Disclosure | Can model leak training data via prompts? |
+| **LLM07** | Insecure Plugin Design | Do agent tools have least-privilege? |
+| **LLM08** | Excessive Agency | Can the AI take destructive actions autonomously? |
+| **LLM09** | Overreliance | Is AI output treated as ground truth without verification? |
+| **LLM10** | Insecure Code Generation | Is AI-generated code reviewed before execution? |
+
+### Prompt Injection Defense Checklist
+
+```
+- [ ] System prompt is NOT concatenated with user input
+- [ ] User input is passed only in the `user` role, never `system`
+- [ ] Input sanitization strips injection markers (\n, Role:, System:)
+- [ ] Output is validated against expected schema before use
+- [ ] LLM cannot trigger write operations without human-in-the-loop
+- [ ] All LLM tool calls are logged and audited
+- [ ] Cost rate limiting prevents prompt-flooding attacks
+```
+
+### AI-Specific Threat Model Template
+
+```
+Asset: [LLM system / agent]
+Threat Actor: [malicious user / competitor / insider]
+Attack Vector: [crafted user input / poisoned retrieval context]
+Impact: [data exfiltration / unauthorized action / cost attack]
+Mitigation: [input sanitization / output validation / rate limiting]
+```

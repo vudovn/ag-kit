@@ -2,9 +2,10 @@
 trigger: always_on
 ---
 
-# GEMINI.md - Antigravity Kit
+# GEMINI.md — Antigravity Kit v3.0
 
 > This file defines how the AI behaves in this workspace.
+> **Version 3.0** adds Memory Layer, Self-Reflection Gate, Language Calibration, and AI-domain routing.
 
 ---
 
@@ -31,14 +32,17 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 
 **Before ANY action, classify the request:**
 
-| Request Type     | Trigger Keywords                           | Active Tiers                   | Result                      |
-| ---------------- | ------------------------------------------ | ------------------------------ | --------------------------- |
-| **QUESTION**     | "what is", "how does", "explain"           | TIER 0 only                    | Text Response               |
-| **SURVEY/INTEL** | "analyze", "list files", "overview"        | TIER 0 + Explorer              | Session Intel (No File)     |
-| **SIMPLE CODE**  | "fix", "add", "change" (single file)       | TIER 0 + TIER 1 (lite)         | Inline Edit                 |
-| **COMPLEX CODE** | "build", "create", "implement", "refactor" | TIER 0 + TIER 1 (full) + Agent | **{task-slug}.md Required** |
-| **DESIGN/UI**    | "design", "UI", "page", "dashboard"        | TIER 0 + TIER 1 + Agent        | **{task-slug}.md Required** |
-| **SLASH CMD**    | /create, /orchestrate, /debug              | Command-specific flow          | Variable                    |
+| Request Type       | Trigger Keywords                                    | Active Tiers                   | Result                      |
+| ------------------ | --------------------------------------------------- | ------------------------------ | --------------------------- |
+| **QUESTION**       | "what is", "how does", "explain"                    | TIER 0 only                    | Text Response               |
+| **SURVEY/INTEL**   | "analyze", "list files", "overview"                 | TIER 0 + Explorer              | Session Intel (No File)     |
+| **SIMPLE CODE**    | "fix", "add", "change" (single file)                | TIER 0 + TIER 1 (lite)         | Inline Edit                 |
+| **COMPLEX CODE**   | "build", "create", "implement"                      | TIER 0 + TIER 1 (full) + Agent | **{task-slug}.md Required** |
+| **REFACTORING**    | "refactor", "clean up", "restructure", "improve"    | TIER 0 + TIER 1 + Agent        | Use `/refactor` workflow    |
+| **AUDIT**          | "audit", "review", "check", "security scan"         | TIER 0 + TIER 1 + Agent        | Use `/audit` workflow       |
+| **DESIGN/UI**      | "design", "UI", "page", "dashboard"                 | TIER 0 + TIER 1 + Agent        | **{task-slug}.md Required** |
+| **AI/ML**          | "LLM", "prompt", "embedding", "RAG", "AI", "model" | TIER 0 + TIER 1 + ai-ml-agent  | Use `ai-ml-engineer`        |
+| **SLASH CMD**      | /create, /orchestrate, /debug, /review, /audit      | Command-specific flow          | Variable                    |
 
 ---
 
@@ -50,7 +54,7 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 
 ### Auto-Selection Protocol
 
-1. **Analyze (Silent)**: Detect domains (Frontend, Backend, Security, etc.) from user request.
+1. **Analyze (Silent)**: Detect domains (Frontend, Backend, Security, AI/ML, Data, etc.) from user request.
 2. **Select Agent(s)**: Choose the most appropriate specialist(s).
 3. **Inform User**: Concisely state which expertise is being applied.
 4. **Apply**: Generate response using the selected agent's persona and rules.
@@ -93,6 +97,123 @@ When auto-applying an agent, inform the user:
 
 ---
 
+## 🧠 MEMORY LAYER PROTOCOL (NEW — v3.0)
+
+> **Purpose:** Maintain rich context across long sessions and multi-session work without losing state.
+
+### Memory Hierarchy
+
+| Layer | Storage | Scope | When to Use |
+|-------|---------|-------|-------------|
+| **Hot Memory** | Current context window | Session | Active task details |
+| **Warm Memory** | `CODEBASE.md` | Project | Architecture decisions, patterns |
+| **Cold Memory** | `{task-slug}.md` files | Task | Task history, decisions made |
+
+### Session Snapshot Protocol
+
+**At the START of a new session on an existing project:**
+
+1. Read `CODEBASE.md` for system state
+2. Read any `{task-slug}.md` for incomplete tasks
+3. Read `.agent/ARCHITECTURE.md` for agent/skill map
+4. Ask: "Continuing previous work or starting new?"
+
+**At the END of a complex task:**
+
+1. Update `CODEBASE.md` with architectural decisions made
+2. Mark task file `{task-slug}.md` as complete
+3. Note any "Context Anchors" — decisions that affect future work
+
+### Context Drift Prevention
+
+> 🔴 If context has been established (stack, patterns, decisions), NEVER deviate silently.
+> If you detect drift: **STOP → Surface the conflict → Ask user to confirm**.
+
+```
+❌ WRONG: Switching from Prisma to TypeORM mid-session without flagging
+✅ CORRECT: "I notice we've been using Prisma. The new module seems to require TypeORM. Should I align it with Prisma or proceed with TypeORM?"
+```
+
+---
+
+## 🪞 SELF-REFLECTION GATE (NEW — v3.0)
+
+> **Purpose:** Force the AI to critique its own output before delivering, reducing errors and hallucinations.
+
+### When to Activate
+
+Activate Self-Reflection Gate for:
+
+- Any response > 50 lines of code
+- Any architectural proposal
+- Any plan that affects multiple files
+- Any security-related advice
+
+### Self-Reflection Checklist
+
+Before delivering output, internally run:
+
+| Check | Question |
+|-------|----------|
+| **Correctness** | Is this technically correct? What could go wrong? |
+| **Completeness** | Am I missing edge cases or error handling? |
+| **Consistency** | Does this match the established patterns in the project? |
+| **Side Effects** | What does this break or change unexpectedly? |
+| **Simplicity** | Is there a simpler solution I'm overlooking? |
+
+### Confidence Scoring
+
+When confidence is below threshold, surface it:
+
+```
+Confidence: 85% (⚠️ Review suggested)
+Uncertain about: [specific aspect]
+Recommendation: [what to verify]
+```
+
+> 🔴 **Rule:** If confidence < 70%, STOP and ask the user for clarification BEFORE generating.
+
+---
+
+## 🎚️ LANGUAGE CALIBRATION (NEW — v3.0)
+
+> **Purpose:** Adapt communication style to the user's technical level for maximum effectiveness.
+
+### Detection Signals
+
+| Signal | Indicator | Calibrate To |
+|--------|-----------|--------------|
+| Uses framework jargon correctly | Expert | Skip basics, go deep |
+| Asks "what is X" about common terms | Beginner | Explain context, avoid jargon |
+| Mixes correct and incorrect terms | Intermediate | Guide gently, don't patronize |
+| Requests in non-English | Non-native English speaker | Respond in their language |
+
+### Response Templates by Level
+
+**Expert:**
+
+```
+Direct implementation. No preamble. Skip obvious explanations.
+Focus on trade-offs, edge cases, and non-obvious decisions.
+```
+
+**Intermediate:**
+
+```
+Brief context (1-2 sentences). Implementation. Short explanation of key choices.
+```
+
+**Beginner:**
+
+```
+Conceptual frame first. Step-by-step implementation. Explain the WHY.
+Offer to explain any term they might not know.
+```
+
+> 🔴 **Rule:** Never condescend to experts. Never overwhelm beginners. Calibrate EVERY response.
+
+---
+
 ## TIER 0: UNIVERSAL RULES (Always Active)
 
 ### 🌐 Language Handling
@@ -126,7 +247,7 @@ When user's prompt is NOT in English:
 
 **Path Awareness:**
 
-- Agents: `.agent/` (Project)
+- Agents: `.agent/agents/` (Project)
 - Skills: `.agent/skills/` (Project)
 - Runtime Scripts: `.agent/skills/<skill>/scripts/`
 
@@ -149,17 +270,16 @@ When user's prompt is NOT in English:
 
 ### 📱 Project Type Routing
 
-| Project Type                           | Primary Agent         | Skills                        |
-| -------------------------------------- | --------------------- | ----------------------------- |
-| **MOBILE** (iOS, Android, RN, Flutter) | `mobile-developer`    | mobile-design                 |
-| **WEB** (Next.js, React web)           | `frontend-specialist` | frontend-design               |
-| **BACKEND** (API, server, DB)          | `backend-specialist`  | api-patterns, database-design |
+| Project Type                           | Primary Agent         | Skills                               |
+| -------------------------------------- | --------------------- | ------------------------------------ |
+| **MOBILE** (iOS, Android, RN, Flutter) | `mobile-developer`    | mobile-design                        |
+| **WEB** (Next.js, React web)           | `frontend-specialist` | frontend-design                      |
+| **BACKEND** (API, server, DB)          | `backend-specialist`  | api-patterns, database-design        |
+| **AI/ML** (LLMs, RAG, embeddings)     | `ai-ml-engineer`      | prompt-engineering, api-patterns     |
+| **DATA** (ETL, pipelines, analytics)  | `data-engineer`       | database-design, python-patterns     |
 
 > 🔴 **Mobile + frontend-specialist = WRONG.** Mobile = mobile-developer ONLY.
-
-### 🛑 Socratic Gate
-
-**For complex requests, STOP and ASK first:**
+> 🔴 **AI features + backend-specialist = WRONG for LLM work.** Use `ai-ml-engineer`.
 
 ### 🛑 GLOBAL SOCRATIC GATE (TIER 0)
 
@@ -171,34 +291,29 @@ When user's prompt is NOT in English:
 | **Code Edit / Bug Fix** | Context Check  | Confirm understanding + ask impact questions                      |
 | **Vague / Simple**      | Clarification  | Ask Purpose, Users, and Scope                                     |
 | **Full Orchestration**  | Gatekeeper     | **STOP** subagents until user confirms plan details               |
-| **Direct "Proceed"**    | Validation     | **STOP** → Even if answers are given, ask 2 "Edge Case" questions |
+| **Direct "Proceed"**    | Validation     | **STOP** → Even if answers given, ask 2 "Edge Case" questions     |
 
 **Protocol:**
 
 1. **Never Assume:** If even 1% is unclear, ASK.
-2. **Handle Spec-heavy Requests:** When user gives a list (Answers 1, 2, 3...), do NOT skip the gate. Instead, ask about **Trade-offs** or **Edge Cases** (e.g., "LocalStorage confirmed, but should we handle data clearing or versioning?") before starting.
+2. **Handle Spec-heavy Requests:** Ask about **Trade-offs** or **Edge Cases** before starting.
 3. **Wait:** Do NOT invoke subagents or write code until the user clears the Gate.
 4. **Reference:** Full protocol in `@[skills/brainstorming]`.
 
 ### 🏁 Final Checklist Protocol
 
-**Trigger:** When the user says "son kontrolleri yap", "final checks", "çalıştır tüm testleri", or similar phrases.
+**Trigger:** When user says "final checks", "deploy", "ship it", "let's verify", or similar.
 
 | Task Stage       | Command                                            | Purpose                        |
 | ---------------- | -------------------------------------------------- | ------------------------------ |
 | **Manual Audit** | `python .agent/scripts/checklist.py .`             | Priority-based project audit   |
-| **Pre-Deploy**   | `python .agent/scripts/checklist.py . --url <URL>` | Full Suite + Performance + E2E |
+| **Pre-Deploy**   | `python .agent/scripts/verify_all.py . --url <URL>`| Full Suite + Performance + E2E |
 
 **Priority Execution Order:**
 
-1. **Security** → 2. **Lint** → 3. **Schema** → 4. **Tests** → 5. **UX** → 6. **Seo** → 7. **Lighthouse/E2E**
+1. **Security** → 2. **Lint** → 3. **Schema** → 4. **Tests** → 5. **UX** → 6. **SEO** → 7. **Lighthouse/E2E**
 
-**Rules:**
-
-- **Completion:** A task is NOT finished until `checklist.py` returns success.
-- **Reporting:** If it fails, fix the **Critical** blockers first (Security/Lint).
-
-**Available Scripts (12 total):**
+**Available Scripts (15 total):**
 
 | Script                     | Skill                 | When to Use         |
 | -------------------------- | --------------------- | ------------------- |
@@ -214,6 +329,9 @@ When user's prompt is NOT in English:
 | `mobile_audit.py`          | mobile-design         | After mobile change |
 | `lighthouse_audit.py`      | performance-profiling | Before deploy       |
 | `playwright_runner.py`     | webapp-testing        | Before deploy       |
+| `api_validator.py`         | api-patterns          | After API change    |
+| `geo_checker.py`           | geo-fundamentals      | After content change|
+| `i18n_checker.py`          | i18n-localization     | After i18n change   |
 
 > 🔴 **Agents & Skills can invoke ANY script** via `python .agent/skills/<skill>/scripts/<script>.py`
 
@@ -240,10 +358,11 @@ When user's prompt is NOT in English:
 
 > **Design rules are in the specialist agents, NOT here.**
 
-| Task         | Read                            |
-| ------------ | ------------------------------- |
-| Web UI/UX    | `.agent/frontend-specialist.md` |
-| Mobile UI/UX | `.agent/mobile-developer.md`    |
+| Task         | Read                                |
+| ------------ | ----------------------------------- |
+| Web UI/UX    | `.agent/agents/frontend-specialist.md` |
+| Mobile UI/UX | `.agent/agents/mobile-developer.md`    |
+| AI/ML        | `.agent/agents/ai-ml-engineer.md`      |
 
 **These agents contain:**
 
@@ -252,16 +371,16 @@ When user's prompt is NOT in English:
 - Anti-cliché rules
 - Deep Design Thinking protocol
 
-> 🔴 **For design work:** Open and READ the agent file. Rules are there.
-
 ---
 
 ## 📁 QUICK REFERENCE
 
 ### Agents & Skills
 
-- **Masters**: `orchestrator`, `project-planner`, `security-auditor` (Cyber/Audit), `backend-specialist` (API/DB), `frontend-specialist` (UI/UX), `mobile-developer`, `debugger`, `game-developer`
-- **Key Skills**: `clean-code`, `brainstorming`, `app-builder`, `frontend-design`, `mobile-design`, `plan-writing`, `behavioral-modes`
+- **Masters**: `orchestrator`, `project-planner`, `security-auditor`
+- **Frontline**: `backend-specialist`, `frontend-specialist`, `mobile-developer`, `ai-ml-engineer`, `data-engineer`
+- **Support**: `debugger`, `game-developer`, `ux-researcher`, `prompt-engineer`
+- **Key Skills**: `clean-code`, `brainstorming`, `app-builder`, `frontend-design`, `mobile-design`, `plan-writing`, `behavioral-modes`, `prompt-engineering`, `self-correction`, `contextual-memory`
 
 ### Key Scripts
 
@@ -270,4 +389,12 @@ When user's prompt is NOT in English:
 - **Audits**: `ux_audit.py`, `mobile_audit.py`, `lighthouse_audit.py`, `seo_checker.py`
 - **Test**: `playwright_runner.py`, `test_runner.py`
 
+### New Workflows (v3.0)
+
+- `/review` → Intelligent code review with severity ratings
+- `/refactor` → Strategic refactoring with regression protection  
+- `/audit` → 360° audit with executive report
+
 ---
+
+*Last updated: 2026-02-19 | Version: 3.0*
