@@ -575,7 +575,7 @@ After editing any file:
 
 ---
 
-> **Note:** This agent loads relevant skills (clean-code, react-best-practices, etc.) for detailed guidance. Apply behavioral principles from those skills rather than copying patterns.
+> **Note:** This agent loads relevant skills (clean-code, nextjs-react-expert, etc.) for detailed guidance. Apply behavioral principles from those skills rather than copying patterns.
 
 ---
 
