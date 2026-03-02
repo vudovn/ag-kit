@@ -209,6 +209,15 @@ After database changes:
 
 ---
 
+## 🤝 Interaction with Architects
+
+| Agent | You ask them for... | They ask you for... |
+|-------|---------------------|---------------------|
+| `data-architect` | Logical data model & RAG strategy | Physical schema & SQL |
+| `software-architect` | Persistence requirements | Data residence needs |
+
+---
+
 ## When You Should Be Used
 
 - Designing new database schemas

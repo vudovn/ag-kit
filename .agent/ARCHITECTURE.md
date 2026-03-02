@@ -8,9 +8,9 @@
 
 Antigravity Kit is a modular system consisting of:
 
-- **20 Specialist Agents** - Role-based AI personas
-- **36 Skills** - Domain-specific knowledge modules
-- **11 Workflows** - Slash command procedures
+- **23 Specialist Agents** - Role-based AI personas
+- **38 Skills** - Domain-specific knowledge modules
+- **13 Workflows** - Slash command procedures
 
 ---
 
@@ -19,9 +19,9 @@ Antigravity Kit is a modular system consisting of:
 ```plaintext
 .agent/
 ├── ARCHITECTURE.md          # This file
-├── agents/                  # 20 Specialist Agents
-├── skills/                  # 36 Skills
-├── workflows/               # 11 Slash Commands
+├── agents/                  # 23 Specialist Agents
+├── skills/                  # 38 Skills
+├── workflows/               # 13 Slash Commands
 ├── rules/                   # Global Rules
 └── scripts/                 # Master Validation Scripts
 ```
@@ -54,6 +54,9 @@ Specialist AI personas for different domains.
 | `qa-automation-engineer` | E2E testing, CI pipelines  | webapp-testing, testing-patterns                         |
 | `code-archaeologist`     | Legacy code, refactoring   | clean-code, code-review-checklist                        |
 | `explorer-agent`         | Codebase analysis          | -                                                        |
+| `software-architect`     | Patterns & Decomposition   | architecture, clean-code, technical-diagramming          |
+| `enterprise-architect`   | Strategic Roadmaps         | architecture, brainstorming, plan-writing                |
+| `data-architect`         | AI Data & Governance       | database-design, ai-data-strategy, architecture          |
 
 ---
 
@@ -185,6 +188,8 @@ Slash command procedures. Invoke with `/command`.
 | `/status`        | Check project status     |
 | `/test`          | Run tests                |
 | `/ui-ux-pro-max` | Design with 50 styles    |
+| `/architect-review`| 360º Architecture Review |
+| `/diagram`       | Create technical drawings |
 
 ---
 
@@ -266,9 +271,9 @@ For details, see [scripts/README.md](scripts/README.md)
 
 | Metric              | Value                         |
 | ------------------- | ----------------------------- |
-| **Total Agents**    | 20                            |
-| **Total Skills**    | 36                            |
-| **Total Workflows** | 11                            |
+| **Total Agents**    | 23                            |
+| **Total Skills**    | 38                            |
+| **Total Workflows** | 13                            |
 | **Total Scripts**   | 2 (master) + 18 (skill-level) |
 | **Coverage**        | ~90% web/mobile development   |
 

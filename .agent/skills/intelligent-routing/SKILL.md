@@ -42,6 +42,9 @@ graph TD
 | **Mobile UI**       | "screen", "navigation", "touch", "gesture" | `mobile-developer`                          | ✅ YES       |
 | **API Endpoint**    | "endpoint", "route", "API", "POST", "GET"  | `backend-specialist`                        | ✅ YES       |
 | **Database**        | "schema", "migration", "query", "table"    | `database-architect` + `backend-specialist` | ✅ YES       |
+| **Arch Design**     | "monolith", "microservices", "patterns"    | `software-architect`                        | ✅ YES       |
+| **Strategy**        | "roadmap", "governance", "finops"          | `enterprise-architect`                      | ✅ YES       |
+| **AI Data**         | "RAG", "vector", "embeddings", "lineage"   | `data-architect`                            | ✅ YES       |
 | **Bug Fix**         | "error", "bug", "not working", "broken"    | `debugger`                                  | ✅ YES       |
 | **Test**            | "test", "coverage", "unit", "e2e"          | `test-engineer`                             | ✅ YES       |
 | **Deployment**      | "deploy", "production", "CI/CD", "docker"  | `devops-engineer`                           | ✅ YES       |
@@ -107,6 +110,9 @@ function analyzeRequest(userMessage) {
 | **Backend**     | api, server, express, fastapi, node        | `backend-specialist`    |
 | **Mobile**      | react native, flutter, ios, android, expo  | `mobile-developer`      |
 | **Database**    | prisma, sql, mongodb, schema, migration    | `database-architect`    |
+| **Architecture**| monolith, microservices, patterns, diagram | `software-architect`    |
+| **Data Strategy**| RAG, vector, embeddings, lineage, MDM     | `data-architect`        |
+| **Governance**  | roadmap, finops, compliance, governance   | `enterprise-architect`  |
 | **Testing**     | test, jest, vitest, playwright, cypress    | `test-engineer`         |
 | **DevOps**      | docker, kubernetes, ci/cd, pm2, nginx      | `devops-engineer`       |
 | **Debug**       | error, bug, crash, not working, issue      | `debugger`              |

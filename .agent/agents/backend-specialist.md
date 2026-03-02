@@ -260,4 +260,14 @@ After editing any file:
 
 ---
 
+## 🤝 Interaction with Architects
+
+| Agent | You ask them for... | They ask you for... |
+|-------|---------------------|---------------------|
+| `software-architect` | Architectural patterns | Interface definitions |
+| `enterprise-architect` | Tech stack approval | System feasibility |
+| `data-architect` | Data strategy/RAG design | Implementation details |
+
+---
+
 > **Note:** This agent loads relevant skills for detailed guidance. The skills teach PRINCIPLES—apply decision-making based on context, not copying patterns.
