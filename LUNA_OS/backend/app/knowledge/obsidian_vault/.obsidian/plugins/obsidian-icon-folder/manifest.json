@@ -1,0 +1,10 @@
+{
+  "id": "obsidian-icon-folder",
+  "name": "Iconize",
+  "version": "2.14.7",
+  "minAppVersion": "0.9.12",
+  "description": "Add icons to anything you desire in Obsidian, including files, folders, and text.",
+  "author": "Florian Woelki",
+  "authorUrl": "https://florianwoelki.com/",
+  "isDesktopOnly": false
+}

@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────
+   LUNA OS — Soft Pink & Lavender Luxury Design System
+───────────────────────────────────── */
+:root {
+  /* Soft UI Pink — tokens primários */
+  --color-primary:      #ec4899;
+  --color-primary-dark: #db2777;
+  --color-primary-light:#f9a8d4;
+  --color-bg:           #fdf2f8;  /* Pink-50 — Fundo da aplicação */
+  --color-surface:      #ffffff;
+  --color-border:       #fce7f3;
+  --color-text:         #831843;  /* Pink-900 */
+  --color-muted:        #be185d;  /* Pink-700 */
+
+  /* Shadcn compat tokens mapped to Luna */
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --border: var(--color-border);
+  --muted: var(--color-border);
+  --muted-foreground: var(--color-muted);
+
+  /* Premium — Glass & Gradients */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-blur: blur(12px);
+  
+  --grad-premium: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  --grad-surface: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(253,242,248,1) 100%);
+  --grad-soft: linear-gradient(135deg, #fdf2f8 0%, #ffffff 100%);
+
+  /* Sombras de card (Soft Evolution) */
+  --shadow-card:    0 1px 3px rgba(131, 24, 67, 0.04), 0 1px 2px rgba(131, 24, 67, 0.02);
+  --shadow-card-md: 0 4px 12px rgba(131, 24, 67, 0.06), 0 2px 4px rgba(131, 24, 67, 0.03);
+  --shadow-card-lg: 0 8px 24px rgba(131, 24, 67, 0.08), 0 4px 8px rgba(131, 24, 67, 0.05);
+  --shadow-premium: 0 10px 40px -10px rgba(236, 72, 153, 0.2);
+}
+
+/* Base */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-text);
+  scroll-behavior: smooth;
+}
+
+/* Headers usam a fonte Lora se definido em tailwind font-serif */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-lora), serif;
+}
+
+/* Scrollbar — soft pink sutil */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #fbcfe8; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #f472b6; }
+
+/* Selection */
+::selection { background: #fbcfe8; color: #831843; }
+
+/* Componentes utilitários */
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl border border-luna_pink-100 shadow-card;
+  }
+  .card-md {
+    @apply bg-white rounded-2xl border border-luna_pink-100 shadow-card-md;
+  }
+  .btn-primary {
+    @apply bg-luna_pink-500 hover:bg-luna_pink-600 text-white font-semibold
+           px-4 py-2 rounded-xl transition-all duration-300
+           shadow-sm hover:shadow-card active:scale-[.98];
+  }
+  .btn-cta {
+    @apply bg-cta-DEFAULT hover:bg-cta-hover text-white font-semibold
+           px-4 py-2 rounded-xl transition-all duration-300
+           shadow-sm hover:shadow-card active:scale-[.98];
+  }
+  .btn-ghost {
+    @apply text-luna_pink-600 hover:bg-luna_pink-50 font-medium
+           px-3 py-1.5 rounded-lg transition-colors duration-300;
+  }
+  .input-field {
+    @apply w-full bg-luna_pink-50 border border-luna_pink-200 rounded-xl px-3 py-2
+           text-sm text-gray-800 placeholder:text-luna_pink-400
+           focus:outline-none focus:ring-2 focus:ring-luna_pink-400 focus:border-luna_pink-400
+           transition-all duration-300;
+  }
+  .section-label {
+    @apply text-[10px] font-bold uppercase tracking-widest text-luna_pink-500;
+  }
+  .kpi-card {
+    @apply card p-5 flex flex-col gap-1;
+  }
+}

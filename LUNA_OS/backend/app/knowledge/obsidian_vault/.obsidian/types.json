@@ -1,0 +1,29 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "tags": "tags",
+    "TQ_explain": "checkbox",
+    "TQ_extra_instructions": "text",
+    "TQ_short_mode": "checkbox",
+    "TQ_show_backlink": "checkbox",
+    "TQ_show_cancelled_date": "checkbox",
+    "TQ_show_created_date": "checkbox",
+    "TQ_show_depends_on": "checkbox",
+    "TQ_show_done_date": "checkbox",
+    "TQ_show_due_date": "checkbox",
+    "TQ_show_edit_button": "checkbox",
+    "TQ_show_id": "checkbox",
+    "TQ_show_on_completion": "checkbox",
+    "TQ_show_postpone_button": "checkbox",
+    "TQ_show_priority": "checkbox",
+    "TQ_show_recurrence_rule": "checkbox",
+    "TQ_show_scheduled_date": "checkbox",
+    "TQ_show_start_date": "checkbox",
+    "TQ_show_tags": "checkbox",
+    "TQ_show_task_count": "checkbox",
+    "TQ_show_toolbar": "checkbox",
+    "TQ_show_tree": "checkbox",
+    "TQ_show_urgency": "checkbox"
+  }
+}

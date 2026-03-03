@@ -1,0 +1,6 @@
+#!/Users/franciscotaveira.ads/Documents/antigravity-kit/LUNA_OS/backend/.venv/bin/python3.11
+import sys
+from watchfiles.cli import cli
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(cli())

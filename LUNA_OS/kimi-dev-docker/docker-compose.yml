@@ -1,0 +1,13 @@
+services:
+  kimi-dev:
+    build: .
+    container_name: kimi-dev-sovereign
+    volumes:
+      - /Users/franciscotaveira.ads/Documents/kimi:/app/repo_structures
+      - /Users/franciscotaveira.ads/Documents/antigravity-kit/LUNA_OS:/app/luna_os_to_diagnose
+      - ./scripts:/app/scripts
+    environment:
+      - PROJECT_FILE_LOC=/app/repo_structures
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    network_mode: host
+    restart: unless-stopped

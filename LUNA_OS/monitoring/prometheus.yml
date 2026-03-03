@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'luna-monitor'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'fastapi'
+    static_configs:
+      - targets: ['localhost:8000']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['localhost:6379']
+
+  - job_name: 'milvus'
+    static_configs:
+      - targets: ['localhost:9091']
+
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['localhost:16686']

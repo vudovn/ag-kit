@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # --- CORE LAYER ---
+  luna-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: luna-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - EVOLUTION_API_URL=${EVOLUTION_API_URL:-http://command-tower-evo-api:8080}
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY:-mothership_master_2026}
+      - EVOLUTION_INSTANCE=${EVOLUTION_INSTANCE:-haven}
+      - WEBHOOK_API_KEY=${WEBHOOK_API_KEY}
+      - BELASIS_API_URL=${BELASIS_API_URL}
+      - BELASIS_API_KEY=${BELASIS_API_KEY}
+      - BELASIS_MOCK=${BELASIS_MOCK:-true}
+      - LUNA_MODE=${LUNA_MODE:-active}
+      - ENV=${ENV:-development}
+      - REDIS_URL=redis://command-tower-redis:6379/0
+      - NTFY_TOPIC=${NTFY_TOPIC:-luna-alerts}
+    volumes:
+      - ./backend:/app
+    networks:
+      - luna-network
+      - evolution-net
+    depends_on:
+      - command-tower-evo-api
+      - command-tower-redis
+    restart: unless-stopped
+
+  luna-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: luna-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - luna-network
+    depends_on:
+      - luna-backend
+    restart: unless-stopped
+
+  # --- WHATSAPP LAYER (Evolution API) ---
+  command-tower-evo-db:
+    image: postgres:15-alpine
+    container_name: command-tower-evo-db
+    environment:
+      - POSTGRES_USER=evolution
+      - POSTGRES_PASSWORD=evolutionpass
+      - POSTGRES_DB=evolution
+    # [HARDENING] Porta externalizada foi REMOVIDA.
+    # Banco de dados gotejando para a internet fechado. Fica estrito à evolution-net
+    volumes:
+      - evo_db_data:/var/lib/postgresql/data
+    networks:
+      - evolution-net
+    restart: unless-stopped
+
+  command-tower-evo-api:
+    image: atendai/evolution-api:v2.2.3
+    container_name: command-tower-evo-api
+    ports:
+      - "8081:8080"
+    environment:
+      - SERVER_URL=http://localhost:8081
+      - QRCODE_BASE64=true
+      - DOCKER_ENV=true
+      - LOG_LEVEL=ERROR,WARN,DEBUG,INFO,LOG,VERBOSE
+      - LOG_COLOR=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://evolution:evolutionpass@command-tower-evo-db:5432/evolution?schema=public
+      - DATABASE_CONNECTION_CLIENT_NAME=evolution
+      - AUTHENTICATION_TYPE=apikey
+      - AUTHENTICATION_API_KEY=mothership_master_2026
+      - REDIS_ENABLED=true
+      - REDIS_URI=redis://command-tower-redis:6379
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://command-tower-redis:6379
+      - CONFIG_SESSION_PHONE_VERSION=2.3000.1031355444
+      - DASHBOARD_ENABLED=true
+    depends_on:
+      - command-tower-evo-db
+      - command-tower-redis
+    volumes:
+      - evo_instances:/evolution/instances
+    networks:
+      - evolution-net
+    restart: unless-stopped
+
+  # --- MEMORY LAYER ---
+  command-tower-redis:
+    image: redis:7-alpine
+    container_name: command-tower-redis
+    # [HARDENING] Porta 6379 exposta ao host REMOVIDA.
+    # Acesso restrito apenas aos containers do backend e evolution via DNS interno.
+    volumes:
+      - redis_data:/data
+    networks:
+      - evolution-net
+      - luna-network
+    restart: unless-stopped
+
+networks:
+  luna-network:
+    driver: bridge
+  evolution-net:
+    driver: bridge
+
+volumes:
+  evo_db_data:
+  evo_instances:
+  redis_data:

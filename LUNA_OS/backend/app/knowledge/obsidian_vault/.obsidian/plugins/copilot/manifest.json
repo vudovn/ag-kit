@@ -1,0 +1,13 @@
+{
+  "id": "copilot",
+  "name": "Copilot",
+  "version": "3.2.3",
+  "minAppVersion": "0.15.0",
+  "description": "Your AI Copilot: Chat with Your Second Brain, Learn Faster, Work Smarter.",
+  "author": "Logan Yang",
+  "authorUrl": "https://twitter.com/logancyang",
+  "fundingUrl": {
+    "Buy Me a Coffee": "https://www.buymeacoffee.com/logancyang",
+    "GitHub Sponsor": "https://github.com/sponsors/logancyang"
+  }
+}
