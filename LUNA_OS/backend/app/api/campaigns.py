@@ -1,13 +1,23 @@
 """
 Campaigns API Endpoints
+
+DEBT #A5: Validação de inputs adicionada
 """
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, field_validator, Field
 from typing import Optional, List
-import uuid, datetime
+import uuid
+import datetime
+from loguru import logger
+from app.core.rate_limit import limiter
 
 router = APIRouter()
+
+
+# [DEBT #A5] Validação de schema com Pydantic
+VALID_CAMPAIGN_TYPES = {"acquisition", "retention", "reactivation", "seasonal", "upsell"}
+VALID_STATUSES = {"draft", "active", "paused", "completed", "cancelled"}
 
 
 class CampaignCreate(BaseModel):
@@ -30,10 +40,58 @@ class CampaignCreate(BaseModel):
     budget_limit: Optional[float] = None  # Limite de desconto por cliente
     max_uses: Optional[int] = None  # Limite de usos do cupom
 
+    # [DEBT #A5] Validadores
+    @field_validator('name')
+    @classmethod
+    def validate_name(cls, v):
+        if not v or len(v.strip()) == 0:
+            raise ValueError("Nome da campanha é obrigatório")
+        if len(v) > 200:
+            raise ValueError("Nome deve ter no máximo 200 caracteres")
+        return v.strip()
+
+    @field_validator('type')
+    @classmethod
+    def validate_type(cls, v):
+        if v not in VALID_CAMPAIGN_TYPES:
+            raise ValueError(f"Tipo inválido: {v}. Válidos: {VALID_CAMPAIGN_TYPES}")
+        return v
+
+    @field_validator('status')
+    @classmethod
+    def validate_status(cls, v):
+        if v and v not in VALID_STATUSES:
+            raise ValueError(f"Status inválido: {v}. Válidos: {VALID_STATUSES}")
+        return v or "draft"
+
+    @field_validator('discount_percent')
+    @classmethod
+    def validate_discount_percent(cls, v):
+        if v is not None and (v < 0 or v > 100):
+            raise ValueError("Desconto percentual deve estar entre 0 e 100")
+        return v
+
+    @field_validator('discount_fixed')
+    @classmethod
+    def validate_discount_fixed(cls, v):
+        if v is not None and v < 0:
+            raise ValueError("Desconto fixo não pode ser negativo")
+        return v
+
+    @field_validator('end_date')
+    @classmethod
+    def validate_dates(cls, v, info):
+        if v and info.data.get('start_date'):
+            start = info.data['start_date']
+            if v < start:
+                raise ValueError("end_date deve ser após start_date")
+        return v
+
 
 @router.post("")
 @router.post("/")
-async def create_campaign(campaign: CampaignCreate):
+@limiter.limit("30/minute")  # [DEBT #A6] Rate limiting adicionado
+async def create_campaign(request: Request, campaign: CampaignCreate):
     """Create new campaign — direct Supabase insert"""
     from app.integrations.supabase_client import get_supabase
 
@@ -68,7 +126,8 @@ async def create_campaign(campaign: CampaignCreate):
 
 @router.get("")
 @router.get("/")
-async def list_campaigns():
+@limiter.limit("100/minute")
+async def list_campaigns(request: Request):
     """List all campaigns"""
     from app.integrations.supabase_client import get_supabase
 

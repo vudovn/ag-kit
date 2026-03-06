@@ -84,10 +84,22 @@ class TaskRunner:
         logger.info("✅ Task Runner stopped")
 
     def _run_task_wrapper(self, task_func):
-        """Wrapper para executar tasks com tratamento de erro."""
+        """Wrapper para executar tasks async em thread síncrona.
+
+        [DEBT #A4] Correção: Usar event loop existente ou criar novo com segurança
+        """
         try:
             logger.info(f"▶️ Running task: {task_func.__name__}")
-            asyncio.run(task_func())
+
+            # [DEBT #A4] Tentar usar event loop existente, se não existir cria um novo
+            try:
+                loop = asyncio.get_running_loop()
+                # Se estamos aqui, existe um loop rodando - usar create_task
+                asyncio.create_task(task_func())
+            except RuntimeError:
+                # Sem loop rodando - seguro usar asyncio.run()
+                asyncio.run(task_func())
+
             logger.info(f"✅ Task completed: {task_func.__name__}")
         except Exception as e:
             logger.exception(f"❌ Task failed: {task_func.__name__} - {e}")

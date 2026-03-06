@@ -16,6 +16,7 @@ class CampaignManager:
         self.db = None  # [LAZY LOADING] Inicializar como None
         self.active_campaigns = []
         self.last_sync = None
+        self._alerted_on_failure = False  # Prevent alert spam
 
     def _get_db(self):
         """[LAZY LOADING] Obter Supabase client apenas quando necessário"""
@@ -29,7 +30,7 @@ class CampaignManager:
         return self.db
 
     async def sync_campaigns(self):
-        """Busca as campanhas ativas do Supabase."""
+        """Busca campanhas ativas do Supabase."""
         try:
             db = self._get_db()  # [LAZY LOADING] Obter DB apenas quando necessário
 
@@ -37,6 +38,20 @@ class CampaignManager:
                 logger.warning("⚠️ CampaignManager: Supabase não inicializado - usando fallback")
                 self.active_campaigns = []
                 self.last_sync = datetime.utcnow()
+
+                # [DEBT #3] Alert on failure (prevent spam with flag)
+                if not self._alerted_on_failure:
+                    try:
+                        from app.integrations.alert_system import alert_system, AlertSeverity
+                        alert_system.send_alert(
+                            title="⚠️ CampaignManager: Supabase Offline",
+                            message="Campanhas não estão sendo aplicadas. Verificar conexão Supabase.",
+                            severity=AlertSeverity.HIGH,
+                            tags=["degraded", "campaigns", "supabase"]
+                        )
+                        self._alerted_on_failure = True
+                    except Exception as alert_err:
+                        logger.debug(f"Could not send alert: {alert_err}")
                 return
 
             now = datetime.utcnow().isoformat()
@@ -63,6 +78,7 @@ class CampaignManager:
                     self.active_campaigns.append(camp)
 
             self.last_sync = datetime.utcnow()
+            self._alerted_on_failure = False  # Reset alert flag on success
             logger.info(
                 f"🚀 CampaignManager: {len(self.active_campaigns)} campanhas ativas carregadas."
             )
@@ -100,6 +116,6 @@ class CampaignManager:
         return context
 
 
-# [LAZY LOADING] Não instanciar na importação do módulo
-# Instanciar apenas quando necessário (lazy loading)
-campaign_manager = None  # Será instanciado sob demanda
+# [LAZY LOADING] Instanciar sob demanda
+# A instância é criada quando o módulo é importado no main.py
+campaign_manager = CampaignManager()

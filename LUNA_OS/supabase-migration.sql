@@ -1,8 +1,34 @@
--- LUNA CORE v2.0 - Supabase Migration
+-- LUNA CORE v3.0 - Supabase Migration
 -- Execute este SQL no Supabase SQL Editor
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- ML MODELS (para persistência de modelos de ML)
+-- DEBT #7: Tabela para versionamento de modelos
+CREATE TABLE IF NOT EXISTS ml_models (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  model_type TEXT NOT NULL,
+  version TEXT NOT NULL,
+  storage_path TEXT NOT NULL,
+  status TEXT DEFAULT 'active',
+  metrics JSONB DEFAULT '{}',
+  training_samples INT DEFAULT 0,
+  accuracy_score DECIMAL(5,4),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(model_type, version)
+);
+
+-- Index para busca rápida do modelo ativo
+CREATE INDEX IF NOT EXISTS idx_ml_models_type_status
+ON ml_models(model_type, status, created_at DESC);
+
+-- Bucket no Storage para modelos (executar via API ou UI do Supabase)
+-- INSERT INTO storage.buckets (id, name, public)
+-- VALUES ('models', 'models', false)
+-- ON CONFLICT (id) DO NOTHING;
+
 
 -- CLIENTS (memória longo prazo)
 CREATE TABLE IF NOT EXISTS clients (

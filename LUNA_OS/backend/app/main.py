@@ -7,7 +7,7 @@ from loguru import logger
 import sys
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from app.core.rate_limit import limiter
+from app.core.rate_limit import limiter, limiter_public, limiter_webhook, limiter_health
 
 from app.config import settings
 from app.api import (
@@ -42,13 +42,39 @@ from app.integrations.vector_db_manager import vector_db_manager
 from app.integrations.tracing_setup import setup_tracing
 from app.integrations.alert_system import alert_system, AlertSeverity
 
-# Configure Loguru
+# Configure Loguru - DEBT #20: JSON logging para produção
 logger.remove()
-logger.add(
-    sys.stdout,
-    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-)
-logger.add("logs/luna_core.log", rotation="10 MB", retention="10 days", level="INFO")
+
+# Verificar se JSON logging está habilitado (produção)
+use_json_logging = os.getenv("LOG_FORMAT", "text").lower() == "json"
+
+if use_json_logging:
+    # Formato JSON para produção (parseável pelo Grafana/Loki)
+    logger.add(
+        sys.stdout,
+        format="{message}",
+        serialize=True,  # Saída JSON
+    )
+    logger.add(
+        "logs/luna_core.log",
+        rotation="10 MB",
+        retention="10 days",
+        level="INFO",
+        serialize=True,  # Saída JSON
+    )
+    logger.info("JSON logging enabled")
+else:
+    # Formato legível para desenvolvimento
+    logger.add(
+        sys.stdout,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+    )
+    logger.add(
+        "logs/luna_core.log",
+        rotation="10 MB",
+        retention="10 days",
+        level="INFO",
+    )
 
 
 # Rate Limiter - Usando instância centralizada
@@ -56,8 +82,8 @@ logger.add("logs/luna_core.log", rotation="10 MB", retention="10 days", level="I
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup and shutdown events"""
-    logger.info("🌙 Luna Core v2.1 starting...")
+    """Eventos de startup e shutdown"""
+    logger.info("🌙 Luna Core v3.0 starting...")
     await init_supabase()
     logger.info("✅ Supabase connected")
     logger.info("✅ Evolution Proxy enabled")
@@ -70,17 +96,25 @@ async def lifespan(app: FastAPI):
 
     # [v3.0] Initialize Distributed Tracing
     setup_tracing("luna-core")
-    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
-    FastAPIInstrumentor.instrument_app(app)
-    logger.info("✅ Distributed Tracing (Jaeger) initialized")
+    # [v3.0] Instrument FastAPI with tracing + metrics
+    from app.integrations.tracing_setup import setup_fastapi_instrumentation
+    setup_fastapi_instrumentation(app)
+    logger.info("✅ Distributed Tracing (Jaeger) + Metrics initialized")
 
-    # [v3.0] Initialize Vector DB
+    # [v3.0] Initialize Vector DB (async, thread-safe)
     try:
-        vector_db_manager.connect()
+        await vector_db_manager.connect()
         logger.info("✅ Vector DB (Milvus) connected")
     except Exception as e:
         logger.warning(f"⚠️ Vector DB connection failed: {e}")
+
+    # [v3.0] Initialize Queue Manager (async, thread-safe)
+    try:
+        await queue_manager.initialize()
+        logger.info("✅ Queue Manager initialized")
+    except Exception as e:
+        logger.warning(f"⚠️ Queue Manager initialization failed: {e}")
 
     # [v3.0] Alert System Startup
     alert_system.send_alert(
@@ -102,11 +136,6 @@ app = FastAPI(
     lifespan=lifespan,
     redirect_slashes=False,
 )
-
-# [v3.0] Instrument Application (Global Scope)
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-
-FastAPIInstrumentor.instrument_app(app)
 
 # Rate Limiter app state
 app.state.limiter = limiter
@@ -148,10 +177,6 @@ app.include_router(
     conversations.router, prefix="/api/conversations", tags=["Conversations"]
 )
 app.include_router(clients.router, prefix="/api/clients", tags=["Clients"])
-app.include_router(
-    analytics_super.router, prefix="/api/analytics", tags=["Super Analytics"]
-)
-# app.include_router(campaigns.router, prefix="/api/campaigns", tags=["Campaigns"])
 app.include_router(knowledge.router, prefix="/api/knowledge", tags=["Knowledge"])
 app.include_router(settings_api.router, prefix="/api/settings", tags=["Settings"])
 app.include_router(health.router, prefix="/api/health", tags=["Health"])
@@ -172,7 +197,7 @@ app.include_router(learning_continuous.router)  # 🧠 Learning Contínuo
 
 
 @app.get("/")
-@limiter.limit("30/minute")
+@limiter_public
 async def root(request: Request):
     return {
         "name": "Luna Core",
@@ -204,7 +229,7 @@ async def root(request: Request):
 
 
 @app.get("/health")
-@limiter.limit("60/minute")
+@limiter_health
 async def health_ping(request: Request):
     """Diagnóstico Soberano — Verifica a saúde de todas as integrações"""
     from app.integrations.supabase_client import get_supabase

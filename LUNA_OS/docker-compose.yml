@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # --- CORE LAYER ---
   luna-backend:
@@ -14,8 +12,8 @@ services:
       - SUPABASE_KEY=${SUPABASE_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - EVOLUTION_API_URL=${EVOLUTION_API_URL:-http://command-tower-evo-api:8080}
-      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY:-mothership_master_2026}
+      - EVOLUTION_API_URL=${EVOLUTION_API_URL:-http://luna-evo-api:8080}
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
       - EVOLUTION_INSTANCE=${EVOLUTION_INSTANCE:-haven}
       - WEBHOOK_API_KEY=${WEBHOOK_API_KEY}
       - BELASIS_API_URL=${BELASIS_API_URL}
@@ -23,7 +21,7 @@ services:
       - BELASIS_MOCK=${BELASIS_MOCK:-true}
       - LUNA_MODE=${LUNA_MODE:-active}
       - ENV=${ENV:-development}
-      - REDIS_URL=redis://command-tower-redis:6379/0
+      - REDIS_URL=redis://luna-redis:6379/0
       - NTFY_TOPIC=${NTFY_TOPIC:-luna-alerts}
     volumes:
       - ./backend:/app
@@ -31,9 +29,15 @@ services:
       - luna-network
       - evolution-net
     depends_on:
-      - command-tower-evo-api
-      - command-tower-redis
+      - luna-evo-api
+      - luna-redis
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   luna-frontend:
     build:
@@ -52,14 +56,20 @@ services:
     depends_on:
       - luna-backend
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # --- WHATSAPP LAYER (Evolution API) ---
-  command-tower-evo-db:
+  luna-evo-db:
     image: postgres:15-alpine
-    container_name: command-tower-evo-db
+    container_name: luna-evo-db
     environment:
-      - POSTGRES_USER=evolution
-      - POSTGRES_PASSWORD=evolutionpass
+      - POSTGRES_USER=${EVO_DB_USER:-evolution}
+      - POSTGRES_PASSWORD=${EVO_DB_PASSWORD}
       - POSTGRES_DB=evolution
     # [HARDENING] Porta externalizada foi REMOVIDA.
     # Banco de dados gotejando para a internet fechado. Fica estrito à evolution-net
@@ -68,10 +78,15 @@ services:
     networks:
       - evolution-net
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U evolution -d evolution" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  command-tower-evo-api:
+  luna-evo-api:
     image: atendai/evolution-api:v2.2.3
-    container_name: command-tower-evo-api
+    container_name: luna-evo-api
     ports:
       - "8081:8080"
     environment:
@@ -81,29 +96,35 @@ services:
       - LOG_LEVEL=ERROR,WARN,DEBUG,INFO,LOG,VERBOSE
       - LOG_COLOR=true
       - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://evolution:evolutionpass@command-tower-evo-db:5432/evolution?schema=public
+      - DATABASE_CONNECTION_URI=postgresql://${EVO_DB_USER:-evolution}:${EVO_DB_PASSWORD}@luna-evo-db:5432/evolution?schema=public
       - DATABASE_CONNECTION_CLIENT_NAME=evolution
       - AUTHENTICATION_TYPE=apikey
-      - AUTHENTICATION_API_KEY=mothership_master_2026
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
       - REDIS_ENABLED=true
-      - REDIS_URI=redis://command-tower-redis:6379
+      - REDIS_URI=redis://luna-redis:6379
       - CACHE_REDIS_ENABLED=true
-      - CACHE_REDIS_URI=redis://command-tower-redis:6379
+      - CACHE_REDIS_URI=redis://luna-redis:6379
       - CONFIG_SESSION_PHONE_VERSION=2.3000.1031355444
       - DASHBOARD_ENABLED=true
     depends_on:
-      - command-tower-evo-db
-      - command-tower-redis
+      - luna-evo-db
+      - luna-redis
     volumes:
       - evo_instances:/evolution/instances
     networks:
       - evolution-net
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # --- MEMORY LAYER ---
-  command-tower-redis:
+  luna-redis:
     image: redis:7-alpine
-    container_name: command-tower-redis
+    container_name: luna-redis
     # [HARDENING] Porta 6379 exposta ao host REMOVIDA.
     # Acesso restrito apenas aos containers do backend e evolution via DNS interno.
     volumes:
@@ -112,6 +133,11 @@ services:
       - evolution-net
       - luna-network
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   luna-network:

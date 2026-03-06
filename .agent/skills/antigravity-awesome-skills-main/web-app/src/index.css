@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@import 'github-markdown-css/github-markdown-light.css';
+
+@media (prefers-color-scheme: dark) {
+  @import 'github-markdown-css/github-markdown-dark.css';
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50;
+}

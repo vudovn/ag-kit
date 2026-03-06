@@ -334,112 +334,112 @@ class WhatsAppSalesAnalyst:
     
     def print_report(self):
         """Imprime relatório formatado"""
-        print("\n")
-        print("╔══════════════════════════════════════════════════════════════╗")
-        print("║  🌙 LUNA OS — WHATSAPP SALES INTELLIGENCE REPORT            ║")
-        print("╚════════════════════════════════════════════════════════════╝")
-        print()
+        logger.info("\n")
+        logger.info("╔══════════════════════════════════════════════════════════════╗")
+        logger.info("║  🌙 LUNA OS — WHATSAPP SALES INTELLIGENCE REPORT            ║")
+        logger.info("╚════════════════════════════════════════════════════════════╝")
+        logger.info()
         
         # Summary
         summary = self.analytics.get('summary', {})
-        print(f"📅 Período: {summary.get('period_days', 0)} dias")
-        print(f"🕐 Gerado em: {summary.get('generated_at', 'N/A')}")
-        print(f"📊 Qualidade dos Dados: {summary.get('data_quality', 'unknown').upper()}")
-        print()
+        logger.info(f"📅 Período: {summary.get('period_days', 0)} dias")
+        logger.info(f"🕐 Gerado em: {summary.get('generated_at', 'N/A')}")
+        logger.info(f"📊 Qualidade dos Dados: {summary.get('data_quality', 'unknown').upper()}")
+        logger.info()
         
-        print("─" * 60)
-        print("📈 VOLUME DE CONVERSAS")
-        print("─" * 60)
+        logger.info("─" * 60)
+        logger.info("📈 VOLUME DE CONVERSAS")
+        logger.info("─" * 60)
         vol = self.analytics.get('conversation_volume', {})
-        print(f"Total: {vol.get('total_conversations', 0)}")
-        print(f"Média/dia: {vol.get('avg_per_day', 0):.1f}")
-        print(f"\nPor Status:")
+        logger.info(f"Total: {vol.get('total_conversations', 0)}")
+        logger.info(f"Média/dia: {vol.get('avg_per_day', 0):.1f}")
+        logger.info(f"\nPor Status:")
         for status, count in vol.get('by_status', {}).items():
-            print(f"  • {status}: {count}")
-        print(f"\nPor Intent:")
+            logger.info(f"  • {status}: {count}")
+        logger.info(f"\nPor Intent:")
         for intent, count in vol.get('by_intent', {}).items():
-            print(f"  • {intent}: {count}")
-        print(f"\nPor Sentimento:")
+            logger.info(f"  • {intent}: {count}")
+        logger.info(f"\nPor Sentimento:")
         for sentiment, count in vol.get('by_sentiment', {}).items():
-            print(f"  • {sentiment}: {count}")
-        print()
+            logger.info(f"  • {sentiment}: {count}")
+        logger.info()
         
-        print("─" * 60)
-        print("🎯 FUNIL DE VENDAS")
-        print("─" * 60)
+        logger.info("─" * 60)
+        logger.info("🎯 FUNIL DE VENDAS")
+        logger.info("─" * 60)
         funnel = self.analytics.get('sales_funnel', {})
-        print(f"Total Leads: {funnel.get('total_leads', 0)}")
-        print(f"Alta Intenção: {funnel.get('high_intent')} ({funnel.get('high_intent_rate', 0):.1f}%)")
-        print(f"Média Intenção: {funnel.get('medium_intent')} ({funnel.get('medium_intent_rate', 0):.1f}%)")
-        print(f"Baixa Intenção: {funnel.get('low_intent')} ({funnel.get('low_intent_rate', 0):.1f}%)")
-        print(f"\n✅ Conversões: {funnel.get('converted')} ({funnel.get('conversion_rate', 0):.1f}%)")
-        print()
+        logger.info(f"Total Leads: {funnel.get('total_leads', 0)}")
+        logger.info(f"Alta Intenção: {funnel.get('high_intent')} ({funnel.get('high_intent_rate', 0):.1f}%)")
+        logger.info(f"Média Intenção: {funnel.get('medium_intent')} ({funnel.get('medium_intent_rate', 0):.1f}%)")
+        logger.info(f"Baixa Intenção: {funnel.get('low_intent')} ({funnel.get('low_intent_rate', 0):.1f}%)")
+        logger.info(f"\n✅ Conversões: {funnel.get('converted')} ({funnel.get('conversion_rate', 0):.1f}%)")
+        logger.info()
         
-        print("─" * 60)
-        print("👥 COMPORTAMENTO DOS CLIENTES")
-        print("─" * 60)
+        logger.info("─" * 60)
+        logger.info("👥 COMPORTAMENTO DOS CLIENTES")
+        logger.info("─" * 60)
         clients = self.analytics.get('client_behavior', {})
-        print(f"Total Clientes: {clients.get('total_clients', 0)}")
-        print(f"Clientes com Tags: {clients.get('tagged_clients', 0)}")
-        print(f"Clientes Recorrentes: {clients.get('returning_clients')} ({clients.get('returning_rate', 0):.1f}%)")
-        print(f"\nTop Tags:")
+        logger.info(f"Total Clientes: {clients.get('total_clients', 0)}")
+        logger.info(f"Clientes com Tags: {clients.get('tagged_clients', 0)}")
+        logger.info(f"Clientes Recorrentes: {clients.get('returning_clients')} ({clients.get('returning_rate', 0):.1f}%)")
+        logger.info(f"\nTop Tags:")
         for tag, count in clients.get('top_tags', []):
-            print(f"  • #{tag}: {count}")
-        print()
+            logger.info(f"  • #{tag}: {count}")
+        logger.info()
         
-        print("─" * 60)
-        print("💬 PADRÕES DE MENSAGENS")
-        print("─" * 60)
+        logger.info("─" * 60)
+        logger.info("💬 PADRÕES DE MENSAGENS")
+        logger.info("─" * 60)
         msgs = self.analytics.get('message_patterns', {})
-        print(f"Total Mensagens: {msgs.get('total_messages', 0)}")
-        print(f"Média/Cliente: {msgs.get('avg_messages_per_client', 0):.1f}")
-        print(f"\nPor Direção:")
+        logger.info(f"Total Mensagens: {msgs.get('total_messages', 0)}")
+        logger.info(f"Média/Cliente: {msgs.get('avg_messages_per_client', 0):.1f}")
+        logger.info(f"\nPor Direção:")
         for direction, count in msgs.get('by_direction', {}).items():
-            print(f"  • {direction}: {count}")
-        print(f"\nPor Horário:")
+            logger.info(f"  • {direction}: {count}")
+        logger.info(f"\nPor Horário:")
         for hour, count in msgs.get('by_hour', {}).items():
-            print(f"  • {hour}h: {count}")
-        print()
+            logger.info(f"  • {hour}h: {count}")
+        logger.info()
         
-        print("─" * 60)
-        print("⚠️  OBJEÇÕES")
-        print("─" * 60)
+        logger.info("─" * 60)
+        logger.info("⚠️  OBJEÇÕES")
+        logger.info("─" * 60)
         obj = self.analytics.get('objections', {})
-        print(f"Total Objeções: {obj.get('total_objections', 0)}")
-        print(f"Taxa: {obj.get('objection_rate', 0):.1f}%")
-        print(f"\nTop Objeções:")
+        logger.info(f"Total Objeções: {obj.get('total_objections', 0)}")
+        logger.info(f"Taxa: {obj.get('objection_rate', 0):.1f}%")
+        logger.info(f"\nTop Objeções:")
         for objection, count in obj.get('top_objections', []):
-            print(f"  • {objection}: {count}")
-        print()
+            logger.info(f"  • {objection}: {count}")
+        logger.info()
         
-        print("─" * 60)
-        print("😊 HUMOR DOS CLIENTES")
-        print("─" * 60)
+        logger.info("─" * 60)
+        logger.info("😊 HUMOR DOS CLIENTES")
+        logger.info("─" * 60)
         mood = self.analytics.get('customer_mood', {})
-        print(f"Urgência Média: {mood.get('avg_urgency', 0):.1f}/5")
-        print(f"\nDistribuição de Humor:")
+        logger.info(f"Urgência Média: {mood.get('avg_urgency', 0):.1f}/5")
+        logger.info(f"\nDistribuição de Humor:")
         for mood_type, count in mood.get('mood_distribution', {}).items():
-            print(f"  • {mood_type}: {count}")
-        print()
+            logger.info(f"  • {mood_type}: {count}")
+        logger.info()
         
-        print("─" * 60)
-        print("💡 INSIGHTS ACIONÁVEIS")
-        print("─" * 60)
+        logger.info("─" * 60)
+        logger.info("💡 INSIGHTS ACIONÁVEIS")
+        logger.info("─" * 60)
         insights = self.analytics.get('insights', [])
         if not insights:
-            print("Nenhum insight crítico no momento.")
+            logger.info("Nenhum insight crítico no momento.")
         else:
             for i, insight in enumerate(insights, 1):
                 icon = "🔴" if insight.get('type') == 'critical' else "🟡"
-                print(f"\n{icon} {i}. {insight.get('title')}")
-                print(f"   {insight.get('description')}")
-                print(f"   💡 {insight.get('recommendation')}")
-        print()
+                logger.info(f"\n{icon} {i}. {insight.get('title')}")
+                logger.info(f"   {insight.get('description')}")
+                logger.info(f"   💡 {insight.get('recommendation')}")
+        logger.info()
         
-        print("╔══════════════════════════════════════════════════════════════╗")
-        print("║  🏆 FIM DO RELATÓRIO                                         ║")
-        print("╚════════════════════════════════════════════════════════════╝")
-        print()
+        logger.info("╔══════════════════════════════════════════════════════════════╗")
+        logger.info("║  🏆 FIM DO RELATÓRIO                                         ║")
+        logger.info("╚════════════════════════════════════════════════════════════╝")
+        logger.info()
 
 
 def main():
@@ -451,8 +451,10 @@ def main():
     if len(sys.argv) > 1:
         try:
             days = int(sys.argv[1])
-        except:
-            pass
+        except ValueError as e:
+            # [DEBT #A9] Manter fallback mas logar erro específico
+            logger.debug(f"Argumento inválido, usando default 30 dias: {e}")
+            days = 30
     
     report = analyst.generate_report(days=days)
     analyst.print_report()
@@ -465,7 +467,7 @@ def main():
         json.dump(report, f, indent=2, ensure_ascii=False)
     
     logger.info(f"💾 Relatório salvo em: {output_path}")
-    print(f"📁 Relatório completo salvo em: {output_path}")
+    logger.info(f"📁 Relatório completo salvo em: {output_path}")
 
 
 if __name__ == "__main__":

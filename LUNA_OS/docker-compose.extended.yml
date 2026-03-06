@@ -1,7 +1,7 @@
 services:
   # ===== NOVA STACK v3.0 =====
 
-  # 1. REDIS (Queue, Cache, Session)
+  # 1. REDIS (Queue, Cache, Session) - DEBT #8
   redis:
     image: redis:7.2-alpine
     container_name: luna-redis
@@ -11,7 +11,12 @@ services:
       - luna-network
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --save 900 1 --save 300 10 --save 60 10000
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # 2. MILVUS (Vector Database)
   milvus:
@@ -26,6 +31,12 @@ services:
       - luna-network
     volumes:
       - milvus_data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # 3. JAEGER (Distributed Tracing)
   jaeger:
@@ -40,6 +51,12 @@ services:
       - luna-network
     environment:
       COLLECTOR_ZIPKIN_HOST_PORT: ":9411"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:16686"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # 4. POSTGRESQL (Database)
   postgres:
@@ -55,6 +72,11 @@ services:
       - luna-network
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-luna_user} -d luna"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # 5. WINDMILL (Workflow Automation)
   windmill:
@@ -72,6 +94,12 @@ services:
       - luna-network
     volumes:
       - windmill_data:/root/.windmill
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # 6. PROMETHEUS (Metrics)
   prometheus:
@@ -86,6 +114,11 @@ services:
       - luna-network
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # 7. GRAFANA (Visualization)
   grafana:
@@ -102,6 +135,12 @@ services:
       - luna-network
     volumes:
       - grafana_data:/var/lib/grafana
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # 8. PGADMIN (Database Management)
   pgadmin:
@@ -116,6 +155,12 @@ services:
       - luna-network
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/misc/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 networks:
   luna-network:

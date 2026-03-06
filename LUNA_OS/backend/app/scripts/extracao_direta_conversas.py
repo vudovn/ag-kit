@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from datetime import datetime, timezone
 from collections import defaultdict
+from loguru import logger
 
 # Config
 SUPABASE_URL = "https://sktrmwogifeuzrcnpvsw.supabase.co"
@@ -25,7 +26,7 @@ if env_file.exists():
                 if key == 'SUPABASE_KEY':
                     SUPABASE_KEY = value
 
-print(f"✅ SUPABASE_KEY loaded ({len(SUPABASE_KEY)} chars)")
+logger.info(f"✅ SUPABASE_KEY loaded ({len(SUPABASE_KEY)} chars)")
 
 headers = {
     "apikey": SUPABASE_KEY,
@@ -35,15 +36,15 @@ headers = {
 output_dir = Path("/Users/franciscotaveira.ads/LUNA OS/logs/extractions")
 output_dir.mkdir(parents=True, exist_ok=True)
 
-print()
-print("╔════════════════════════════════════════════════════╗")
-print("║  📥 EXTRAÇÃO DIRETA DE CONVERSAS                  ║")
-print("╚════════════════════════════════════════════════════╝")
-print()
+logger.info()
+logger.info("╔════════════════════════════════════════════════════╗")
+logger.info("║  📥 EXTRAÇÃO DIRETA DE CONVERSAS                  ║")
+logger.info("╚════════════════════════════════════════════════════╝")
+logger.info()
 
 # Extract messages (filter out groups)
-print("📥 Extracting messages from Supabase (excluding groups)...")
-print("─" * 50)
+logger.info("📥 Extracting messages from Supabase (excluding groups)...")
+logger.info("─" * 50)
 
 all_messages = []
 offset = 0  # Start from beginning
@@ -66,24 +67,24 @@ for batch_num in range(max_batches):
 
             if response.status_code in [502, 503, 504]:
                 if attempt < max_retries - 1:
-                    print(f"   ⚠️  Batch {batch_num + 1}: Status {response.status_code} - Retrying in {retry_delay}s...")
+                    logger.info(f"   ⚠️  Batch {batch_num + 1}: Status {response.status_code} - Retrying in {retry_delay}s...")
                     time.sleep(retry_delay)
                     retry_delay *= 2  # Exponential backoff
                     continue
                 else:
-                    print(f"   ❌ Batch {batch_num + 1}: Status {response.status_code} after {max_retries} retries")
+                    logger.info(f"   ❌ Batch {batch_num + 1}: Status {response.status_code} after {max_retries} retries")
                     break
             else:
                 break
 
         if response.status_code != 200:
-            print(f"   ❌ Batch {batch_num + 1}: Status {response.status_code}")
+            logger.info(f"   ❌ Batch {batch_num + 1}: Status {response.status_code}")
             break
 
         messages = response.json()
 
         if not messages:
-            print(f"   ✅ Batch {batch_num + 1}: No more data")
+            logger.info(f"   ✅ Batch {batch_num + 1}: No more data")
             break
 
         all_messages.extend(messages)
@@ -92,24 +93,24 @@ for batch_num in range(max_batches):
         elapsed = time.time() - start_time
         rows_per_sec = len(all_messages) / elapsed if elapsed > 0 else 0
 
-        print(f"   ✅ Batch {batch_num + 1}: {len(messages):,} rows (total: {len(all_messages):,}) - {rows_per_sec:.1f} rows/sec")
+        logger.info(f"   ✅ Batch {batch_num + 1}: {len(messages):,} rows (total: {len(all_messages):,}) - {rows_per_sec:.1f} rows/sec")
 
         # Rate limiting (reduced for faster extraction)
         time.sleep(0.2)
 
     except Exception as e:
-        print(f"   ❌ Batch {batch_num + 1}: Error - {e}")
+        logger.info(f"   ❌ Batch {batch_num + 1}: Error - {e}")
         break
 
 elapsed = time.time() - start_time
 
-print()
-print(f"✅ Extraction completed: {len(all_messages):,} messages in {elapsed:.1f}s")
-print()
+logger.info()
+logger.info(f"✅ Extraction completed: {len(all_messages):,} messages in {elapsed:.1f}s")
+logger.info()
 
 # Group by phone
-print("📊 Grouping by phone...")
-print("─" * 50)
+logger.info("📊 Grouping by phone...")
+logger.info("─" * 50)
 
 conversations = defaultdict(list)
 
@@ -124,12 +125,12 @@ for phone in conversations:
         key=lambda x: x.get("message_timestamp", "")
     )
 
-print(f"✅ {len(conversations):,} conversations grouped")
-print()
+logger.info(f"✅ {len(conversations):,} conversations grouped")
+logger.info()
 
 # Calculate stats
-print("📊 Calculating statistics...")
-print("─" * 50)
+logger.info("📊 Calculating statistics...")
+logger.info("─" * 50)
 
 conversation_stats = []
 
@@ -146,7 +147,9 @@ for phone, msgs in conversations.items():
             dt1 = datetime.fromisoformat(t1.replace("Z", "+00:00"))
             dt2 = datetime.fromisoformat(t2.replace("Z", "+00:00"))
             duration_minutes = (dt2 - dt1).total_seconds() / 60
-        except:
+        except Exception as e:
+            # [DEBT #A9] Manter fallback mas logar erro específico
+            logger.debug(f"Erro ao calcular duração: {e}")
             duration_minutes = 0
     else:
         duration_minutes = 0
@@ -179,17 +182,17 @@ stats = {
     "conversations_with_100_plus": sum(1 for c in conversation_stats if c["total_messages"] >= 100)
 }
 
-print(f"📊 STATISTICS:")
-print(f"   • Total Conversations: {stats['total_conversations']:,}")
-print(f"   • Total Messages: {stats['total_messages']:,}")
-print(f"   • 10+ messages: {stats['conversations_with_10_plus']:,}")
-print(f"   • 50+ messages: {stats['conversations_with_50_plus']:,}")
-print(f"   • 100+ messages: {stats['conversations_with_100_plus']:,}")
-print()
+logger.info(f"📊 STATISTICS:")
+logger.info(f"   • Total Conversations: {stats['total_conversations']:,}")
+logger.info(f"   • Total Messages: {stats['total_messages']:,}")
+logger.info(f"   • 10+ messages: {stats['conversations_with_10_plus']:,}")
+logger.info(f"   • 50+ messages: {stats['conversations_with_50_plus']:,}")
+logger.info(f"   • 100+ messages: {stats['conversations_with_100_plus']:,}")
+logger.info()
 
 # Save
-print("💾 Saving conversations...")
-print("─" * 50)
+logger.info("💾 Saving conversations...")
+logger.info("─" * 50)
 
 timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 output_file = output_dir / f"whatsapp_conversations_{timestamp}.json"
@@ -205,8 +208,8 @@ with open(output_file, 'w', encoding='utf-8') as f:
         "conversations": conversation_stats
     }, f, indent=2, ensure_ascii=False)
 
-print(f"✅ Saved to: {output_file}")
-print()
+logger.info(f"✅ Saved to: {output_file}")
+logger.info()
 
 # Save top 10 conversations as TXT
 txt_file = output_dir / f"top_conversations_{timestamp}.txt"
@@ -237,14 +240,14 @@ with open(txt_file, 'w', encoding='utf-8') as f:
         f.write(f"\nÚLTIMA MENSAGEM:\n{conv['last_content']}\n")
         f.write(f"{'-'*80}\n")
 
-print(f"✅ Saved TXT to: {txt_file}")
-print()
+logger.info(f"✅ Saved TXT to: {txt_file}")
+logger.info()
 
-print("╔════════════════════════════════════════════════════╗")
-print("║  ✅ EXTRAÇÃO COMPLETA CONCLUÍDA                   ║")
-print("╚════════════════════════════════════════════════════╝")
-print()
-print(f"📁 Arquivos:")
-print(f"   • JSON: {output_file}")
-print(f"   • TXT: {txt_file}")
-print()
+logger.info("╔════════════════════════════════════════════════════╗")
+logger.info("║  ✅ EXTRAÇÃO COMPLETA CONCLUÍDA                   ║")
+logger.info("╚════════════════════════════════════════════════════╝")
+logger.info()
+logger.info(f"📁 Arquivos:")
+logger.info(f"   • JSON: {output_file}")
+logger.info(f"   • TXT: {txt_file}")
+logger.info()

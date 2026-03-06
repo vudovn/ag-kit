@@ -6,14 +6,15 @@ Status: 🟢 PRONTO PARA PRODUÇÃO
 Risco: MÉDIO (rollback 60s, afeta preços)
 """
 
+import os
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 from loguru import logger
 import json
 from pathlib import Path
 
-# Caminho para dados reais
-LOGS_DIR = Path("/Users/franciscotaveira.ads/LUNA OS/logs")
+# [DEBT #C1] Caminho configurável via ENV (não hardcoded)
+LOGS_DIR = Path(os.getenv("LOGS_DIR", "logs"))
 
 
 class RevenueOptimizer:

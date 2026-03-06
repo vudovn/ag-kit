@@ -1,9 +1,10 @@
 """
-Vector Database Manager - Milvus
+Vector Database Manager - Milvus (Thread-Safe)
 Para: Busca semântica de clientes similares, comportamento, churn
 """
-
+import asyncio
 import logging
+import threading
 from typing import List, Dict, Optional
 from datetime import datetime
 from pymilvus import Collection, connections, FieldSchema, CollectionSchema, DataType
@@ -21,38 +22,50 @@ class VectorDBManager:
         self.host = host
         self.port = port
         self.is_connected = False
+        self._lock = asyncio.Lock()
+        self._initialized = False
 
-    def connect(self, host: Optional[str] = None, port: Optional[int] = None):
-        """Conectar ao Milvus (Manual ou via Startup)"""
-        if host:
-            self.host = host
-        if port:
-            self.port = port
+    async def connect(self, host: Optional[str] = None, port: Optional[int] = None) -> bool:
+        """Conectar ao Milvus com thread-safety e timeout"""
+        async with self._lock:
+            if self._initialized:
+                return self.is_connected
 
-        if not self.host:
-            from app.config import settings
+            if host:
+                self.host = host
+            if port:
+                self.port = port
 
-            self.host = settings.milvus_host
-            self.port = settings.milvus_port
+            if not self.host:
+                from app.config import settings
+                self.host = settings.milvus_host
+                self.port = settings.milvus_port
 
-        try:
-            connections.connect(alias="default", host=self.host, port=self.port)
-            self.is_connected = True
-            logger.info(f"✅ Conectado ao Milvus em {self.host}:{self.port}")
-            self._init_collections()
-        except Exception as e:
-            logger.error(f"❌ Erro ao conectar ao Milvus: {e}")
-            # Não trava a startup, mas loga o erro
+            try:
+                # [DEBT #16] Timeout na conexão (30s default)
+                import socket
+                socket.setdefaulttimeout(30)
 
-    def _init_collections(self):
+                connections.connect(alias="default", host=self.host, port=self.port)
+                self.is_connected = True
+                logger.info(f"✅ Conectado ao Milvus em {self.host}:{self.port}")
+                await self._init_collections()
+                self._initialized = True
+                return True
+            except Exception as e:
+                logger.error(f"❌ Erro ao conectar ao Milvus: {e}")
+                self._initialized = True
+                return False
+
+    async def _init_collections(self):
         """Inicializar coleções"""
         try:
-            self._create_customer_collection()
-            self._create_behavior_collection()
+            await self._create_customer_collection()
+            await self._create_behavior_collection()
         except Exception as e:
             logger.warning(f"⚠️ Erro ao inicializar coleções: {e}")
 
-    def _create_customer_collection(self):
+    async def _create_customer_collection(self):
         """Criar coleção de embeddings de clientes"""
         fields = [
             FieldSchema(
@@ -73,12 +86,11 @@ class VectorDBManager:
                 return
 
             collection = Collection(name=self.COLLECTION_NAME, schema=schema)
-            # Index...
             logger.info(f"Coleção {self.COLLECTION_NAME} verificada")
         except Exception as e:
             logger.debug(f"Coleção {self.COLLECTION_NAME} já existe ou erro: {e}")
 
-    def _create_behavior_collection(self):
+    async def _create_behavior_collection(self):
         """Criar coleção de padrões de comportamento"""
         fields = [
             FieldSchema(
@@ -101,6 +113,29 @@ class VectorDBManager:
         except Exception as e:
             logger.debug(f"Coleção {self.COLLECTION_NAME_BEHAVIOR} já existe: {e}")
 
+    def ensure_connected(self) -> bool:
+        """
+        Synchronous helper to check connection status.
+        Returns True if already connected, False otherwise.
+        """
+        return self.is_connected
 
-# Instância global (Lazy)
-vector_db_manager = VectorDBManager()
+
+# Thread-safe singleton instance
+_vector_db_lock = threading.Lock()
+_vector_db_manager: Optional[VectorDBManager] = None
+
+
+def get_vector_db_manager() -> VectorDBManager:
+    """Get singleton instance (thread-safe)"""
+    global _vector_db_manager
+    
+    with _vector_db_lock:
+        if _vector_db_manager is None:
+            _vector_db_manager = VectorDBManager()
+        
+        return _vector_db_manager
+
+
+# Backward compatibility alias
+vector_db_manager = get_vector_db_manager()

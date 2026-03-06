@@ -1,10 +1,11 @@
 import os
 import re
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional
 from app.config import settings, refresh_dynamic_settings
 from app.integrations.supabase_client import get_supabase
+from app.core.rate_limit import limiter
 from loguru import logger
 
 router = APIRouter(prefix="/api/settings", tags=["Settings"])
@@ -54,7 +55,8 @@ async def get_sovereign_state():
 
 
 @router.post("/sovereign", response_model=SovereignSwitchState)
-async def update_sovereign_state(update: SovereignSwitchUpdate):
+@limiter.limit("10/minute")  # [DEBT #A6] Rate limiting restritivo para config crítica
+async def update_sovereign_state(request: Request, update: SovereignSwitchUpdate):
     """
     Atualiza estado dos switches soberanos com persistência no .env e Supabase.
     """

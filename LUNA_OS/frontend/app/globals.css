@@ -82,7 +82,7 @@ h1, h2, h3, h4, h5, h6 {
            shadow-sm hover:shadow-card active:scale-[.98];
   }
   .btn-cta {
-    @apply bg-cta-DEFAULT hover:bg-cta-hover text-white font-semibold
+    @apply bg-luna_pink-500 hover:bg-luna_pink-600 text-white font-semibold
            px-4 py-2 rounded-xl transition-all duration-300
            shadow-sm hover:shadow-card active:scale-[.98];
   }

@@ -1,6 +1,9 @@
 """
 LUNA Scheduler - Orquestrador de Agendamentos (Belasis ERP)
 Responsável por validar dados extraídos e gerenciar disponibilidade.
+
+DEBT #M3: Type hints e docstrings completas
+DEBT #M4: Docstrings em todas as funções públicas
 """
 
 from typing import Dict, Any, Optional, Tuple, List
@@ -12,21 +15,38 @@ from app.integrations.belasis import belasis
 class Scheduler:
     """
     Orquestra a lógica de agendamento entre o Brain e o ERP Belasis.
+
+    Attributes:
+        _services_cache: Cache de serviços do Belasis
+        _professionals_cache: Cache de profissionais do Belasis
     """
 
-    def __init__(self):
-        self._services_cache = None
-        self._professionals_cache = None
+    def __init__(self) -> None:
+        """Inicializa Scheduler com caches vazios."""
+        self._services_cache: Optional[List[Dict[str, Any]]] = None
+        self._professionals_cache: Optional[List[Dict[str, Any]]] = None
 
-    async def _ensure_cache(self):
-        """Garante que temos serviços e profissionais em cache (memória)"""
+    async def _ensure_cache(self) -> None:
+        """
+        Garante que temos serviços e profissionais em cache (memória).
+
+        Faz fetch dos dados do Belasis apenas se cache estiver vazio.
+        """
         if not self._services_cache:
             self._services_cache = await belasis.get_services()
         if not self._professionals_cache:
             self._professionals_cache = await belasis.get_professionals()
 
     def _find_service_id(self, service_name: str) -> Optional[str]:
-        """Tenta encontrar o ID do serviço pelo nome/alias"""
+        """
+        Tenta encontrar o ID do serviço pelo nome/alias.
+
+        Args:
+            service_name: Nome ou apelido do serviço
+
+        Returns:
+            ID do serviço se encontrado, None caso contrário
+        """
         if not service_name or not self._services_cache:
             return None
 
@@ -38,7 +58,15 @@ class Scheduler:
         return None
 
     def _find_professional_id(self, professional_name: str) -> Optional[str]:
-        """Tenta encontrar o ID do profissional pelo nome/apelido"""
+        """
+        Tenta encontrar o ID do profissional pelo nome/apelido.
+
+        Args:
+            professional_name: Nome ou apelido do profissional
+
+        Returns:
+            ID do profissional se encontrado, None caso contrário
+        """
         if not professional_name or not self._professionals_cache:
             return None
 
@@ -53,7 +81,12 @@ class Scheduler:
     ) -> Tuple[bool, str, Dict[str, Any]]:
         """
         Processa uma tentativa de agendamento.
-        Retorna: (sucesso_parcial, mensagem_feedback, dados_ajustados)
+
+        Args:
+            extracted_data: Dados extraídos da conversa (service, professional, date, time)
+
+        Returns:
+            Tuple de (sucesso_parcial, mensagem_feedback, dados_ajustados)
         """
         await self._ensure_cache()
 

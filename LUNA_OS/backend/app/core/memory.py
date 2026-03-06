@@ -6,11 +6,14 @@ Arquitetura:
 - Memory: Camada de acesso ao banco (Supabase)
 - MemoryManager: Orquestração de operações complexas
 - Modelos de dados tipados para cada entidade
+
+DEBT #M3: Type hints completos
+DEBT #M4: Docstrings em todas funções públicas
 """
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any, Literal
+from typing import Optional, List, Dict, Any, Literal, Tuple
 from loguru import logger
 
 from app.integrations.supabase_client import get_supabase
@@ -24,7 +27,23 @@ from supabase import Client
 
 @dataclass
 class ClientProfile:
-    """Perfil de cliente (Longo Prazo)"""
+    """
+    Perfil de cliente (Longo Prazo).
+
+    Armazena informações persistentes do cliente como nome, histórico,
+    preferências e métricas de valor (visitas, gasto total, LTV).
+
+    Attributes:
+        id: Identificador único do cliente
+        phone: Telefone do cliente (chave única)
+        name: Nome do cliente
+        first_contact: Data do primeiro contato
+        last_contact: Data do último contato
+        tags: Tags categorizadas do cliente
+        preferences: Preferências do cliente (profissional, horário, etc.)
+        total_visits: Total de visitas
+        total_spent: Total gasto em reais
+    """
 
     id: str
     phone: str
@@ -36,7 +55,13 @@ class ClientProfile:
     total_visits: int = 0
     total_spent: float = 0.0
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Converte perfil para dicionário.
+
+        Returns:
+            Dicionário com todos os campos do perfil
+        """
         return {
             "id": self.id,
             "phone": self.phone,
@@ -52,7 +77,25 @@ class ClientProfile:
 
 @dataclass
 class Conversation:
-    """Conversação (Curto Prazo)"""
+    """
+    Conversação (Curto Prazo).
+
+    Representa uma sessão de conversa com um cliente, incluindo
+    status, intenção detectada, sentimento e dados extraídos.
+
+    Attributes:
+        id: Identificador único da conversa
+        phone: Telefone do cliente
+        client_id: ID do cliente associado
+        status: Status da conversa (active, ended, handed_off)
+        started_at: Data de início
+        ended_at: Data de término
+        messages_count: Número de mensagens
+        intent: Intenção detectada
+        sentiment: Sentimento predominante
+        conversion_result: Resultado da conversão
+        extracted_data: Dados extraídos da conversa
+    """
 
     id: str
     phone: str
@@ -66,7 +109,13 @@ class Conversation:
     conversion_result: Optional[str] = None
     extracted_data: Dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Converte conversa para dicionário.
+
+        Returns:
+            Dicionário com todos os campos da conversa
+        """
         return {
             "id": self.id,
             "phone": self.phone,
@@ -84,7 +133,20 @@ class Conversation:
 
 @dataclass
 class MessageRecord:
-    """Mensagem individual"""
+    """
+    Mensagem individual.
+
+    Representa uma única mensagem (inbound ou outbound) em uma conversa.
+
+    Attributes:
+        conversation_id: ID da conversa associada
+        direction: Direção (inbound ou outbound)
+        content: Conteúdo da mensagem
+        intent_detected: Intenção detectada na mensagem
+        sentiment: Sentimento da mensagem
+        model_used: Modelo de IA utilizado
+        created_at: Data de criação
+    """
 
     conversation_id: str
     direction: Literal["inbound", "outbound"]
@@ -94,7 +156,13 @@ class MessageRecord:
     model_used: Optional[str] = None
     created_at: Optional[str] = None
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Converte mensagem para dicionário.
+
+        Returns:
+            Dicionário com todos os campos da mensagem
+        """
         return {
             "conversation_id": self.conversation_id,
             "direction": self.direction,
@@ -104,6 +172,11 @@ class MessageRecord:
             "model_used": self.model_used,
             "created_at": self.created_at,
         }
+
+
+@dataclass
+class ExtractedData:
+    """Dados extraídos de uma conversa."""
 
 
 @dataclass
@@ -584,7 +657,9 @@ class MemoryManager(Memory):
                     score += 20
                 elif days_since < 30:
                     score += 10
-            except:
+            except Exception as e:
+                # [DEBT #A1] Manter fallback mas logar erro específico
+                logger.debug(f"Memory: erro ao calcular dias desde última visita: {e}")
                 pass
 
         return min(100, score)

@@ -150,7 +150,9 @@ def extract_fields(message: str, response: str) -> Dict[str, Any]:
             day, month = date_match.group(1).split("/")
             year = datetime.now().year
             extracted["date"] = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
-        except:
+        except Exception as e:
+            # [DEBT #A1] Manter fallback mas logar erro específico
+            logger.debug(f"Intelligence: erro ao parsear data {date_match.group(1)}: {e}")
             extracted["date"] = date_match.group(1)
     elif "amanhã" in msg:
         extracted["date"] = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")

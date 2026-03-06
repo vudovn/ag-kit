@@ -78,7 +78,9 @@ class AnaliseThreadsProfunda:
                     t1 = datetime.fromisoformat(primeira_msg.replace("Z", "+00:00"))
                     t2 = datetime.fromisoformat(ultima_msg.replace("Z", "+00:00"))
                     duracao_minutos = (t2 - t1).total_seconds() / 60
-                except:
+                except Exception as e:
+                    # [DEBT #A9] Manter fallback mas logar erro específico
+                    logger.debug(f"Erro ao calcular duração da thread: {e}")
                     duracao_minutos = 0
             else:
                 duracao_minutos = 0
@@ -336,68 +338,68 @@ class AnaliseThreadsProfunda:
     
     def imprimir_relatorio(self):
         """Imprime relatório formatado"""
-        print("\n")
-        print("╔══════════════════════════════════════════════════════════════╗")
-        print("║  🔍 ANÁLISE PROFUNDA DE THREADS DE CONVERSAÇÃO              ║")
-        print("╚════════════════════════════════════════════════════════════╝")
-        print()
+        logger.info("\n")
+        logger.info("╔══════════════════════════════════════════════════════════════╗")
+        logger.info("║  🔍 ANÁLISE PROFUNDA DE THREADS DE CONVERSAÇÃO              ║")
+        logger.info("╚════════════════════════════════════════════════════════════╝")
+        logger.info()
         
         # Resumo
-        print(f"📊 THREADS ANALISADOS: {len(self.threads)}")
-        print()
+        logger.info(f"📊 THREADS ANALISADOS: {len(self.threads)}")
+        logger.info()
         
         # Padrões de conversão
-        print("📈 PADRÕES DE CONVERSÃO:")
-        print("─" * 70)
+        logger.info("📈 PADRÕES DE CONVERSÃO:")
+        logger.info("─" * 70)
         
         if "conversao" in self.padroes:
             conv = self.padroes["conversao"]
             
-            print(f"   ✅ CONVERTIDOS: {conv['convertidos']['count']}")
-            print(f"      • Média mensagens: {conv['convertidos']['media_mensagens']:.1f}")
-            print(f"      • Duração média: {conv['convertidos']['media_duracao']:.0f} min")
-            print(f"      • Ratio In/Out: {conv['convertidos']['ratio_inbound_outbound']:.2f}")
-            print()
-            print(f"   ❌ NÃO CONVERTIDOS: {conv['nao_convertidos']['count']}")
-            print(f"      • Média mensagens: {conv['nao_convertidos']['media_mensagens']:.1f}")
-            print(f"      • Duração média: {conv['nao_convertidos']['media_duracao']:.0f} min")
-            print(f"      • Ratio In/Out: {conv['nao_convertidos']['ratio_inbound_outbound']:.2f}")
+            logger.info(f"   ✅ CONVERTIDOS: {conv['convertidos']['count']}")
+            logger.info(f"      • Média mensagens: {conv['convertidos']['media_mensagens']:.1f}")
+            logger.info(f"      • Duração média: {conv['convertidos']['media_duracao']:.0f} min")
+            logger.info(f"      • Ratio In/Out: {conv['convertidos']['ratio_inbound_outbound']:.2f}")
+            logger.info()
+            logger.info(f"   ❌ NÃO CONVERTIDOS: {conv['nao_convertidos']['count']}")
+            logger.info(f"      • Média mensagens: {conv['nao_convertidos']['media_mensagens']:.1f}")
+            logger.info(f"      • Duração média: {conv['nao_convertidos']['media_duracao']:.0f} min")
+            logger.info(f"      • Ratio In/Out: {conv['nao_convertidos']['ratio_inbound_outbound']:.2f}")
         
-        print()
+        logger.info()
         
         # Gatilhos
-        print("🎯 GATILHOS DE SUCESSO:")
-        print("─" * 70)
+        logger.info("🎯 GATILHOS DE SUCESSO:")
+        logger.info("─" * 70)
         
         if "gatilhos" in self.padroes:
             gatilhos = self.padroes["gatilhos"]
             
-            print(f"   ✅ Top Palavras (Sucesso):")
+            logger.info(f"   ✅ Top Palavras (Sucesso):")
             for palavra, count in list(gatilhos.get("top_palavras_sucesso", {}).items())[:10]:
-                print(f"      • {palavra}: {count}")
+                logger.info(f"      • {palavra}: {count}")
             
-            print()
-            print(f"   ❌ Top Palavras (Fracasso):")
+            logger.info()
+            logger.info(f"   ❌ Top Palavras (Fracasso):")
             for palavra, count in list(gatilhos.get("top_palavras_fracasso", {}).items())[:10]:
-                print(f"      • {palavra}: {count}")
+                logger.info(f"      • {palavra}: {count}")
         
-        print()
+        logger.info()
         
         # Recomendações
-        print("💡 RECOMENDAÇÕES:")
-        print("─" * 70)
+        logger.info("💡 RECOMENDAÇÕES:")
+        logger.info("─" * 70)
         
         recomendacoes = self._gerar_recomendacoes()
         
         for i, rec in enumerate(recomendacoes, 1):
-            print(f"   {i}. [{rec['prioridade'].upper()}] {rec['mensagem']}")
-            print(f"      → {rec['acao']}")
+            logger.info(f"   {i}. [{rec['prioridade'].upper()}] {rec['mensagem']}")
+            logger.info(f"      → {rec['acao']}")
         
-        print()
-        print("╔══════════════════════════════════════════════════════════════╗")
-        print("║  🔍 ANÁLISE DE THREADS — CONCLUÍDA                          ║")
-        print("╚════════════════════════════════════════════════════════════╝")
-        print()
+        logger.info()
+        logger.info("╔══════════════════════════════════════════════════════════════╗")
+        logger.info("║  🔍 ANÁLISE DE THREADS — CONCLUÍDA                          ║")
+        logger.info("╚════════════════════════════════════════════════════════════╝")
+        logger.info()
     
     def salvar_relatorio(self, arquivo_path: str):
         """Salva relatório em JSON"""
@@ -417,45 +419,45 @@ class AnaliseThreadsProfunda:
 
 async def main():
     """Main function"""
-    print("\n")
-    print("╔════════════════════════════════════════════════════╗")
-    print("║  🔍 ANÁLISE PROFUNDA DE THREADS                   ║")
-    print("║     Padrões REAIS de conversação                  ║")
-    print("╚════════════════════════════════════════════════════╝")
-    print()
+    logger.info("\n")
+    logger.info("╔════════════════════════════════════════════════════╗")
+    logger.info("║  🔍 ANÁLISE PROFUNDA DE THREADS                   ║")
+    logger.info("║     Padrões REAIS de conversação                  ║")
+    logger.info("╚════════════════════════════════════════════════════╝")
+    logger.info()
     
     analise = AnaliseThreadsProfunda()
     
     # 1. Extrair threads completos
-    print("📥 Passo 1: Extrair Threads Completos")
-    print("─" * 50)
+    logger.info("📥 Passo 1: Extrair Threads Completos")
+    logger.info("─" * 50)
     
     threads = await analise.extrair_threads_completos(limit=5000)
     
-    print(f"✅ {len(threads)} threads extraídos")
-    print()
+    logger.info(f"✅ {len(threads)} threads extraídos")
+    logger.info()
     
     # 2. Analisar padrões de conversão
-    print("📊 Passo 2: Analisar Padrões de Conversão")
-    print("─" * 50)
+    logger.info("📊 Passo 2: Analisar Padrões de Conversão")
+    logger.info("─" * 50)
     
     padroes_conv = analise.analisar_padroes_conversao()
     
-    print(f"✅ Padrões analisados")
-    print()
+    logger.info(f"✅ Padrões analisados")
+    logger.info()
     
     # 3. Identificar gatilhos
-    print("🎯 Passo 3: Identificar Gatilhos de Sucesso")
-    print("─" * 50)
+    logger.info("🎯 Passo 3: Identificar Gatilhos de Sucesso")
+    logger.info("─" * 50)
     
     gatilhos = analise.identificar_gatilhos_sucesso()
     
-    print(f"✅ Gatilhos identificados")
-    print()
+    logger.info(f"✅ Gatilhos identificados")
+    logger.info()
     
     # 4. Imprimir relatório
-    print("📊 Passo 4: Gerar Relatório")
-    print("─" * 50)
+    logger.info("📊 Passo 4: Gerar Relatório")
+    logger.info("─" * 50)
     
     analise.imprimir_relatorio()
     
@@ -463,10 +465,10 @@ async def main():
     arquivo_saida = Path("/Users/franciscotaveira.ads/LUNA OS/logs/analise_threads_profunda.json")
     analise.salvar_relatorio(str(arquivo_saida))
     
-    print("✅ Análise Profunda CONCLUÍDA!")
-    print()
-    print(f"📁 Relatório completo: {arquivo_saida}")
-    print()
+    logger.info("✅ Análise Profunda CONCLUÍDA!")
+    logger.info()
+    logger.info(f"📁 Relatório completo: {arquivo_saida}")
+    logger.info()
 
 
 if __name__ == "__main__":

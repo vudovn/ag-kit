@@ -1,9 +1,10 @@
 """
-Queue Manager - Gerencia filas de processamento
+Queue Manager - Gerencia filas de processamento (Thread-Safe)
 Suporta: Jobs, Agendamentos, Processamento em Background
 """
-
+import asyncio
 import logging
+import threading
 from typing import Any, Callable, Dict, Optional
 from datetime import datetime, timedelta
 from functools import wraps
@@ -19,9 +20,42 @@ class QueueManager:
     """Gerenciador centralizado de filas"""
 
     def __init__(self, redis_url: str = "redis://localhost:6379/0"):
-        self.redis_conn = redis.from_url(redis_url)
+        self.redis_url = redis_url
+        self._redis_conn: Optional[redis.Redis] = None
+        self._lock = asyncio.Lock()
         self.queues: Dict[str, Queue] = {}
-        self.scheduler = Scheduler(connection=self.redis_conn)
+        self._scheduler: Optional[Scheduler] = None
+        self._initialized = False
+
+    @property
+    def redis_conn(self) -> redis.Redis:
+        """Lazy connection to Redis"""
+        if self._redis_conn is None:
+            self._redis_conn = redis.from_url(self.redis_url)
+        return self._redis_conn
+
+    @property
+    def scheduler(self) -> Scheduler:
+        """Lazy scheduler initialization"""
+        if self._scheduler is None:
+            self._scheduler = Scheduler(connection=self.redis_conn)
+        return self._scheduler
+
+    async def initialize(self) -> bool:
+        """Initialize QueueManager with thread-safety"""
+        async with self._lock:
+            if self._initialized:
+                return True
+            
+            try:
+                # Test connection
+                self.redis_conn.ping()
+                self._initialized = True
+                logger.info("✅ QueueManager initialized")
+                return True
+            except Exception as e:
+                logger.error(f"❌ QueueManager initialization failed: {e}")
+                return False
 
     def get_queue(self, name: str = "default", is_async: bool = True) -> Queue:
         """Obter ou criar fila"""
@@ -94,8 +128,25 @@ class QueueManager:
         }
 
 
-# Instância global
-queue_manager = QueueManager()
+# Thread-safe singleton instance
+_queue_manager_lock = threading.Lock()
+_queue_manager: Optional[QueueManager] = None
+
+
+def get_queue_manager(redis_url: Optional[str] = None) -> QueueManager:
+    """Get singleton instance (thread-safe)"""
+    global _queue_manager
+    
+    with _queue_manager_lock:
+        if _queue_manager is None:
+            url = redis_url or "redis://luna-redis:6379/0"
+            _queue_manager = QueueManager(redis_url=url)
+        
+        return _queue_manager
+
+
+# Backward compatibility alias
+queue_manager = get_queue_manager()
 
 
 # Decorators para uso fácil
@@ -134,7 +185,6 @@ def scheduled_job(queue_name: str = "default"):
 def process_whatsapp_message(phone: str, message: str, conversation_id: str):
     """Processar mensagem WhatsApp"""
     logger.info(f"Processando mensagem de {phone}: {message}")
-    # Lógica de processamento
     return {"status": "processed", "conversation_id": conversation_id}
 
 
@@ -142,7 +192,6 @@ def process_whatsapp_message(phone: str, message: str, conversation_id: str):
 def update_customer_analytics(customer_id: str):
     """Atualizar analytics do cliente"""
     logger.info(f"Atualizando analytics para {customer_id}")
-    # Lógica de analytics
     return {"status": "updated", "customer_id": customer_id}
 
 
@@ -150,7 +199,6 @@ def update_customer_analytics(customer_id: str):
 def predict_churn_risk(customer_id: str):
     """Prever risco de churn"""
     logger.info(f"Prevendo churn para {customer_id}")
-    # Lógica de ML
     return {"customer_id": customer_id, "risk_score": 0.75}
 
 

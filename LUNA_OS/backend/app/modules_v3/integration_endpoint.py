@@ -119,7 +119,9 @@ async def scheduling_otimizado(request: SchedulingRequest):
                         horario_base = datetime.fromisoformat(
                             request.horario_solicitado.replace('Z', '+00:00')
                         )
-                    except:
+                    except Exception as e:
+                        # [DEBT #A1] Log erro específico ao invés de except genérico
+                        logger.debug(f"Simulador: erro ao parsear horário: {e}")
                         pass
                 
                 resultado_simulador = await simulador_simulate(
@@ -151,8 +153,18 @@ async def scheduling_otimizado(request: SchedulingRequest):
         
         logger.info(f"✅ Scheduling v3: {response.mensagem}")
         return response
-        
+
     except Exception as e:
+        # [DEBT #A1] Log erro específico
+        logger.error(f"❌ Scheduling v3 falhou: {e}", exc_info=True)
+        return SchedulingResponse(
+            status="erro",
+            agendamento=None,
+            otimizacao_aplicada=False,
+            modulos_usados=[],
+            alternativas=None,
+            mensagem="Erro ao processar agendamento. Tente novamente."
+        )
         logger.error(f"❌ Scheduling v3 falhou: {e}")
         
         # FALLBACK: Luna OS v2.2 SEMPRE funciona
@@ -185,13 +197,17 @@ async def modules_v3_status():
     if is_module_enabled('agenda_viva'):
         try:
             status['modules']['agenda_viva'] = await get_agenda_viva_status()
-        except:
+        except Exception as e:
+            # [DEBT #A1] Log erro específico
+            logger.debug(f"Status Agenda Viva indisponível: {e}")
             status['modules']['agenda_viva'] = {"status": "unreachable"}
     
     if is_module_enabled('simulador'):
         try:
             status['modules']['simulador'] = await get_simulador_status()
-        except:
+        except Exception as e:
+            # [DEBT #A1] Log erro específico
+            logger.debug(f"Status Simulador indisponível: {e}")
             status['modules']['simulador'] = {"status": "unreachable"}
     
     # Feature flags status

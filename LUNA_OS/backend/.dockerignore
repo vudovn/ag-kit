@@ -1,46 +1,33 @@
-# Variáveis de ambiente — nunca no container
-.env
-.env.*
-!.env.example
-
-# Ambientes Python
-venv/
-env/
-__pycache__/
+.git
+.gitignore
+*.md
+.env*
+__pycache__
 *.pyc
 *.pyo
 *.pyd
 .Python
-
-# Cache e build
-.cache/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.mypy_cache
+.pytest_cache
+.hypothesis
+venv/
+.venv/
 *.egg-info/
+.eggs/
 dist/
 build/
-
-# Logs
-logs/
-*.log
-
-# Tests
-.pytest_cache/
-.coverage
-htmlcov/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-.DS_Store
-
-# Docker
-Dockerfile*
-docker-compose*
+*.so
+.git
 .dockerignore
-
-# Git
-.git/
-.gitignore
-
-# Obsidian
-.obsidian/
+Dockerfile*
+!requirements.txt

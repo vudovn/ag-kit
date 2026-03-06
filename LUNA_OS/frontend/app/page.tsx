@@ -20,24 +20,12 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import Link from 'next/link'
-
-interface DashboardData {
-  period_days: number
-  conversations?: { total: number; converted: number; abandoned: number; conversion_rate: number }
-  messages?: { total: number; avg_response_time_ms: number }
-  appointments?: { total: number; completed: number }
-  resumo?: { total_conversas: number; total_mensagens: number; human_hours_saved: number }
-  conversao?: { fechadas: number; perdidas: number; taxa_conversao: number }
-}
-
-interface SentimentData {
-  distribution: { positive: number; negative: number; neutral: number }
-  period_days: number
-}
+import { memo, useMemo } from 'react'
+import type { DashboardData, SentimentData, MaturityData, KPICardProps } from '@/types'
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
-function KPICard({
+const KPICard = memo(({
   title,
   value,
   sub,
@@ -46,9 +34,7 @@ function KPICard({
   trend,
   href,
   index
-}: {
-  title: string; value: string | number; sub?: string; icon: any; accent: string; trend?: 'up' | 'down' | null; href?: string; index: number
-}) {
+}: KPICardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -81,29 +67,47 @@ function KPICard({
       </Link>
     </motion.div>
   )
-}
+})
+KPICard.displayName = 'KPICard'
 
 export default function Dashboard() {
+  // Optimized SWR configurations to reduce unnecessary re-renders
   const { data, error, isLoading } = useSWR<DashboardData>('/api/analytics/dashboard?days=7', fetcher, {
-    refreshInterval: 30000,
-    revalidateOnFocus: true
+    refreshInterval: 60000, // Increased from 30s to 60s
+    revalidateOnFocus: false, // Disabled to prevent unnecessary refreshes
+    dedupingInterval: 10000,
+    revalidateIfStale: true
   })
 
   const { data: maturityData } = useSWR('/api/evolution/maturity', fetcher, {
-    refreshInterval: 10000
+    refreshInterval: 30000, // Increased from 10s to 30s
+    dedupingInterval: 10000
   })
 
   const { data: sentimentData } = useSWR<SentimentData>('/api/analytics/sentiment?days=7', fetcher, {
-    refreshInterval: 60000
+    refreshInterval: 120000, // Increased from 60s to 120s
+    dedupingInterval: 10000
   })
 
-  const avgResponseSec = Math.round((data?.messages?.avg_response_time_ms ?? 0) / 1000)
+  // Memoized calculations
+  const avgResponseSec = useMemo(() =>
+    Math.round((data?.messages?.avg_response_time_ms ?? 0) / 1000),
+    [data?.messages?.avg_response_time_ms]
+  )
 
-  // Satisfação real calculada a partir de dados do endpoint de sentiment
-  const totalSentiment = (sentimentData?.distribution?.positive ?? 0) + (sentimentData?.distribution?.negative ?? 0) + (sentimentData?.distribution?.neutral ?? 0)
-  const satisfactionPct = totalSentiment > 0
-    ? ((sentimentData?.distribution?.positive ?? 0) / totalSentiment * 100).toFixed(1)
-    : null
+  const totalSentiment = useMemo(() =>
+    (sentimentData?.distribution?.positive ?? 0) +
+    (sentimentData?.distribution?.negative ?? 0) +
+    (sentimentData?.distribution?.neutral ?? 0),
+    [sentimentData?.distribution]
+  )
+
+  const satisfactionPct = useMemo(() =>
+    totalSentiment > 0
+      ? ((sentimentData?.distribution?.positive ?? 0) / totalSentiment * 100).toFixed(1)
+      : null,
+    [sentimentData?.distribution?.positive, totalSentiment]
+  )
 
   return (
     <div className="flex-1 overflow-y-auto p-8 bg-[var(--color-bg)] transition-colors duration-500">

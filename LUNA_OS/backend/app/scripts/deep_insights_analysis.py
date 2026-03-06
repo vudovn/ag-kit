@@ -10,30 +10,31 @@ from datetime import datetime
 from collections import Counter, defaultdict
 from pathlib import Path
 import re
+from loguru import logger
 
 LOGS_DIR = Path("/Users/franciscotaveira.ads/LUNA OS/logs")
 
 def load_filtered_data():
     """Carrega dados filtrados mais recentes"""
-    print("📂 Carregando dados filtrados...")
+    logger.info("📂 Carregando dados filtrados...")
     
     files = sorted(LOGS_DIR.glob("filtered_conversations_*.json"))
     if not files:
-        print("❌ Nenhum arquivo filtrado encontrado!")
+        logger.info("❌ Nenhum arquivo filtrado encontrado!")
         return None
     
     latest = files[-1]
-    print(f"   📄 {latest.name}")
+    logger.info(f"   📄 {latest.name}")
     
     with open(latest, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    print(f"   ✅ {len(data):,} conversas carregadas")
+    logger.info(f"   ✅ {len(data):,} conversas carregadas")
     return data
 
 def analyze_by_service(conversations):
     """Analisa por tipo de serviço mencionado"""
-    print("\n🔍 Analisando por serviço...")
+    logger.info("\n🔍 Analisando por serviço...")
     
     service_keywords = {
         'escova': ['escova', 'escovaria', 'cabelo'],
@@ -60,12 +61,12 @@ def analyze_by_service(conversations):
     # Ordenar
     sorted_services = dict(sorted(services_count.items(), key=lambda x: x[1], reverse=True))
     
-    print(f"   ✅ {len(sorted_services)} serviços identificados")
+    logger.info(f"   ✅ {len(sorted_services)} serviços identificados")
     return sorted_services
 
 def analyze_by_hour(conversations):
     """Analisa distribuição por horário"""
-    print("\n🔍 Analisando por horário...")
+    logger.info("\n🔍 Analisando por horário...")
     
     by_hour = defaultdict(int)
     by_day_of_week = defaultdict(int)
@@ -77,24 +78,26 @@ def analyze_by_hour(conversations):
             try:
                 hour = int(started[11:13])
                 by_hour[hour] += 1
-                
+
                 # Dia da semana (0=Monday, 6=Sunday)
                 from datetime import datetime as dt
                 date_obj = dt.fromisoformat(started.replace('Z', '+00:00'))
                 day = date_obj.weekday()
                 by_day_of_week[day] += 1
-            except:
+            except Exception as e:
+                # [DEBT #A9] Manter fallback mas logar erro específico
+                logger.debug(f"Erro ao extrair hora de {started}: {e}")
                 pass
     
     by_hour_sorted = dict(sorted(by_hour.items()))
     by_day_sorted = dict(sorted(by_day_of_week.items()))
     
-    print(f"   ✅ Horário e dia analisados")
+    logger.info(f"   ✅ Horário e dia analisados")
     return by_hour_sorted, by_day_sorted
 
 def analyze_client_lifetime(conversations):
     """Analisa lifetime value por cliente"""
-    print("\n🔍 Analisando lifetime por cliente...")
+    logger.info("\n🔍 Analisando lifetime por cliente...")
     
     client_stats = defaultdict(lambda: {
         'conversations': 0,
@@ -152,12 +155,12 @@ def analyze_client_lifetime(conversations):
         else:
             stats['top_sentiment'] = None
     
-    print(f"   ✅ {len(client_stats)} clientes analisados")
+    logger.info(f"   ✅ {len(client_stats)} clientes analisados")
     return dict(client_stats)
 
 def identify_churn_risk(client_stats, days_threshold=90):
     """Identifica clientes em risco de churn"""
-    print("\n🔍 Identificando risco de churn...")
+    logger.info("\n🔍 Identificando risco de churn...")
     
     at_risk = []
     now = datetime.utcnow()
@@ -182,7 +185,7 @@ def identify_churn_risk(client_stats, days_threshold=90):
     # Ordenar por dias
     at_risk.sort(key=lambda x: x['days_since'], reverse=True)
     
-    print(f"   ✅ {len(at_risk)} clientes em risco ({days_threshold}+ dias)")
+    logger.info(f"   ✅ {len(at_risk)} clientes em risco ({days_threshold}+ dias)")
     return at_risk
 
 def generate_actionable_insights(services, by_hour, by_day, client_stats, churn_risk):
@@ -251,94 +254,94 @@ def generate_actionable_insights(services, by_hour, by_day, client_stats, churn_
 
 def print_deep_insights_report(services, by_hour, by_day, client_stats, churn_risk, insights):
     """Imprime relatório de insights profundos"""
-    print("\n")
-    print("╔══════════════════════════════════════════════════════════════╗")
-    print("║  🌙 LUNA OS — DEEP INSIGHTS ANALYSIS                        ║")
-    print("║     Análise Profunda de Comportamento e Vendas              ║")
-    print("╚════════════════════════════════════════════════════════════╝")
-    print()
-    print(f"🕐 Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-    print()
+    logger.info("\n")
+    logger.info("╔══════════════════════════════════════════════════════════════╗")
+    logger.info("║  🌙 LUNA OS — DEEP INSIGHTS ANALYSIS                        ║")
+    logger.info("║     Análise Profunda de Comportamento e Vendas              ║")
+    logger.info("╚════════════════════════════════════════════════════════════╝")
+    logger.info()
+    logger.info(f"🕐 Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+    logger.info()
     
     # Serviços
-    print("─" * 70)
-    print("🎯 SERVIÇOS MENCIONADOS")
-    print("─" * 70)
+    logger.info("─" * 70)
+    logger.info("🎯 SERVIÇOS MENCIONADOS")
+    logger.info("─" * 70)
     if services:
         for service, count in list(services.items())[:10]:
-            print(f"  • {service.title()}: {count:,} menções")
+            logger.info(f"  • {service.title()}: {count:,} menções")
     else:
-        print("  Sem dados de serviços detectados")
-    print()
+        logger.info("  Sem dados de serviços detectados")
+    logger.info()
     
     # Horário
-    print("─" * 70)
-    print("🕐 DISTRIBUIÇÃO POR HORÁRIO")
-    print("─" * 70)
+    logger.info("─" * 70)
+    logger.info("🕐 DISTRIBUIÇÃO POR HORÁRIO")
+    logger.info("─" * 70)
     if by_hour:
         max_val = max(by_hour.values())
         for hour in range(24):
             count = by_hour.get(hour, 0)
             if count > 0:
                 bar = "█" * int(count / max_val * 30)
-                print(f"  {hour:02d}h: {bar} {count:,}")
-    print()
+                logger.info(f"  {hour:02d}h: {bar} {count:,}")
+    logger.info()
     
     # Dia da semana
-    print("─" * 70)
-    print("📅 DISTRIBUIÇÃO POR DIA DA SEMANA")
-    print("─" * 70)
+    logger.info("─" * 70)
+    logger.info("📅 DISTRIBUIÇÃO POR DIA DA SEMANA")
+    logger.info("─" * 70)
     days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
     if by_day:
         max_val = max(by_day.values())
         for day_idx, count in by_day.items():
             day_name = days[day_idx] if day_idx < len(days) else f'Dia {day_idx}'
             bar = "█" * int(count / max_val * 30)
-            print(f"  {day_name:10s}: {bar} {count:,}")
-    print()
+            logger.info(f"  {day_name:10s}: {bar} {count:,}")
+    logger.info()
     
     # Clientes
-    print("─" * 70)
-    print("👥 ANÁLISE DE CLIENTES")
-    print("─" * 70)
-    print(f"  Total Clientes: {len(client_stats):,}")
+    logger.info("─" * 70)
+    logger.info("👥 ANÁLISE DE CLIENTES")
+    logger.info("─" * 70)
+    logger.info(f"  Total Clientes: {len(client_stats):,}")
     
     # Distribuição por conversas
     conv_dist = Counter(s['conversations'] for s in client_stats.values())
-    print(f"\n  Por Volume de Conversas:")
+    logger.info(f"\n  Por Volume de Conversas:")
     for convs, count in sorted(conv_dist.items(), reverse=True)[:10]:
-        print(f"    • {convs} conversas: {count:,} clientes")
+        logger.info(f"    • {convs} conversas: {count:,} clientes")
     
     # VIPs
     vips = [p for p, s in client_stats.items() if s['conversations'] >= 10]
-    print(f"\n  💎 Clientes VIP (10+ conversas): {len(vips)}")
+    logger.info(f"\n  💎 Clientes VIP (10+ conversas): {len(vips)}")
     if vips:
-        print(f"    Top 5: {', '.join(vips[:5])}")
-    print()
+        logger.info(f"    Top 5: {', '.join(vips[:5])}")
+    logger.info()
     
     # Churn
-    print("─" * 70)
-    print("⚠️  RISCO DE CHURN")
-    print("─" * 70)
-    print(f"  Clientes em Risco: {len(churn_risk):,} (90+ dias sem contato)")
+    logger.info("─" * 70)
+    logger.info("⚠️  RISCO DE CHURN")
+    logger.info("─" * 70)
+    logger.info(f"  Clientes em Risco: {len(churn_risk):,} (90+ dias sem contato)")
     if churn_risk:
         high_value = [c for c in churn_risk if c['total_conversations'] > 3][:10]
         if high_value:
-            print(f"\n  🔴 Alto Valor em Risco (3+ conversas):")
+            logger.info(f"\n  🔴 Alto Valor em Risco (3+ conversas):")
             for client in high_value:
-                print(f"    • {client['phone']}: {client['days_since']} dias | {client['total_conversations']} convs")
-    print()
+                logger.info(f"    • {client['phone']}: {client['days_since']} dias | {client['total_conversations']} convs")
+    logger.info()
     
     # Insights
-    print("─" * 70)
-    print("💡 INSIGHTS ACIONÁVEIS")
-    print("─" * 70)
+    logger.info("─" * 70)
+    logger.info("💡 INSIGHTS ACIONÁVEIS")
+    logger.info("─" * 70)
     for i, insight in enumerate(insights, 1):
         icon = insight['type'].replace('critical', '🔴').replace('warning', '🟡').replace('opportunity', '💰').replace('info', 'ℹ️')
-        print(f"\n{icon} {i}. {insight['title']}")
-        print(f"   📊 {insight['desc']}")
-        print(f"   💡 {insight['action']}")
-    print()
+        logger.info(f"\n{icon} {i}. {insight['title']}")
+        logger.info(f"   📊 {insight['desc']}")
+        logger.info(f"   💡 {insight['action']}")
+    logger.info()
 
 def save_deep_analysis(services, by_hour, by_day, client_stats, churn_risk, insights):
     """Salva análise profunda"""
@@ -364,17 +367,17 @@ def save_deep_analysis(services, by_hour, by_day, client_stats, churn_risk, insi
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(analysis, f, indent=2, ensure_ascii=False)
     
-    print(f"💾 Análise salva em: {output_file}")
-    print()
+    logger.info(f"💾 Análise salva em: {output_file}")
+    logger.info()
 
 def main():
     """Main function"""
-    print("\n")
-    print("╔════════════════════════════════════════════════════╗")
-    print("║  🌙 LUNA OS — Deep Insights Analysis              ║")
-    print("║     Análise Profunda de 38K Conversas            ║")
-    print("╚════════════════════════════════════════════════════╝")
-    print()
+    logger.info("\n")
+    logger.info("╔════════════════════════════════════════════════════╗")
+    logger.info("║  🌙 LUNA OS — Deep Insights Analysis              ║")
+    logger.info("║     Análise Profunda de 38K Conversas            ║")
+    logger.info("╚════════════════════════════════════════════════════╝")
+    logger.info()
     
     # Load data
     conversations = load_filtered_data()
@@ -395,8 +398,8 @@ def main():
     # Save
     save_deep_analysis(services, by_hour, by_day, client_stats, churn_risk, insights)
     
-    print("✅ Análise profunda concluída!")
-    print()
+    logger.info("✅ Análise profunda concluída!")
+    logger.info()
 
 if __name__ == "__main__":
     main()

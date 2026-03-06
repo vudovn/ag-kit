@@ -14,12 +14,13 @@ from datetime import datetime
 from typing import Dict, List, Optional
 from collections import defaultdict
 from dataclasses import dataclass, asdict
+from loguru import logger
 
 # Supabase client via httpx
 try:
     import httpx
 except ImportError:
-    print("❌ Installing httpx...")
+    logger.info("❌ Installing httpx...")
     os.system("pip3 install httpx")
     import httpx
 
@@ -79,7 +80,7 @@ class RobustExtractionAgent:
         # Create output dir
         Path(output_dir).mkdir(parents=True, exist_ok=True)
         
-        print(f"🤖 RobustExtractionAgent initialized for table: {table}")
+        logger.info(f"🤖 RobustExtractionAgent initialized for table: {table}")
     
     def get_total_count(self) -> int:
         """Get total row count"""
@@ -95,15 +96,15 @@ class RobustExtractionAgent:
             content_range = response.headers.get("Content-Range", "")
             if "/" in content_range:
                 count = int(content_range.split("/")[-1])
-                print(f"   📊 Total count from header: {count:,}")
+                logger.info(f"   📊 Total count from header: {count:,}")
                 return count
 
             # Fallback: try to get first batch and estimate
-            print(f"   ⚠️ Content-Range not available, using fallback")
+            logger.info(f"   ⚠️ Content-Range not available, using fallback")
             return 50000  # Estimate
 
         except Exception as e:
-            print(f"   ❌ Error getting count: {e}")
+            logger.info(f"   ❌ Error getting count: {e}")
             return 50000  # Estimate
     
     def extract_batch(self, offset: int, limit: int) -> List[Dict]:
@@ -130,7 +131,7 @@ class RobustExtractionAgent:
                 return data
                 
             except Exception as e:
-                print(f"   ❌ Batch error (attempt {attempt + 1}/{max_retries}): {e}")
+                logger.info(f"   ❌ Batch error (attempt {attempt + 1}/{max_retries}): {e}")
                 self.errors.append({
                     "type": "batch_error",
                     "offset": offset,
@@ -185,13 +186,13 @@ class RobustExtractionAgent:
                 "data": data
             }, f, indent=2, ensure_ascii=False)
         
-        print(f"💾 Data saved to: {output_path}")
+        logger.info(f"💾 Data saved to: {output_path}")
         
         return output_path
     
     def extract_table(self) -> Dict:
         """Extract table COMPLETE"""
-        print(f"📥 Starting extraction of {self.table}...")
+        logger.info(f"📥 Starting extraction of {self.table}...")
         
         self.stats.start_time = datetime.utcnow().isoformat()
         start_time = time.time()
@@ -199,16 +200,16 @@ class RobustExtractionAgent:
         try:
             # 1. Get total count
             total_count = self.get_total_count()
-            print(f"   📊 Total rows to extract: {total_count:,}")
+            logger.info(f"   📊 Total rows to extract: {total_count:,}")
             
             if total_count == 0:
-                print("   ⚠️ No data to extract")
+                logger.info("   ⚠️ No data to extract")
                 return {"status": "error", "error": "No data"}
             
             # 2. Load checkpoint if exists
             start_offset = self.load_checkpoint()
             if start_offset > 0:
-                print(f"   📍 Resuming from offset: {start_offset:,}")
+                logger.info(f"   📍 Resuming from offset: {start_offset:,}")
             
             # 3. Extract in batches
             all_data = []
@@ -219,7 +220,7 @@ class RobustExtractionAgent:
                 batch_data = self.extract_batch(offset, self.batch_size)
                 
                 if not batch_data:
-                    print(f"   ⚠️ No more data at offset {offset}")
+                    logger.info(f"   ⚠️ No more data at offset {offset}")
                     break
                 
                 all_data.extend(batch_data)
@@ -233,7 +234,7 @@ class RobustExtractionAgent:
                 elapsed = time.time() - start_time
                 rows_per_sec = offset / elapsed if elapsed > 0 else 0
                 
-                print(f"   📊 Progress: {offset:,}/{total_count:,} ({progress:.1f}%) - {rows_per_sec:.1f} rows/sec")
+                logger.info(f"   📊 Progress: {offset:,}/{total_count:,} ({progress:.1f}%) - {rows_per_sec:.1f} rows/sec")
                 
                 # Rate limiting
                 time.sleep(0.5)
@@ -246,7 +247,7 @@ class RobustExtractionAgent:
             self.stats.duration_seconds = time.time() - start_time
             self.stats.rows_per_second = self.stats.total_rows / self.stats.duration_seconds if self.stats.duration_seconds > 0 else 0
             
-            print(f"✅ Extraction completed: {self.stats.total_rows:,} rows in {self.stats.duration_seconds:.1f}s")
+            logger.info(f"✅ Extraction completed: {self.stats.total_rows:,} rows in {self.stats.duration_seconds:.1f}s")
             
             return {
                 "status": "success",
@@ -256,7 +257,7 @@ class RobustExtractionAgent:
             }
             
         except Exception as e:
-            print(f"❌ Extraction failed: {e}")
+            logger.info(f"❌ Extraction failed: {e}")
             
             return {
                 "status": "error",
@@ -278,13 +279,13 @@ class WhatsAppExtractionSpecialist(RobustExtractionAgent):
             batch_size=5000
         )
         
-        print("📱 WhatsAppExtractionSpecialist initialized")
+        logger.info("📱 WhatsAppExtractionSpecialist initialized")
     
     def extract_complete_conversations(self) -> Dict:
         """
         Extrai conversas COMPLETAS agrupadas por phone
         """
-        print("📱 Starting complete conversations extraction...")
+        logger.info("📱 Starting complete conversations extraction...")
         
         # 1. Extract all messages
         result = self.extract_table()
@@ -300,7 +301,7 @@ class WhatsAppExtractionSpecialist(RobustExtractionAgent):
         
         messages = data.get("data", [])
         
-        print(f"📊 Grouping {len(messages):,} messages by phone...")
+        logger.info(f"📊 Grouping {len(messages):,} messages by phone...")
         
         # 3. Group by phone
         conversations = defaultdict(list)
@@ -332,7 +333,9 @@ class WhatsAppExtractionSpecialist(RobustExtractionAgent):
                     dt1 = datetime.fromisoformat(t1.replace("Z", "+00:00"))
                     dt2 = datetime.fromisoformat(t2.replace("Z", "+00:00"))
                     duration_minutes = (dt2 - dt1).total_seconds() / 60
-                except:
+                except Exception as e:
+                    # [DEBT #A9] Manter fallback mas logar erro específico
+                    logger.debug(f"Erro ao calcular duração: {e}")
                     duration_minutes = 0
             else:
                 duration_minutes = 0
@@ -376,7 +379,7 @@ class WhatsAppExtractionSpecialist(RobustExtractionAgent):
                 "conversations": conversation_stats
             }, f, indent=2, ensure_ascii=False)
         
-        print(f"✅ Conversations saved to: {output_path}")
+        logger.info(f"✅ Conversations saved to: {output_path}")
         
         return {
             "status": "success",
@@ -395,21 +398,21 @@ class WhatsAppExtractionSpecialist(RobustExtractionAgent):
 
 def main():
     """Main function"""
-    print("\n")
-    print("╔════════════════════════════════════════════════════╗")
-    print("║  🤖 ROBUST EXTRACTION AGENT — ATIVADO             ║")
-    print("║     WhatsApp Specialist                            ║")
-    print("╚════════════════════════════════════════════════════╝")
-    print()
+    logger.info("\n")
+    logger.info("╔════════════════════════════════════════════════════╗")
+    logger.info("║  🤖 ROBUST EXTRACTION AGENT — ATIVADO             ║")
+    logger.info("║     WhatsApp Specialist                            ║")
+    logger.info("╚════════════════════════════════════════════════════╝")
+    logger.info()
     
     # Check SUPABASE_KEY
     if not SUPABASE_KEY:
-        print("❌ SUPABASE_KEY not found in .env")
-        print("   Please check /Users/franciscotaveira.ads/LUNA OS/.env")
+        logger.info("❌ SUPABASE_KEY not found in .env")
+        logger.info("   Please check /Users/franciscotaveira.ads/LUNA OS/.env")
         return
     
-    print(f"✅ SUPABASE_KEY loaded ({len(SUPABASE_KEY)} chars)")
-    print()
+    logger.info(f"✅ SUPABASE_KEY loaded ({len(SUPABASE_KEY)} chars)")
+    logger.info()
     
     # Create specialist
     specialist = WhatsAppExtractionSpecialist(
@@ -417,39 +420,39 @@ def main():
     )
     
     # Extract complete conversations
-    print("📱 Extracting Complete Conversations...")
-    print("─" * 50)
+    logger.info("📱 Extracting Complete Conversations...")
+    logger.info("─" * 50)
     
     result = specialist.extract_complete_conversations()
     
     # Print result
-    print()
-    print("=" * 50)
-    print("EXTRACTION RESULT")
-    print("=" * 50)
-    print()
+    logger.info()
+    logger.info("=" * 50)
+    logger.info("EXTRACTION RESULT")
+    logger.info("=" * 50)
+    logger.info()
     
     if result.get("status") == "success":
-        print(f"✅ Status: SUCCESS")
-        print(f"📊 Total Conversations: {result.get('total_conversations', 0):,}")
-        print(f"📊 Total Messages: {result.get('total_messages', 0):,}")
-        print()
+        logger.info(f"✅ Status: SUCCESS")
+        logger.info(f"📊 Total Conversations: {result.get('total_conversations', 0):,}")
+        logger.info(f"📊 Total Messages: {result.get('total_messages', 0):,}")
+        logger.info()
         
         stats = result.get("stats", {})
-        print(f"📈 CONVERSATION SIZES:")
-        print(f"   • 10+ messages: {stats.get('conversations_with_10_plus', 0):,}")
-        print(f"   • 50+ messages: {stats.get('conversations_with_50_plus', 0):,}")
-        print(f"   • 100+ messages: {stats.get('conversations_with_100_plus', 0):,}")
-        print()
-        print(f"💾 Output: {result.get('output_file')}")
+        logger.info(f"📈 CONVERSATION SIZES:")
+        logger.info(f"   • 10+ messages: {stats.get('conversations_with_10_plus', 0):,}")
+        logger.info(f"   • 50+ messages: {stats.get('conversations_with_50_plus', 0):,}")
+        logger.info(f"   • 100+ messages: {stats.get('conversations_with_100_plus', 0):,}")
+        logger.info()
+        logger.info(f"💾 Output: {result.get('output_file')}")
     else:
-        print(f"❌ Status: FAILED")
-        print(f"❌ Error: {result.get('error', 'Unknown')}")
-        print()
+        logger.info(f"❌ Status: FAILED")
+        logger.info(f"❌ Error: {result.get('error', 'Unknown')}")
+        logger.info()
     
-    print()
-    print("✅ Robust Extraction Agent COMPLETED!")
-    print()
+    logger.info()
+    logger.info("✅ Robust Extraction Agent COMPLETED!")
+    logger.info()
 
 
 if __name__ == "__main__":

@@ -2,10 +2,12 @@
 
 Usa o schema real do Supabase: (id, category, key, data JSONB)
 onde `data` contém todos os campos estruturados (nome, preço, horários etc.)
+
+DEBT #A5: Validação de inputs adicionada
 """
 
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Any, Optional
 from app.integrations.supabase_client import get_supabase
 from app.services.brain_structurer import brain_structurer
@@ -16,6 +18,10 @@ import uuid
 router = APIRouter()
 
 
+# [DEBT #A5] Validação de schema com Pydantic
+VALID_CATEGORIES = {"service", "professional", "rule", "faq", "coupon", "package", "business_info"}
+
+
 class KnowledgeCreate(BaseModel):
     category: (
         str  # service | professional | rule | faq | coupon | package | business_info
@@ -23,10 +29,54 @@ class KnowledgeCreate(BaseModel):
     key: str  # Unique identifier within category
     data: dict  # JSONB — structured data (nome, preço, horários etc.)
 
+    # [DEBT #A5] Validadores
+    @field_validator('category')
+    @classmethod
+    def validate_category(cls, v):
+        if v not in VALID_CATEGORIES:
+            raise ValueError(f"Categoria inválida: {v}. Válidas: {VALID_CATEGORIES}")
+        return v
+
+    @field_validator('key')
+    @classmethod
+    def validate_key(cls, v):
+        if not v or len(v.strip()) == 0:
+            raise ValueError("Key não pode ser vazio")
+        if len(v) > 100:
+            raise ValueError("Key deve ter no máximo 100 caracteres")
+        return v.strip()
+
+    @field_validator('data')
+    @classmethod
+    def validate_data(cls, v):
+        if not isinstance(v, dict):
+            raise ValueError("Data deve ser um dicionário JSON")
+        # Validar campos comuns baseados na categoria
+        if v.get('nome') and not isinstance(v.get('nome'), str):
+            raise ValueError("Campo 'nome' deve ser string")
+        if v.get('valor') and not isinstance(v.get('valor'), (int, float)):
+            raise ValueError("Campo 'valor' deve ser numérico")
+        return v
+
 
 class KnowledgeUpdate(BaseModel):
     key: Optional[str] = None
     data: Optional[dict] = None
+
+    # [DEBT #A5] Validadores
+    @field_validator('key')
+    @classmethod
+    def validate_key(cls, v):
+        if v is not None and (not v or len(v.strip()) == 0):
+            raise ValueError("Key não pode ser vazio")
+        return v.strip() if v else v
+
+    @field_validator('data')
+    @classmethod
+    def validate_data(cls, v):
+        if v is not None and not isinstance(v, dict):
+            raise ValueError("Data deve ser um dicionário JSON")
+        return v
 
 
 @router.get("")

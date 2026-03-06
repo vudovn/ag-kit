@@ -41,7 +41,9 @@ async def get_openrouter_models():
             data = resp.json()
             return {"data": data.get("data", [])}
     except Exception as e:
-        print(f"Error fetching OpenRouter models: {e}")
+        # [DEBT #M2] Substituir print() por logger
+        from loguru import logger
+        logger.error(f"Error fetching OpenRouter models: {e}")
         return {"data": []}
 
 

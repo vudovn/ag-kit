@@ -11,16 +11,18 @@ scrape_configs:
 
   - job_name: 'fastapi'
     static_configs:
-      - targets: ['localhost:8000']
+      - targets: ['luna-backend:8000']
 
   - job_name: 'redis'
     static_configs:
-      - targets: ['localhost:6379']
+      - targets: ['luna-redis:6379']
 
   - job_name: 'milvus'
     static_configs:
-      - targets: ['localhost:9091']
+      - targets: ['luna-milvus:9091']
 
-  - job_name: 'jaeger'
-    static_configs:
-      - targets: ['localhost:16686']
+  # Jaeger does not expose Prometheus metrics by default
+  # Uncomment if Jaeger is configured with --prometheus.server.host-port
+  # - job_name: 'jaeger'
+  #   static_configs:
+  #     - targets: ['luna-jaeger:14269']

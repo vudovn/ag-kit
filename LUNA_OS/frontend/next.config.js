@@ -22,6 +22,22 @@ const nextConfig = {
       },
     ]
   },
+
+  // 🚀 OTIMIZAÇÕES DE PERFORMANCE
+  // Desativa telemetry do Next.js
+  experimental: {
+    optimizePackageImports: ['framer-motion', 'lucide-react', 'recharts'],
+  },
+
+  // Compressão de imagens
+  images: {
+    formats: ['image/avif', 'image/webp'],
+  },
+
+  // Minificação em produção
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
 }
 
 module.exports = nextConfig

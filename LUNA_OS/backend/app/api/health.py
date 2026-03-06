@@ -3,6 +3,7 @@ from app.integrations.supabase_client import get_supabase
 from app.config import settings
 import httpx
 import time
+from loguru import logger
 
 router = APIRouter()
 
@@ -40,8 +41,9 @@ async def get_health_status():
                 }
             ).execute()
             write_status = "OK"
-        except:
-            # Se a tabela não existir, não falhamos o check, mas avisamos se possível
+        except Exception as e:
+            # [DEBT #A1] Log erro específico ao invés de except genérico
+            logger.warning(f"Health check: Tabela health_logs não existe ou sem permissão de escrita: {e}")
             write_status = "Table Missing/Read Only"
 
         status["supabase"]["status"] = "connected" if count > 0 else "warning"
@@ -54,6 +56,8 @@ async def get_health_status():
             status["supabase"]["details"] = f"Integridade: R/W ({write_status})"
 
     except Exception as e:
+        # [DEBT #A1] Log erro específico
+        logger.error(f"Health check Supabase falhou: {e}")
         status["supabase"]["details"] = f"Erro Infra: {str(e)}"
         status["overall"] = "unhealthy"
 
@@ -94,6 +98,8 @@ async def get_health_status():
                     ] = f"OpenRouter API {resp.status_code}"
                     status["overall"] = "unhealthy"
         except Exception as e:
+            # [DEBT #A1] Log erro específico
+            logger.error(f"Health check OpenRouter falhou: {e}")
             status["openrouter"]["details"] = f"Network/Auth Error: {str(e)}"
             status["overall"] = "unhealthy"
 
@@ -119,7 +125,9 @@ async def get_health_status():
                             "connected" if instance_status == "open" else "warning"
                         )
                         status["evolution"]["details"] = f"Estado: {instance_status}"
-                    except:
+                    except Exception as e:
+                        # [DEBT #A1] Log erro específico
+                        logger.error(f"Health check Evolution: erro ao parsear resposta: {e}")
                         status["evolution"]["status"] = "error"
                         status["evolution"][
                             "details"
@@ -134,8 +142,8 @@ async def get_health_status():
                         if v_resp.status_code == 200:
                             # Finding our instance in the list to get version if possible, or just checking general health
                             status["evolution"]["details"] += " | API Online"
-                    except:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"Health check Evolution: versão não disponível: {e}")
 
                     # Pass 4 Amplifier: Validate Webhook
                     hw_resp = await client.get(
@@ -154,6 +162,8 @@ async def get_health_status():
                     ] = f"Evolution Offline ({resp.status_code})"
                     status["overall"] = "unhealthy"
         except Exception as e:
+            # [DEBT #A1] Log erro específico
+            logger.error(f"Health check Evolution API falhou: {e}")
             status["evolution"]["details"] = f"Connection Fail: {str(e)}"
             status["overall"] = "unhealthy"
 
@@ -169,7 +179,9 @@ async def get_health_status():
         }
         if disk_percent > 95:
             status["overall"] = "attention"
-    except:
+    except Exception as e:
+        # [DEBT #A1] Log erro específico
+        logger.warning(f"Health check: falha ao ler métricas de disco: {e}")
         status["system"] = {
             "status": "warning",
             "details": "Falha ao ler métricas de disco",

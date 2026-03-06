@@ -125,7 +125,9 @@ class ExtratorConversasCompletas:
                     dt1 = datetime.fromisoformat(t1.replace("Z", "+00:00"))
                     dt2 = datetime.fromisoformat(t2.replace("Z", "+00:00"))
                     duracao_minutos = (dt2 - dt1).total_seconds() / 60
-                except:
+                except Exception as e:
+                    # [DEBT #A9] Manter fallback mas logar erro específico
+                    logger.debug(f"Erro ao calcular duração: {e}")
                     duracao_minutos = 0
             else:
                 duracao_minutos = 0
@@ -235,91 +237,91 @@ class ExtratorConversasCompletas:
     
     def imprimir_estatisticas(self):
         """Imprime estatísticas formatadas"""
-        print("\n")
-        print("╔══════════════════════════════════════════════════════════════╗")
-        print("║  📥 CONVERSAS COMPLETAS — ESTATÍSTICAS                      ║")
-        print("╚════════════════════════════════════════════════════════════╝")
-        print()
+        logger.info("\n")
+        logger.info("╔══════════════════════════════════════════════════════════════╗")
+        logger.info("║  📥 CONVERSAS COMPLETAS — ESTATÍSTICAS                      ║")
+        logger.info("╚════════════════════════════════════════════════════════════╝")
+        logger.info()
         
-        print(f"📊 TOTAL MENSAGENS: {self.estatisticas.get('total_mensagens_extraidas', 0):,}")
-        print(f"📊 TOTAL THREADS: {self.estatisticas.get('total_threads', 0):,}")
-        print()
+        logger.info(f"📊 TOTAL MENSAGENS: {self.estatisticas.get('total_mensagens_extraidas', 0):,}")
+        logger.info(f"📊 TOTAL THREADS: {self.estatisticas.get('total_threads', 0):,}")
+        logger.info()
         
-        print(f"📈 THREADS POR TAMANHO:")
-        print(f"   • 10+ mensagens: {self.estatisticas.get('threads_com_10_mais', 0):,}")
-        print(f"   • 50+ mensagens: {self.estatisticas.get('threads_com_50_mais', 0):,}")
-        print(f"   • 100+ mensagens: {self.estatisticas.get('threads_com_100_mais', 0):,}")
-        print()
+        logger.info(f"📈 THREADS POR TAMANHO:")
+        logger.info(f"   • 10+ mensagens: {self.estatisticas.get('threads_com_10_mais', 0):,}")
+        logger.info(f"   • 50+ mensagens: {self.estatisticas.get('threads_com_50_mais', 0):,}")
+        logger.info(f"   • 100+ mensagens: {self.estatisticas.get('threads_com_100_mais', 0):,}")
+        logger.info()
         
         if self.conversas:
-            print(f"📊 TOP 10 CONVERSAS (por número de mensagens):")
-            print(f"   {'#':<4} {'Phone':<15} {'Msgs':<6} {'Duração':<10} {'Início'}")
-            print(f"   {'─'*4} {'─'*15} {'─'*6} {'─'*10} {'─'*25}")
+            logger.info(f"📊 TOP 10 CONVERSAS (por número de mensagens):")
+            logger.info(f"   {'#':<4} {'Phone':<15} {'Msgs':<6} {'Duração':<10} {'Início'}")
+            logger.info(f"   {'─'*4} {'─'*15} {'─'*6} {'─'*10} {'─'*25}")
             
             for i, conv in enumerate(self.conversas[:10], 1):
-                print(f"   {i:<4} {conv['phone']:<15} {conv['total_mensagens']:<6} {conv['duracao_minutos']:<10.0f}min {conv['data_inicio'][:16] if conv['data_inicio'] else 'N/A'}
+                logger.info(f"   {i:<4} {conv['phone']:<15} {conv['total_mensagens']:<6} {conv['duracao_minutos']:<10.0f}min {conv['data_inicio'][:16] if conv['data_inicio'] else 'N/A'}
             
-            print()
+            logger.info()
         
-        print("╔══════════════════════════════════════════════════════════════╗")
-        print("║  📥 EXTRAÇÃO COMPLETA — CONCLUÍDA                           ║")
-        print("╚════════════════════════════════════════════════════════════╝")
-        print()
+        logger.info("╔══════════════════════════════════════════════════════════════╗")
+        logger.info("║  📥 EXTRAÇÃO COMPLETA — CONCLUÍDA                           ║")
+        logger.info("╚════════════════════════════════════════════════════════════╝")
+        logger.info()
 
 
 # ==================== MAIN ====================
 
 async def main():
     """Main function"""
-    print("\n")
-    print("╔════════════════════════════════════════════════════╗")
-    print("║  📥 EXTRAÇÃO DE CONVERSAS COMPLETAS               ║")
-    print("║     TODAS as mensagens COM CONTEÚDO               ║")
-    print("╚════════════════════════════════════════════════════╝")
-    print()
+    logger.info("\n")
+    logger.info("╔════════════════════════════════════════════════════╗")
+    logger.info("║  📥 EXTRAÇÃO DE CONVERSAS COMPLETAS               ║")
+    logger.info("║     TODAS as mensagens COM CONTEÚDO               ║")
+    logger.info("╚════════════════════════════════════════════════════╝")
+    logger.info()
     
     extrator = ExtratorConversasCompletas()
     
     # 1. Extrair todas as mensagens
-    print("📥 Passo 1: Extrair TODAS as Mensagens")
-    print("─" * 50)
+    logger.info("📥 Passo 1: Extrair TODAS as Mensagens")
+    logger.info("─" * 50)
     
     mensagens = await extrator.extrair_todas_mensagens(batch_size=10000)
     
-    print(f"✅ {len(mensagens):,} mensagens extraídas")
-    print()
+    logger.info(f"✅ {len(mensagens):,} mensagens extraídas")
+    logger.info()
     
     # 2. Agrupar por thread
-    print("📊 Passo 2: Agrupar por Threads")
-    print("─" * 50)
+    logger.info("📊 Passo 2: Agrupar por Threads")
+    logger.info("─" * 50)
     
     threads = extrator.agrupar_por_thread(mensagens)
     
-    print(f"✅ {len(threads):,} threads agrupados")
-    print()
+    logger.info(f"✅ {len(threads):,} threads agrupados")
+    logger.info()
     
     # 3. Imprimir estatísticas
-    print("📊 Passo 3: Estatísticas")
-    print("─" * 50)
+    logger.info("📊 Passo 3: Estatísticas")
+    logger.info("─" * 50)
     
     extrator.imprimir_estatisticas()
     
     # 4. Salvar arquivos
-    print("💾 Passo 4: Salvar Arquivos")
-    print("─" * 50)
+    logger.info("💾 Passo 4: Salvar Arquivos")
+    logger.info("─" * 50)
     
     arquivo_json = Path("/Users/franciscotaveira.ads/LUNA OS/logs/conversas_completas.json")
     arquivo_txt = Path("/Users/franciscotaveira.ads/LUNA OS/logs/conversas_completas.txt")
     
     extrator.salvar_conversas(str(arquivo_json), str(arquivo_txt))
     
-    print()
-    print("✅ Extração COMPLETA CONCLUÍDA!")
-    print()
-    print(f"📁 Arquivos:")
-    print(f"   • JSON: {arquivo_json}")
-    print(f"   • TXT: {arquivo_txt}")
-    print()
+    logger.info()
+    logger.info("✅ Extração COMPLETA CONCLUÍDA!")
+    logger.info()
+    logger.info(f"📁 Arquivos:")
+    logger.info(f"   • JSON: {arquivo_json}")
+    logger.info(f"   • TXT: {arquivo_txt}")
+    logger.info()
 
 
 if __name__ == "__main__":

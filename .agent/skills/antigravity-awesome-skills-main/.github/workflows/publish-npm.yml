@@ -1,0 +1,28 @@
+# Publish antigravity-awesome-skills to npm on release.
+# Requires NPM_TOKEN secret (npm → Access Tokens → Granular token with Publish).
+# Before creating a Release: bump package.json "version" (npm forbids republishing the same version).
+# Release tag (e.g. v4.6.1) should match package.json version.
+
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

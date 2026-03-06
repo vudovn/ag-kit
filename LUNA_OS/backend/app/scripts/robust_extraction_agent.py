@@ -398,7 +398,9 @@ class WhatsAppExtractionSpecialist(RobustExtractionAgent):
                     dt1 = datetime.fromisoformat(t1.replace("Z", "+00:00"))
                     dt2 = datetime.fromisoformat(t2.replace("Z", "+00:00"))
                     duration_minutes = (dt2 - dt1).total_seconds() / 60
-                except:
+                except Exception as e:
+                    # [DEBT #A9] Manter fallback mas logar erro específico
+                    logger.debug(f"Erro ao calcular duração: {e}")
                     duration_minutes = 0
             else:
                 duration_minutes = 0
@@ -461,12 +463,12 @@ class WhatsAppExtractionSpecialist(RobustExtractionAgent):
 
 async def main():
     """Main function"""
-    print("\n")
-    print("╔════════════════════════════════════════════════════╗")
-    print("║  🤖 ROBUST EXTRACTION AGENT                       ║")
-    print("║     WhatsApp Specialist                            ║")
-    print("╚════════════════════════════════════════════════════╝")
-    print()
+    logger.info("\n")
+    logger.info("╔════════════════════════════════════════════════════╗")
+    logger.info("║  🤖 ROBUST EXTRACTION AGENT                       ║")
+    logger.info("║     WhatsApp Specialist                            ║")
+    logger.info("╚════════════════════════════════════════════════════╝")
+    logger.info()
     
     # Create specialist
     specialist = WhatsAppExtractionSpecialist(
@@ -474,39 +476,39 @@ async def main():
     )
     
     # Extract complete conversations
-    print("📱 Extracting Complete Conversations...")
-    print("─" * 50)
+    logger.info("📱 Extracting Complete Conversations...")
+    logger.info("─" * 50)
     
     result = await specialist.extract_complete_conversations()
     
     # Print result
-    print()
-    print("=" * 50)
-    print("EXTRACTION RESULT")
-    print("=" * 50)
-    print()
+    logger.info()
+    logger.info("=" * 50)
+    logger.info("EXTRACTION RESULT")
+    logger.info("=" * 50)
+    logger.info()
     
     if result.get("status") == "success":
-        print(f"✅ Status: SUCCESS")
-        print(f"📊 Total Conversations: {result.get('total_conversations', 0):,}")
-        print(f"📊 Total Messages: {result.get('total_messages', 0):,}")
-        print()
+        logger.info(f"✅ Status: SUCCESS")
+        logger.info(f"📊 Total Conversations: {result.get('total_conversations', 0):,}")
+        logger.info(f"📊 Total Messages: {result.get('total_messages', 0):,}")
+        logger.info()
         
         stats = result.get("stats", {})
-        print(f"📈 CONVERSATION SIZES:")
-        print(f"   • 10+ messages: {stats.get('conversations_with_10_plus', 0):,}")
-        print(f"   • 50+ messages: {stats.get('conversations_with_50_plus', 0):,}")
-        print(f"   • 100+ messages: {stats.get('conversations_with_100_plus', 0):,}")
-        print()
-        print(f"💾 Output: {result.get('output_file')}")
+        logger.info(f"📈 CONVERSATION SIZES:")
+        logger.info(f"   • 10+ messages: {stats.get('conversations_with_10_plus', 0):,}")
+        logger.info(f"   • 50+ messages: {stats.get('conversations_with_50_plus', 0):,}")
+        logger.info(f"   • 100+ messages: {stats.get('conversations_with_100_plus', 0):,}")
+        logger.info()
+        logger.info(f"💾 Output: {result.get('output_file')}")
     else:
-        print(f"❌ Status: FAILED")
-        print(f"❌ Error: {result.get('error', 'Unknown')}")
-        print()
+        logger.info(f"❌ Status: FAILED")
+        logger.info(f"❌ Error: {result.get('error', 'Unknown')}")
+        logger.info()
     
-    print()
-    print("✅ Robust Extraction Agent COMPLETED!")
-    print()
+    logger.info()
+    logger.info("✅ Robust Extraction Agent COMPLETED!")
+    logger.info()
 
 
 if __name__ == "__main__":

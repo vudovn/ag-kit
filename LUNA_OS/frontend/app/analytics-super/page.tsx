@@ -2,6 +2,7 @@
 
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
+import type { ReactElement, ReactNode } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -22,9 +23,69 @@ import {
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
+// ==================== Types ====================
+
+interface KPICardProps {
+  title: string
+  value: string | number
+  sub?: string
+  icon: React.ElementType
+  trend?: 'up' | 'down'
+  color: string
+  delay?: number
+}
+
+interface Gatilho {
+  id: string
+  tipo: string
+  descricao: string
+  prioridade: 'alta' | 'media' | 'baixa'
+  timestamp: string
+  mensagem?: string
+  acao?: string
+}
+
+interface GatilhosCardProps {
+  gatilhos: Gatilho[]
+}
+
+interface Funil {
+  etapa: string
+  valor: number
+  cor: string
+  nome?: string
+  count?: number
+}
+
+interface FunilTaxa {
+  [key: string]: number
+}
+
+interface FunilCardProps {
+  funil: {
+    etapas: Funil[]
+    taxas?: FunilTaxa
+  }
+}
+
+interface Tendencias {
+  insights: Array<{
+    id: string
+    tipo: 'oportunidade' | 'atencao' | 'sucesso'
+    descricao: string
+    impacto: number
+  }>
+  tendencia?: string | { crescimento_percentual: number }
+  projecao?: string | { proximos_7_dias: number; confianca: number }
+}
+
+interface TendenciasCardProps {
+  tendencias: Tendencias
+}
+
 // ==================== COMPONENTES ====================
 
-function KPICard({ title, value, sub, icon: Icon, trend, color, delay = 0 }: any) {
+function KPICard({ title, value, sub, icon: Icon, trend, color, delay = 0 }: KPICardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -69,7 +130,7 @@ function KPICard({ title, value, sub, icon: Icon, trend, color, delay = 0 }: any
   );
 }
 
-function GatilhosCard({ gatilhos }: any) {
+function GatilhosCard({ gatilhos }: GatilhosCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -86,9 +147,9 @@ function GatilhosCard({ gatilhos }: any) {
           <p className="text-xs text-gray-500 uppercase tracking-wide">{gatilhos.length} alertas</p>
         </div>
       </div>
-      
+
       <div className="space-y-3">
-        {gatilhos.map((gatilho: any, i: number) => (
+        {gatilhos.map((gatilho: Gatilho, i: number) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, x: -10 }}
@@ -118,7 +179,7 @@ function GatilhosCard({ gatilhos }: any) {
   );
 }
 
-function FunilCard({ funil }: any) {
+function FunilCard({ funil }: FunilCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
@@ -135,9 +196,9 @@ function FunilCard({ funil }: any) {
           <p className="text-xs text-gray-500 uppercase tracking-wide">Jornada do cliente</p>
         </div>
       </div>
-      
+
       <div className="space-y-4">
-        {funil?.etapas?.map((etapa: any, i: number) => (
+        {funil?.etapas?.map((etapa: Funil, i: number) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -152,7 +213,7 @@ function FunilCard({ funil }: any) {
             <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${funil.taxas[etapa.nome] || 0}%` }}
+                animate={{ width: `${funil.taxas?.[etapa.nome || ''] || 0}%` }}
                 transition={{ delay: 0.8 + i * 0.1, duration: 0.5 }}
                 className={`h-full rounded-full ${
                   i === 0 ? 'bg-blue-500' :
@@ -165,7 +226,7 @@ function FunilCard({ funil }: any) {
             </div>
             <div className="flex justify-end mt-1">
               <span className="text-[10px] text-gray-500 font-medium">
-                {funil.taxas[etapa.nome]?.toFixed(1)}% da total
+                {funil.taxas?.[etapa.nome || '']?.toFixed(1)}% da total
               </span>
             </div>
           </motion.div>
@@ -175,7 +236,7 @@ function FunilCard({ funil }: any) {
   );
 }
 
-function TendenciasCard({ tendencias }: any) {
+function TendenciasCard({ tendencias }: TendenciasCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -200,29 +261,29 @@ function TendenciasCard({ tendencias }: any) {
             <span className="text-sm font-medium text-gray-700">Crescimento</span>
           </div>
           <span className={`text-lg font-black ${
-            tendencias?.tendencia?.crescimento_percentual >= 0 ? 'text-green-600' : 'text-red-600'
+            typeof tendencias?.tendencia === 'object' && tendencias?.tendencia?.crescimento_percentual >= 0 ? 'text-green-600' : 'text-red-600'
           }`}>
-            {tendencias?.tendencia?.crescimento_percentual?.toFixed(1)}%
+            {typeof tendencias?.tendencia === 'object' ? tendencias?.tendencia?.crescimento_percentual?.toFixed(1) : '0'}%
           </span>
         </div>
-        
+
         <div className="flex items-center justify-between p-4 bg-blue-50 rounded-2xl">
           <div className="flex items-center gap-3">
             <Target className="w-5 h-5 text-blue-600" />
             <span className="text-sm font-medium text-gray-700">Projeção (7 dias)</span>
           </div>
           <span className="text-lg font-black text-blue-600">
-            {tendencias?.projecao?.proximos_7_dias?.toFixed(0)}
+            {typeof tendencias?.projecao === 'object' ? tendencias?.projecao?.proximos_7_dias?.toFixed(0) : '0'}
           </span>
         </div>
-        
+
         <div className="flex items-center justify-between p-4 bg-purple-50 rounded-2xl">
           <div className="flex items-center gap-3">
             <CheckCircle className="w-5 h-5 text-purple-600" />
             <span className="text-sm font-medium text-gray-700">Confiança</span>
           </div>
           <span className="text-sm font-black uppercase text-purple-600">
-            {tendencias?.projecao?.confianca}
+            {typeof tendencias?.projecao === 'object' ? tendencias?.projecao?.confianca : 'N/A'}
           </span>
         </div>
       </div>
@@ -233,27 +294,35 @@ function TendenciasCard({ tendencias }: any) {
 // ==================== MAIN COMPONENT ====================
 
 export default function SuperAnalyticsDashboard() {
-  // SWR config: revalidateOnFocus=true, refreshInterval=0 (sem update infinito)
+  // Optimized SWR with caching and staggered refresh
   const { data: overview, error: overviewError } = useSWR('/api/analytics/overview?days=30', fetcher, {
-    revalidateOnFocus: true,
-    refreshInterval: 0
+    refreshInterval: 60000,
+    dedupingInterval: 30000,
+    keepPreviousData: true,
+    revalidateOnFocus: false
   });
   const { data: funil, error: funilError } = useSWR('/api/analytics/funil?days=30', fetcher, {
-    revalidateOnFocus: true,
-    refreshInterval: 0
+    refreshInterval: 60000,
+    dedupingInterval: 30000,
+    keepPreviousData: true,
+    revalidateOnFocus: false
   });
   const { data: tendencias, error: tendenciasError } = useSWR('/api/analytics/tendencias?days=30', fetcher, {
-    revalidateOnFocus: true,
-    refreshInterval: 0
+    refreshInterval: 120000,
+    dedupingInterval: 60000,
+    keepPreviousData: true,
+    revalidateOnFocus: false
   });
   const { data: gatilhos, error: gatilhosError } = useSWR('/api/analytics/gatilhos', fetcher, {
-    revalidateOnFocus: true,
-    refreshInterval: 0
+    refreshInterval: 30000,
+    dedupingInterval: 15000,
+    keepPreviousData: true,
+    revalidateOnFocus: false
   });
-  
-  const loading = !overview || !funil || !tendencias || !gatilhos;
-  
-  if (loading) {
+
+  const isLoading = !overview || !funil || !tendencias || !gatilhos;
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

@@ -6,6 +6,9 @@ Pipeline:
   LLM → guardrails.validate() → [OK?] → Cliente
                                   ↓ [FAIL]
                                Resposta segura + log violação
+
+DEBT #M3: Type hints completos
+DEBT #M4: Docstrings em todas as funções públicas
 """
 
 import re
@@ -61,20 +64,35 @@ VALID_PROF_NAMES = {prof.get("nome", "") for prof in PROFISSIONAIS.values()}
 
 @dataclass
 class GuardrailViolation:
-    """Registro de uma violação detectada."""
+    """
+    Registro de uma violação detectada.
 
-    violation_type: (
-        str  # "fake_professional", "fake_price", "unverified_time", "fake_service"
-    )
+    Attributes:
+        violation_type: Tipo de violação ("fake_professional", "fake_price", etc.)
+        original_text: Texto original que causou a violação
+        corrected_text: Texto corrigido
+        source_of_truth: Fonte de verdade usada para validação
+        severity: Severidade da violação ("low", "medium", "high")
+    """
+
+    violation_type: str
     original_text: str
     corrected_text: str
     source_of_truth: str
-    severity: str = "medium"  # "low", "medium", "high"
+    severity: str = "medium"
 
 
 @dataclass
 class GuardrailResult:
-    """Resultado da validação."""
+    """
+    Resultado da validação.
+
+    Attributes:
+        passed: True se passou por todas as validações
+        response: Resposta (original ou corrigida)
+        violations: Lista de violações encontradas
+        confidence_penalty: Penalidade aplicada ao confidence score (0.0-1.0)
+    """
 
     passed: bool = True
     response: str = ""

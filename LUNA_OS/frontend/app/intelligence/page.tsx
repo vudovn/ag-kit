@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import useSWR from 'swr';
 import { motion } from 'framer-motion';
+import type { IntelligenceProposal, EdgeCase, ClientIntelligence } from '@/types';
 import {
   Brain,
   TrendingUp,
@@ -26,40 +27,7 @@ import {
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
-interface Proposal {
-  id: string;
-  week_reference: string;
-  failure_category: string;
-  failure_count: number;
-  proposed_text: string;
-  justification: string;
-  status: string;
-  created_at: string;
-}
-
-interface EdgeCase {
-  id: string;
-  source_conversation_id: string;
-  client_phone: string;
-  situation_description: string;
-  why_luna_failed: string;
-  expected_behavior: string;
-  status: string;
-  created_at: string;
-}
-
-interface ClientIntelligence {
-  client: any;
-  intelligence: {
-    total_conversations: number;
-    dominant_emotional_state: string;
-    trust_level: string;
-    opportunities: string[];
-    objections: string[];
-  };
-}
-
-type Tab = 'proposals' | 'clients' | 'edge-cases';
+type Tab = 'proposals' | 'clients' | 'edge-cases'
 
 function getCategoryColor(category: string) {
   const colors: Record<string, string> = {
@@ -116,7 +84,7 @@ export default function IntelligencePage() {
     fetcher
   );
 
-  const proposals: Proposal[] = proposalsData?.proposals || [];
+  const proposals: IntelligenceProposal[] = proposalsData?.proposals || [];
   const edgeCases: EdgeCase[] = edgeCasesData?.edge_cases || [];
   const insights = insightsData?.insights || [];
   const metrics = insightsData?.metrics || {};
@@ -381,7 +349,7 @@ export default function IntelligencePage() {
               />
               <MetricCard
                 title="Converted to Dojo"
-                value={edgeCases.filter(ec => ec.status === 'added_to_dojo').length}
+                value={edgeCases.filter(ec => ec.status === 'converted').length}
                 icon={CheckCircle}
                 color="green"
               />

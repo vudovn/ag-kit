@@ -1,27 +1,29 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   Brain, Search, Plus, Trash2, Edit2, Check, X,
   BookOpen, MessageSquare, Lightbulb, Target, Building2,
   Loader2, ChevronDown, ChevronUp, Database, Sparkles, Save, Wand2,
   Send, Bot, User, Clock, Zap, RefreshCw, AlertCircle, CheckCircle
 } from 'lucide-react'
+import { memo } from 'react'
+import type { KnowledgeItem, KnowledgeCategory } from '@/types'
 
 // Settings Status
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
-interface KnowledgeItem {
-  id: string
-  category: string
-  key: string
-  data: any
-  source?: string
+type Category = 'all' | KnowledgeCategory
+
+interface CategoryConfig {
+  id: Category
+  label: string
+  icon: React.ElementType
+  color: string
+  bg: string
 }
 
-type Category = 'all' | 'business' | 'services' | 'faq' | 'insights' | 'prompts'
-
-const CATEGORIES: { id: Category; label: string; icon: any; color: string; bg: string }[] = [
+const CATEGORIES: CategoryConfig[] = [
   { id: 'all', label: 'Tudo', icon: Brain, color: 'text-bamboo-700', bg: 'bg-bamboo-50' },
   { id: 'business', label: 'Negócio', icon: Building2, color: 'text-emerald-700', bg: 'bg-emerald-50' },
   { id: 'services', label: 'Serviços', icon: Target, color: 'text-blue-700', bg: 'bg-blue-50' },
@@ -29,6 +31,12 @@ const CATEGORIES: { id: Category; label: string; icon: any; color: string; bg: s
   { id: 'insights', label: 'Insights', icon: Lightbulb, color: 'text-amber-700', bg: 'bg-amber-50' },
   { id: 'prompts', label: 'Prompts', icon: BookOpen, color: 'text-rose-700', bg: 'bg-rose-50' },
 ]
+
+// Lazy load icons helper
+const IconWrapper = memo(({ icon: Icon, className }: { icon: React.ElementType; className?: string }) => (
+  <Icon className={className} />
+))
+IconWrapper.displayName = 'IconWrapper'
 
 // ── Generic Form Field Component ──────────────
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
@@ -42,7 +50,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 // ── Section Component ──────────────────────────
-function Section({ icon: Icon, title, children }: { icon: any; title: string; children: React.ReactNode }) {
+function Section({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) {
   return (
     <div className="card-md p-6 bg-white border border-bamboo-100 shadow-sm rounded-2xl w-full">
       <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-bamboo-100">
@@ -57,11 +65,11 @@ function Section({ icon: Icon, title, children }: { icon: any; title: string; ch
 }
 
 // ── Inline edit component ──────────────────
-function ItemCard({ item, onDelete, onUpdate }: {
+const ItemCard = memo(({ item, onDelete, onUpdate }: {
   item: KnowledgeItem
   onDelete: (id: string) => void
   onUpdate: (id: string, key: string, data: string) => void
-}) {
+}) => {
   const [editing, setEditing] = useState(false)
   const [editKey, setEditKey] = useState(item.key)
   const [editData, setEditData] = useState(
@@ -70,7 +78,17 @@ function ItemCard({ item, onDelete, onUpdate }: {
   const [saving, setSaving] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
-  const cat = CATEGORIES.find(c => c.id === item.category) || CATEGORIES[0]
+  const cat = useMemo(() =>
+    CATEGORIES.find(c => c.id === item.category) || CATEGORIES[0],
+    [item.category]
+  )
+
+  const content = useMemo(() =>
+    typeof item.data === 'string'
+      ? item.data
+      : item.data?.content || JSON.stringify(item.data),
+    [item.data]
+  )
 
   async function save() {
     setSaving(true)
@@ -78,10 +96,6 @@ function ItemCard({ item, onDelete, onUpdate }: {
     setSaving(false)
     setEditing(false)
   }
-
-  const content = typeof item.data === 'string'
-    ? item.data
-    : item.data?.content || JSON.stringify(item.data)
 
   // Helper to render structured data cleanly
   const renderContent = () => {
@@ -188,13 +202,14 @@ function ItemCard({ item, onDelete, onUpdate }: {
       )}
     </div>
   )
-}
+})
+ItemCard.displayName = 'ItemCard'
 
 // ── Add Item Form ──────────────────────────
-function AddItemForm({ onAdd, onCancel }: {
+const AddItemForm = memo(({ onAdd, onCancel }: {
   onAdd: (category: string, key: string, data: string) => Promise<void>
   onCancel: () => void
-}) {
+}) => {
   const [category, setCategory] = useState('services')
   const [key, setKey] = useState('')
   const [data, setData] = useState('')
@@ -268,13 +283,14 @@ function AddItemForm({ onAdd, onCancel }: {
       </div>
     </div>
   )
-}
+})
+AddItemForm.displayName = 'AddItemForm'
 
 // ── Business Section ───────────────────────
-function BusinessSection({ items, onAdd }: {
+const BusinessSection = memo(({ items, onAdd }: {
   items: KnowledgeItem[]
   onAdd: (category: string, key: string, data: string) => Promise<void>
-}) {
+}) => {
   const [bizName, setBizName] = useState('')
   const [bizHours, setBizHours] = useState('')
   const [bizAddress, setBizAddress] = useState('')
@@ -284,8 +300,8 @@ function BusinessSection({ items, onAdd }: {
   // Pre-fill from existing brain data
   useEffect(() => {
     const bizItem = items.find(i => i.category === 'business' && i.key === 'Informações do Negócio')
-    if (bizItem) {
-      const d = typeof bizItem.data === 'object' ? bizItem.data : {}
+    if (bizItem && typeof bizItem.data === 'object') {
+      const d = bizItem.data as unknown as Record<string, string>
       setBizName(d.name || '')
       setBizHours(d.hours || '')
       setBizAddress(d.address || '')
@@ -344,7 +360,8 @@ function BusinessSection({ items, onAdd }: {
       </button>
     </div>
   )
-}
+})
+BusinessSection.displayName = 'BusinessSection'
 
 // ── Chat Simulator ─────────────────────────
 interface SimulatorMessage {
@@ -364,7 +381,7 @@ const QUICK_TESTS = [
   "Onde ficam vocês?"
 ]
 
-function ChatSimulator() {
+const ChatSimulator = memo(() => {
   const [messages, setMessages] = useState<SimulatorMessage[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -380,7 +397,7 @@ function ChatSimulator() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  async function sendMessage(text: string) {
+  const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || loading) return
     const userMsg: SimulatorMessage = { id: Date.now().toString(), role: 'user', content: text }
     setMessages(prev => [...prev, userMsg])
@@ -403,7 +420,7 @@ function ChatSimulator() {
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'luna', content: '❌ Erro ao conectar com o backend' }])
     }
     setLoading(false)
-  }
+  }, [loading])
 
   return (
     <div className="flex flex-col gap-4">
@@ -519,7 +536,8 @@ function ChatSimulator() {
       </div>
     </div>
   )
-}
+})
+ChatSimulator.displayName = 'ChatSimulator'
 
 // ── Main Page ──────────────────────────────
 export default function BrainPage() {

@@ -169,7 +169,9 @@ async def dojo_status():
                 ollama_status = "connected"
             else:
                 ollama_status = "error"
-    except:
+    except Exception as e:
+        # [DEBT #A9] Manter fallback mas logar erro específico
+        logger.debug(f"Dojo Simulator: Ollama não disponível: {e}")
         ollama_status = "disconnected"
 
     return {

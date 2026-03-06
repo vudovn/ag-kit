@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { memo } from 'react'
+import type { NavItem } from '@/types'
 import {
   LayoutDashboard,
   MessageSquare,
@@ -43,9 +45,7 @@ const systemNav = [
   { name: 'Configurações', href: '/settings', icon: Settings },
 ]
 
-
-
-function NavItem({ href, icon: Icon, name, badge }: { href: string; icon: any; name: string; badge?: string }) {
+const NavItem = memo(({ href, icon: Icon, name, badge }: { href: string; icon: React.ElementType; name: string; badge?: string }) => {
   const pathname = usePathname()
   const active = pathname === href
 
@@ -76,9 +76,10 @@ function NavItem({ href, icon: Icon, name, badge }: { href: string; icon: any; n
       )}
     </Link>
   )
-}
+})
+NavItem.displayName = 'NavItem'
 
-export function Sidebar() {
+export const Sidebar = memo(() => {
   return (
     <aside className="w-64 flex-shrink-0 flex flex-col bg-white/80 backdrop-blur-xl border-r border-white/50 shadow-2xl h-screen relative z-50">
       {/* Glow Effect */}
@@ -138,4 +139,5 @@ export function Sidebar() {
       </div>
     </aside>
   )
-}
+})
+Sidebar.displayName = 'Sidebar'

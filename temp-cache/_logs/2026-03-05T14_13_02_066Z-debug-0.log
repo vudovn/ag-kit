@@ -1,0 +1,549 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@11.6.1
+2 info using node@v24.11.0
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/.npmrc
+5 silly config load:file:/Users/franciscotaveira.ads/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install @tailwindcss/postcss
+8 verbose argv "install" "@tailwindcss/postcss" "--cache" "../temp-cache" "--no-audit" "--no-fund" "--legacy-peer-deps"
+9 verbose logfile logs-max:10 dir:/Users/franciscotaveira.ads/Documents/antigravity-kit/temp-cache/_logs/2026-03-05T14_13_02_066Z-
+10 verbose logfile /Users/franciscotaveira.ads/Documents/antigravity-kit/temp-cache/_logs/2026-03-05T14_13_02_066Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
+13 verbose shrinkwrap failed to load node_modules/.package-lock.json out of date, updated: node_modules
+14 silly idealTree buildDeps
+15 silly fetch manifest @tailwindcss/postcss@*
+16 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2fpostcss cache-miss
+17 http fetch GET 200 https://registry.npmjs.org/npm 386ms
+18 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2fpostcss 836ms (cache miss)
+19 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2fpostcss set size:undefined disposed:false
+20 silly placeDep ROOT @tailwindcss/postcss@4.2.1 OK for: srb-empire-hub@0.1.0 want: *
+21 silly fetch manifest @alloc/quick-lru@^5.2.0
+22 silly packumentCache full:https://registry.npmjs.org/@alloc%2fquick-lru cache-miss
+23 silly fetch manifest @tailwindcss/node@4.2.1
+24 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2fnode cache-miss
+25 silly fetch manifest @tailwindcss/oxide@4.2.1
+26 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide cache-miss
+27 http fetch GET 200 https://registry.npmjs.org/@alloc%2fquick-lru 537ms (cache miss)
+28 silly packumentCache full:https://registry.npmjs.org/@alloc%2fquick-lru set size:undefined disposed:false
+29 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2fnode 836ms (cache miss)
+30 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2fnode set size:undefined disposed:false
+31 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide 1238ms (cache miss)
+32 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide set size:undefined disposed:false
+33 silly placeDep ROOT @alloc/quick-lru@5.2.0 OK for: @tailwindcss/postcss@4.2.1 want: ^5.2.0
+34 silly placeDep ROOT @tailwindcss/node@4.2.1 OK for: @tailwindcss/postcss@4.2.1 want: 4.2.1
+35 silly placeDep ROOT @tailwindcss/oxide@4.2.1 OK for: @tailwindcss/postcss@4.2.1 want: 4.2.1
+36 silly fetch manifest jiti@^2.6.1
+37 silly packumentCache full:https://registry.npmjs.org/jiti cache-miss
+38 silly fetch manifest lightningcss@1.31.1
+39 silly packumentCache full:https://registry.npmjs.org/lightningcss cache-miss
+40 silly fetch manifest magic-string@^0.30.21
+41 silly packumentCache full:https://registry.npmjs.org/magic-string cache-miss
+42 silly fetch manifest enhanced-resolve@^5.19.0
+43 silly packumentCache full:https://registry.npmjs.org/enhanced-resolve cache-miss
+44 silly fetch manifest @jridgewell/remapping@^2.3.5
+45 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fremapping cache-miss
+46 silly fetch manifest @tailwindcss/oxide-darwin-x64@4.2.1
+47 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-darwin-x64 cache-miss
+48 silly fetch manifest @tailwindcss/oxide-freebsd-x64@4.2.1
+49 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-freebsd-x64 cache-miss
+50 http fetch GET 200 https://registry.npmjs.org/enhanced-resolve 280ms (cache miss)
+51 silly packumentCache full:https://registry.npmjs.org/enhanced-resolve set size:undefined disposed:false
+52 silly fetch manifest @tailwindcss/oxide-wasm32-wasi@4.2.1
+53 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-wasm32-wasi cache-miss
+54 http fetch GET 200 https://registry.npmjs.org/lightningcss 323ms (cache miss)
+55 silly packumentCache full:https://registry.npmjs.org/lightningcss set size:undefined disposed:false
+56 silly fetch manifest @tailwindcss/oxide-darwin-arm64@4.2.1
+57 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-darwin-arm64 cache-miss
+58 http fetch GET 200 https://registry.npmjs.org/magic-string 332ms (cache miss)
+59 silly packumentCache full:https://registry.npmjs.org/magic-string set size:undefined disposed:false
+60 silly fetch manifest @tailwindcss/oxide-android-arm64@4.2.1
+61 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-android-arm64 cache-miss
+62 http fetch GET 200 https://registry.npmjs.org/jiti 341ms (cache miss)
+63 silly packumentCache full:https://registry.npmjs.org/jiti set size:undefined disposed:false
+64 silly fetch manifest @tailwindcss/oxide-linux-x64-gnu@4.2.1
+65 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-x64-gnu cache-miss
+66 http fetch GET 200 https://registry.npmjs.org/@jridgewell%2fremapping 1275ms (cache miss)
+67 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fremapping set size:undefined disposed:false
+68 silly fetch manifest @tailwindcss/oxide-linux-x64-musl@4.2.1
+69 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-x64-musl cache-miss
+70 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-wasm32-wasi 1332ms (cache miss)
+71 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-wasm32-wasi set size:undefined disposed:false
+72 silly fetch manifest @tailwindcss/oxide-win32-x64-msvc@4.2.1
+73 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-win32-x64-msvc cache-miss
+74 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-freebsd-x64 1727ms (cache miss)
+75 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-freebsd-x64 set size:undefined disposed:false
+76 silly fetch manifest @tailwindcss/oxide-linux-arm64-gnu@4.2.1
+77 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm64-gnu cache-miss
+78 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-android-arm64 1437ms (cache miss)
+79 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-android-arm64 set size:undefined disposed:false
+80 silly fetch manifest @tailwindcss/oxide-linux-arm64-musl@4.2.1
+81 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm64-musl cache-miss
+82 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-darwin-arm64 1486ms (cache miss)
+83 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-darwin-arm64 set size:undefined disposed:false
+84 silly fetch manifest @tailwindcss/oxide-win32-arm64-msvc@4.2.1
+85 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-win32-arm64-msvc cache-miss
+86 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-linux-x64-gnu 1511ms (cache miss)
+87 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-x64-gnu set size:undefined disposed:false
+88 silly fetch manifest @tailwindcss/oxide-linux-arm-gnueabihf@4.2.1
+89 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm-gnueabihf cache-miss
+90 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-darwin-x64 1914ms (cache miss)
+91 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-darwin-x64 set size:undefined disposed:false
+92 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm64-gnu 324ms (cache miss)
+93 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm64-gnu set size:undefined disposed:false
+94 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-win32-x64-msvc 872ms (cache miss)
+95 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-win32-x64-msvc set size:undefined disposed:false
+96 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-linux-x64-musl 1308ms (cache miss)
+97 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-x64-musl set size:undefined disposed:false
+98 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm64-musl 859ms (cache miss)
+99 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm64-musl set size:undefined disposed:false
+100 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-win32-arm64-msvc 902ms (cache miss)
+101 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-win32-arm64-msvc set size:undefined disposed:false
+102 http fetch GET 200 https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm-gnueabihf 917ms (cache miss)
+103 silly packumentCache full:https://registry.npmjs.org/@tailwindcss%2foxide-linux-arm-gnueabihf set size:undefined disposed:false
+104 silly placeDep ROOT @jridgewell/remapping@2.3.5 OK for: @tailwindcss/node@4.2.1 want: ^2.3.5
+105 silly placeDep ROOT enhanced-resolve@5.20.0 OK for: @tailwindcss/node@4.2.1 want: ^5.19.0
+106 silly placeDep ROOT jiti@2.6.1 OK for: @tailwindcss/node@4.2.1 want: ^2.6.1
+107 silly placeDep ROOT lightningcss@1.31.1 OK for: @tailwindcss/node@4.2.1 want: 1.31.1
+108 silly placeDep ROOT magic-string@0.30.21 OK for: @tailwindcss/node@4.2.1 want: ^0.30.21
+109 silly fetch manifest @jridgewell/gen-mapping@^0.3.5
+110 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fgen-mapping cache-miss
+111 silly fetch manifest @jridgewell/trace-mapping@^0.3.24
+112 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2ftrace-mapping cache-miss
+113 silly fetch manifest graceful-fs@^4.2.4
+114 silly packumentCache full:https://registry.npmjs.org/graceful-fs cache-miss
+115 silly fetch manifest tapable@^2.3.0
+116 silly packumentCache full:https://registry.npmjs.org/tapable cache-miss
+117 silly fetch manifest lightningcss-darwin-x64@1.31.1
+118 silly packumentCache full:https://registry.npmjs.org/lightningcss-darwin-x64 cache-miss
+119 silly fetch manifest lightningcss-linux-x64-gnu@1.31.1
+120 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-x64-gnu cache-miss
+121 silly fetch manifest lightningcss-win32-x64-msvc@1.31.1
+122 silly packumentCache full:https://registry.npmjs.org/lightningcss-win32-x64-msvc cache-miss
+123 http fetch GET 200 https://registry.npmjs.org/graceful-fs 37ms (cache miss)
+124 silly packumentCache full:https://registry.npmjs.org/graceful-fs set size:undefined disposed:false
+125 silly fetch manifest lightningcss-win32-arm64-msvc@1.31.1
+126 silly packumentCache full:https://registry.npmjs.org/lightningcss-win32-arm64-msvc cache-miss
+127 http fetch GET 200 https://registry.npmjs.org/lightningcss-linux-x64-gnu 52ms (cache miss)
+128 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-x64-gnu set size:undefined disposed:false
+129 silly fetch manifest lightningcss-darwin-arm64@1.31.1
+130 silly packumentCache full:https://registry.npmjs.org/lightningcss-darwin-arm64 cache-miss
+131 http fetch GET 200 https://registry.npmjs.org/@jridgewell%2fgen-mapping 60ms (cache miss)
+132 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fgen-mapping set size:undefined disposed:false
+133 silly fetch manifest lightningcss-linux-arm64-gnu@1.31.1
+134 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-arm64-gnu cache-miss
+135 http fetch GET 200 https://registry.npmjs.org/lightningcss-win32-x64-msvc 65ms (cache miss)
+136 silly packumentCache full:https://registry.npmjs.org/lightningcss-win32-x64-msvc set size:undefined disposed:false
+137 silly fetch manifest lightningcss-linux-arm-gnueabihf@1.31.1
+138 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-arm-gnueabihf cache-miss
+139 http fetch GET 200 https://registry.npmjs.org/lightningcss-win32-arm64-msvc 35ms (cache miss)
+140 silly packumentCache full:https://registry.npmjs.org/lightningcss-win32-arm64-msvc set size:undefined disposed:false
+141 silly fetch manifest lightningcss-linux-arm64-musl@1.31.1
+142 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-arm64-musl cache-miss
+143 http fetch GET 200 https://registry.npmjs.org/lightningcss-darwin-arm64 28ms (cache miss)
+144 silly packumentCache full:https://registry.npmjs.org/lightningcss-darwin-arm64 set size:undefined disposed:false
+145 silly fetch manifest lightningcss-linux-x64-musl@1.31.1
+146 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-x64-musl cache-miss
+147 http fetch GET 200 https://registry.npmjs.org/lightningcss-linux-arm64-gnu 41ms (cache miss)
+148 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-arm64-gnu set size:undefined disposed:false
+149 silly fetch manifest lightningcss-freebsd-x64@1.31.1
+150 silly packumentCache full:https://registry.npmjs.org/lightningcss-freebsd-x64 cache-miss
+151 http fetch GET 200 https://registry.npmjs.org/lightningcss-linux-arm-gnueabihf 54ms (cache miss)
+152 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-arm-gnueabihf set size:undefined disposed:false
+153 silly fetch manifest lightningcss-android-arm64@1.31.1
+154 silly packumentCache full:https://registry.npmjs.org/lightningcss-android-arm64 cache-miss
+155 http fetch GET 200 https://registry.npmjs.org/lightningcss-linux-arm64-musl 57ms (cache miss)
+156 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-arm64-musl set size:undefined disposed:false
+157 silly fetch manifest @jridgewell/sourcemap-codec@^1.5.5
+158 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fsourcemap-codec cache-miss
+159 http fetch GET 200 https://registry.npmjs.org/lightningcss-linux-x64-musl 58ms (cache miss)
+160 silly packumentCache full:https://registry.npmjs.org/lightningcss-linux-x64-musl set size:undefined disposed:false
+161 http fetch GET 200 https://registry.npmjs.org/lightningcss-freebsd-x64 40ms (cache miss)
+162 silly packumentCache full:https://registry.npmjs.org/lightningcss-freebsd-x64 set size:undefined disposed:false
+163 http fetch GET 200 https://registry.npmjs.org/lightningcss-android-arm64 32ms (cache miss)
+164 silly packumentCache full:https://registry.npmjs.org/lightningcss-android-arm64 set size:undefined disposed:false
+165 http fetch GET 200 https://registry.npmjs.org/lightningcss-darwin-x64 231ms (cache miss)
+166 silly packumentCache full:https://registry.npmjs.org/lightningcss-darwin-x64 set size:undefined disposed:false
+167 http fetch GET 200 https://registry.npmjs.org/@jridgewell%2ftrace-mapping 235ms (cache miss)
+168 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2ftrace-mapping set size:undefined disposed:false
+169 http fetch GET 200 https://registry.npmjs.org/@jridgewell%2fsourcemap-codec 441ms (cache miss)
+170 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fsourcemap-codec set size:undefined disposed:false
+171 http fetch GET 200 https://registry.npmjs.org/tapable 612ms (cache miss)
+172 silly packumentCache full:https://registry.npmjs.org/tapable set size:undefined disposed:false
+173 silly placeDep ROOT @jridgewell/gen-mapping@0.3.13 OK for: @jridgewell/remapping@2.3.5 want: ^0.3.5
+174 silly placeDep ROOT @jridgewell/trace-mapping@0.3.31 OK for: @jridgewell/remapping@2.3.5 want: ^0.3.24
+175 silly fetch manifest @jridgewell/sourcemap-codec@^1.5.0
+176 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fsourcemap-codec cache-miss
+177 silly fetch manifest @jridgewell/resolve-uri@^3.1.0
+178 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fresolve-uri cache-miss
+179 silly fetch manifest @jridgewell/sourcemap-codec@^1.4.14
+180 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fsourcemap-codec cache-miss
+181 http cache https://registry.npmjs.org/@jridgewell%2fsourcemap-codec 26ms (cache hit)
+182 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fsourcemap-codec set size:59275 disposed:false
+183 http cache https://registry.npmjs.org/@jridgewell%2fsourcemap-codec 25ms (cache hit)
+184 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fsourcemap-codec set size:59275 disposed:false
+185 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fsourcemap-codec dispose
+186 http fetch GET 200 https://registry.npmjs.org/@jridgewell%2fresolve-uri 60ms (cache miss)
+187 silly packumentCache full:https://registry.npmjs.org/@jridgewell%2fresolve-uri set size:undefined disposed:false
+188 silly placeDep ROOT @jridgewell/sourcemap-codec@1.5.5 OK for: @jridgewell/gen-mapping@0.3.13 want: ^1.5.0
+189 silly placeDep ROOT @jridgewell/resolve-uri@3.1.2 OK for: @jridgewell/trace-mapping@0.3.31 want: ^3.1.0
+190 silly placeDep ROOT @tailwindcss/oxide-android-arm64@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+191 silly placeDep ROOT @tailwindcss/oxide-darwin-arm64@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+192 silly placeDep ROOT @tailwindcss/oxide-darwin-x64@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+193 silly placeDep ROOT @tailwindcss/oxide-freebsd-x64@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+194 silly placeDep ROOT @tailwindcss/oxide-linux-arm-gnueabihf@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+195 silly placeDep ROOT @tailwindcss/oxide-linux-arm64-gnu@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+196 silly placeDep ROOT @tailwindcss/oxide-linux-arm64-musl@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+197 silly placeDep ROOT @tailwindcss/oxide-linux-x64-gnu@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+198 silly placeDep ROOT @tailwindcss/oxide-linux-x64-musl@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+199 silly placeDep ROOT @tailwindcss/oxide-wasm32-wasi@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+200 silly placeDep ROOT @tailwindcss/oxide-win32-arm64-msvc@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+201 silly placeDep ROOT @tailwindcss/oxide-win32-x64-msvc@4.2.1 OK for: @tailwindcss/oxide@4.2.1 want: 4.2.1
+202 silly placeDep ROOT graceful-fs@4.2.11 OK for: enhanced-resolve@5.20.0 want: ^4.2.4
+203 silly placeDep ROOT tapable@2.3.0 OK for: enhanced-resolve@5.20.0 want: ^2.3.0
+204 silly placeDep ROOT lightningcss-android-arm64@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+205 silly placeDep ROOT lightningcss-darwin-arm64@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+206 silly placeDep ROOT lightningcss-darwin-x64@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+207 silly placeDep ROOT lightningcss-freebsd-x64@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+208 silly placeDep ROOT lightningcss-linux-arm-gnueabihf@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+209 silly placeDep ROOT lightningcss-linux-arm64-gnu@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+210 silly placeDep ROOT lightningcss-linux-arm64-musl@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+211 silly placeDep ROOT lightningcss-linux-x64-gnu@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+212 silly placeDep ROOT lightningcss-linux-x64-musl@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+213 silly placeDep ROOT lightningcss-win32-arm64-msvc@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+214 silly placeDep ROOT lightningcss-win32-x64-msvc@1.31.1 OK for: lightningcss@1.31.1 want: 1.31.1
+215 silly reify moves {}
+216 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-wasm32-wasi
+217 silly reify mark deleted [
+217 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-wasm32-wasi'
+217 silly reify ]
+218 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-win32-x64-msvc
+219 silly reify mark deleted [
+219 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-win32-x64-msvc'
+219 silly reify ]
+220 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-win32-arm64-msvc
+221 silly reify mark deleted [
+221 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-win32-arm64-msvc'
+221 silly reify ]
+222 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-x64-musl
+223 silly reify mark deleted [
+223 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-x64-musl'
+223 silly reify ]
+224 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-x64-gnu
+225 silly reify mark deleted [
+225 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-x64-gnu'
+225 silly reify ]
+226 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-arm64-musl
+227 silly reify mark deleted [
+227 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-arm64-musl'
+227 silly reify ]
+228 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-arm64-gnu
+229 silly reify mark deleted [
+229 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-arm64-gnu'
+229 silly reify ]
+230 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-arm-gnueabihf
+231 silly reify mark deleted [
+231 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-linux-arm-gnueabihf'
+231 silly reify ]
+232 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-freebsd-x64
+233 silly reify mark deleted [
+233 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-freebsd-x64'
+233 silly reify ]
+234 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-darwin-x64
+235 silly reify mark deleted [
+235 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-darwin-x64'
+235 silly reify ]
+236 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-android-arm64
+237 silly reify mark deleted [
+237 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/lightningcss-android-arm64'
+237 silly reify ]
+238 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-win32-x64-msvc
+239 silly reify mark deleted [
+239 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-win32-x64-msvc'
+239 silly reify ]
+240 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-win32-arm64-msvc
+241 silly reify mark deleted [
+241 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-win32-arm64-msvc'
+241 silly reify ]
+242 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-x64-musl
+243 silly reify mark deleted [
+243 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-x64-musl'
+243 silly reify ]
+244 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-x64-gnu
+245 silly reify mark deleted [
+245 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-x64-gnu'
+245 silly reify ]
+246 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-arm64-musl
+247 silly reify mark deleted [
+247 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-arm64-musl'
+247 silly reify ]
+248 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-arm64-gnu
+249 silly reify mark deleted [
+249 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-arm64-gnu'
+249 silly reify ]
+250 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-arm-gnueabihf
+251 silly reify mark deleted [
+251 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-linux-arm-gnueabihf'
+251 silly reify ]
+252 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-freebsd-x64
+253 silly reify mark deleted [
+253 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-freebsd-x64'
+253 silly reify ]
+254 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-darwin-x64
+255 silly reify mark deleted [
+255 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-darwin-x64'
+255 silly reify ]
+256 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-android-arm64
+257 silly reify mark deleted [
+257 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@tailwindcss/oxide-android-arm64'
+257 silly reify ]
+258 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-win32-x64-msvc
+259 silly reify mark deleted [
+259 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-win32-x64-msvc'
+259 silly reify ]
+260 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-win32-arm64-msvc
+261 silly reify mark deleted [
+261 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-win32-arm64-msvc'
+261 silly reify ]
+262 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-linux-x64-musl
+263 silly reify mark deleted [
+263 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-linux-x64-musl'
+263 silly reify ]
+264 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-linux-x64-gnu
+265 silly reify mark deleted [
+265 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-linux-x64-gnu'
+265 silly reify ]
+266 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-linux-arm64-musl
+267 silly reify mark deleted [
+267 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-linux-arm64-musl'
+267 silly reify ]
+268 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-linux-arm64-gnu
+269 silly reify mark deleted [
+269 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-linux-arm64-gnu'
+269 silly reify ]
+270 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-darwin-x64
+271 silly reify mark deleted [
+271 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@next/swc-darwin-x64'
+271 silly reify ]
+272 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-win32-x64
+273 silly reify mark deleted [
+273 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-win32-x64'
+273 silly reify ]
+274 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-win32-ia32
+275 silly reify mark deleted [
+275 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-win32-ia32'
+275 silly reify ]
+276 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-win32-arm64
+277 silly reify mark deleted [
+277 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-win32-arm64'
+277 silly reify ]
+278 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-wasm32
+279 silly reify mark deleted [
+279 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-wasm32'
+279 silly reify ]
+280 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linuxmusl-x64
+281 silly reify mark deleted [
+281 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linuxmusl-x64'
+281 silly reify ]
+282 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linuxmusl-arm64
+283 silly reify mark deleted [
+283 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linuxmusl-arm64'
+283 silly reify ]
+284 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-x64
+285 silly reify mark deleted [
+285 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-x64'
+285 silly reify ]
+286 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-s390x
+287 silly reify mark deleted [
+287 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-s390x'
+287 silly reify ]
+288 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-riscv64
+289 silly reify mark deleted [
+289 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-riscv64'
+289 silly reify ]
+290 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-ppc64
+291 silly reify mark deleted [
+291 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-ppc64'
+291 silly reify ]
+292 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-arm64
+293 silly reify mark deleted [
+293 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-arm64'
+293 silly reify ]
+294 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-arm
+295 silly reify mark deleted [
+295 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-linux-arm'
+295 silly reify ]
+296 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linuxmusl-x64
+297 silly reify mark deleted [
+297 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linuxmusl-x64'
+297 silly reify ]
+298 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linuxmusl-arm64
+299 silly reify mark deleted [
+299 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linuxmusl-arm64'
+299 silly reify ]
+300 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-x64
+301 silly reify mark deleted [
+301 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-x64'
+301 silly reify ]
+302 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-s390x
+303 silly reify mark deleted [
+303 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-s390x'
+303 silly reify ]
+304 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-riscv64
+305 silly reify mark deleted [
+305 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-riscv64'
+305 silly reify ]
+306 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-ppc64
+307 silly reify mark deleted [
+307 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-ppc64'
+307 silly reify ]
+308 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-arm64
+309 silly reify mark deleted [
+309 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-arm64'
+309 silly reify ]
+310 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-arm
+311 silly reify mark deleted [
+311 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-linux-arm'
+311 silly reify ]
+312 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-darwin-x64
+313 silly reify mark deleted [
+313 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-libvips-darwin-x64'
+313 silly reify ]
+314 verbose reify failed optional dependency /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-darwin-x64
+315 silly reify mark deleted [
+315 silly reify   '/Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub/node_modules/@img/sharp-darwin-x64'
+315 silly reify ]
+316 http cache lightningcss-darwin-arm64@https://registry.npmjs.org/lightningcss-darwin-arm64/-/lightningcss-darwin-arm64-1.31.1.tgz 0ms (cache hit)
+317 http cache graceful-fs@https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz 0ms (cache hit)
+318 http cache @tailwindcss/oxide-darwin-arm64@https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.2.1.tgz 0ms (cache hit)
+319 http cache @jridgewell/resolve-uri@https://registry.npmjs.org/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz 0ms (cache hit)
+320 http cache @jridgewell/sourcemap-codec@https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz 0ms (cache hit)
+321 http cache @jridgewell/trace-mapping@https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz 0ms (cache hit)
+322 http cache tapable@https://registry.npmjs.org/tapable/-/tapable-2.3.0.tgz 0ms (cache hit)
+323 http cache @jridgewell/gen-mapping@https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz 0ms (cache hit)
+324 http cache lightningcss@https://registry.npmjs.org/lightningcss/-/lightningcss-1.31.1.tgz 0ms (cache hit)
+325 http cache jiti@https://registry.npmjs.org/jiti/-/jiti-2.6.1.tgz 0ms (cache hit)
+326 http cache magic-string@https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz 0ms (cache hit)
+327 http cache enhanced-resolve@https://registry.npmjs.org/enhanced-resolve/-/enhanced-resolve-5.20.0.tgz 0ms (cache hit)
+328 http cache @tailwindcss/oxide@https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.2.1.tgz 0ms (cache hit)
+329 http cache @tailwindcss/node@https://registry.npmjs.org/@tailwindcss/node/-/node-4.2.1.tgz 0ms (cache hit)
+330 http cache @alloc/quick-lru@https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz 0ms (cache hit)
+331 http cache @jridgewell/remapping@https://registry.npmjs.org/@jridgewell/remapping/-/remapping-2.3.5.tgz 0ms (cache hit)
+332 http cache @tailwindcss/postcss@https://registry.npmjs.org/@tailwindcss/postcss/-/postcss-4.2.1.tgz 0ms (cache hit)
+333 silly tarball no local data for lightningcss-darwin-arm64@https://registry.npmjs.org/lightningcss-darwin-arm64/-/lightningcss-darwin-arm64-1.31.1.tgz. Extracting by manifest.
+334 silly tarball no local data for graceful-fs@https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz. Extracting by manifest.
+335 silly tarball no local data for @tailwindcss/oxide-darwin-arm64@https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.2.1.tgz. Extracting by manifest.
+336 silly tarball no local data for @jridgewell/resolve-uri@https://registry.npmjs.org/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz. Extracting by manifest.
+337 silly tarball no local data for @jridgewell/sourcemap-codec@https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz. Extracting by manifest.
+338 silly tarball no local data for @jridgewell/trace-mapping@https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz. Extracting by manifest.
+339 silly tarball no local data for tapable@https://registry.npmjs.org/tapable/-/tapable-2.3.0.tgz. Extracting by manifest.
+340 silly tarball no local data for @jridgewell/gen-mapping@https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz. Extracting by manifest.
+341 silly tarball no local data for lightningcss@https://registry.npmjs.org/lightningcss/-/lightningcss-1.31.1.tgz. Extracting by manifest.
+342 silly tarball no local data for jiti@https://registry.npmjs.org/jiti/-/jiti-2.6.1.tgz. Extracting by manifest.
+343 silly tarball no local data for magic-string@https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz. Extracting by manifest.
+344 silly tarball no local data for enhanced-resolve@https://registry.npmjs.org/enhanced-resolve/-/enhanced-resolve-5.20.0.tgz. Extracting by manifest.
+345 silly tarball no local data for @tailwindcss/oxide@https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.2.1.tgz. Extracting by manifest.
+346 silly tarball no local data for @tailwindcss/node@https://registry.npmjs.org/@tailwindcss/node/-/node-4.2.1.tgz. Extracting by manifest.
+347 http cache @emnapi/runtime@https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.8.1.tgz 0ms (cache hit)
+348 silly tarball no local data for @alloc/quick-lru@https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz. Extracting by manifest.
+349 silly tarball no local data for @jridgewell/remapping@https://registry.npmjs.org/@jridgewell/remapping/-/remapping-2.3.5.tgz. Extracting by manifest.
+350 silly tarball no local data for @tailwindcss/postcss@https://registry.npmjs.org/@tailwindcss/postcss/-/postcss-4.2.1.tgz. Extracting by manifest.
+351 silly tarball no local data for @emnapi/runtime@https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.8.1.tgz. Extracting by manifest.
+352 http fetch GET 200 https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz 184ms (cache miss)
+353 http fetch GET 200 https://registry.npmjs.org/tapable/-/tapable-2.3.0.tgz 186ms (cache miss)
+354 http fetch GET 200 https://registry.npmjs.org/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz 202ms (cache miss)
+355 http fetch GET 200 https://registry.npmjs.org/@tailwindcss/postcss/-/postcss-4.2.1.tgz 244ms (cache miss)
+356 http fetch GET 200 https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz 255ms (cache miss)
+357 http fetch GET 200 https://registry.npmjs.org/@tailwindcss/node/-/node-4.2.1.tgz 292ms (cache miss)
+358 http fetch GET 200 https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz 325ms (cache miss)
+359 http fetch GET 200 https://registry.npmjs.org/@jridgewell/remapping/-/remapping-2.3.5.tgz 327ms (cache miss)
+360 http fetch GET 200 https://registry.npmjs.org/lightningcss/-/lightningcss-1.31.1.tgz 350ms (cache miss)
+361 http fetch GET 200 https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz 361ms (cache miss)
+362 http fetch GET 200 https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz 373ms (cache miss)
+363 http fetch GET 200 https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.2.1.tgz 372ms (cache miss)
+364 http fetch GET 200 https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz 391ms (cache miss)
+365 http fetch GET 200 https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.8.1.tgz 378ms (cache miss)
+366 http fetch GET 200 https://registry.npmjs.org/jiti/-/jiti-2.6.1.tgz 418ms (cache miss)
+367 http fetch GET 200 https://registry.npmjs.org/enhanced-resolve/-/enhanced-resolve-5.20.0.tgz 436ms (cache miss)
+368 http fetch GET 200 https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.2.1.tgz 459ms (cache miss)
+369 http fetch GET 200 https://registry.npmjs.org/lightningcss-darwin-arm64/-/lightningcss-darwin-arm64-1.31.1.tgz 489ms (cache miss)
+370 silly ADD node_modules/lightningcss-win32-x64-msvc
+371 silly ADD node_modules/lightningcss-win32-arm64-msvc
+372 silly ADD node_modules/lightningcss-linux-x64-musl
+373 silly ADD node_modules/lightningcss-linux-x64-gnu
+374 silly ADD node_modules/lightningcss-linux-arm64-musl
+375 silly ADD node_modules/lightningcss-linux-arm64-gnu
+376 silly ADD node_modules/lightningcss-linux-arm-gnueabihf
+377 silly ADD node_modules/lightningcss-freebsd-x64
+378 silly ADD node_modules/lightningcss-darwin-x64
+379 silly ADD node_modules/lightningcss-darwin-arm64
+380 silly ADD node_modules/lightningcss-android-arm64
+381 silly ADD node_modules/tapable
+382 silly ADD node_modules/graceful-fs
+383 silly ADD node_modules/@tailwindcss/oxide-win32-x64-msvc
+384 silly ADD node_modules/@tailwindcss/oxide-win32-arm64-msvc
+385 silly ADD node_modules/@tailwindcss/oxide-wasm32-wasi
+386 silly ADD node_modules/@tailwindcss/oxide-linux-x64-musl
+387 silly ADD node_modules/@tailwindcss/oxide-linux-x64-gnu
+388 silly ADD node_modules/@tailwindcss/oxide-linux-arm64-musl
+389 silly ADD node_modules/@tailwindcss/oxide-linux-arm64-gnu
+390 silly ADD node_modules/@tailwindcss/oxide-linux-arm-gnueabihf
+391 silly ADD node_modules/@tailwindcss/oxide-freebsd-x64
+392 silly ADD node_modules/@tailwindcss/oxide-darwin-x64
+393 silly ADD node_modules/@tailwindcss/oxide-darwin-arm64
+394 silly ADD node_modules/@tailwindcss/oxide-android-arm64
+395 silly ADD node_modules/@jridgewell/resolve-uri
+396 silly ADD node_modules/@jridgewell/sourcemap-codec
+397 silly ADD node_modules/@jridgewell/trace-mapping
+398 silly ADD node_modules/@jridgewell/gen-mapping
+399 silly ADD node_modules/magic-string
+400 silly ADD node_modules/lightningcss
+401 silly ADD node_modules/jiti
+402 silly ADD node_modules/enhanced-resolve
+403 silly ADD node_modules/@jridgewell/remapping
+404 silly ADD node_modules/@tailwindcss/oxide
+405 silly ADD node_modules/@tailwindcss/node
+406 silly ADD node_modules/@alloc/quick-lru
+407 silly ADD node_modules/@tailwindcss/postcss
+408 silly ADD node_modules/@next/swc-win32-x64-msvc
+409 silly ADD node_modules/@next/swc-win32-arm64-msvc
+410 silly ADD node_modules/@next/swc-linux-x64-musl
+411 silly ADD node_modules/@next/swc-linux-x64-gnu
+412 silly ADD node_modules/@next/swc-linux-arm64-musl
+413 silly ADD node_modules/@next/swc-linux-arm64-gnu
+414 silly ADD node_modules/@next/swc-darwin-x64
+415 silly ADD node_modules/@img/sharp-win32-x64
+416 silly ADD node_modules/@img/sharp-win32-ia32
+417 silly ADD node_modules/@img/sharp-win32-arm64
+418 silly ADD node_modules/@img/sharp-wasm32
+419 silly ADD node_modules/@img/sharp-linuxmusl-x64
+420 silly ADD node_modules/@img/sharp-linuxmusl-arm64
+421 silly ADD node_modules/@img/sharp-linux-x64
+422 silly ADD node_modules/@img/sharp-linux-s390x
+423 silly ADD node_modules/@img/sharp-linux-riscv64
+424 silly ADD node_modules/@img/sharp-linux-ppc64
+425 silly ADD node_modules/@img/sharp-linux-arm64
+426 silly ADD node_modules/@img/sharp-linux-arm
+427 silly ADD node_modules/@img/sharp-libvips-linuxmusl-x64
+428 silly ADD node_modules/@img/sharp-libvips-linuxmusl-arm64
+429 silly ADD node_modules/@img/sharp-libvips-linux-x64
+430 silly ADD node_modules/@img/sharp-libvips-linux-s390x
+431 silly ADD node_modules/@img/sharp-libvips-linux-riscv64
+432 silly ADD node_modules/@img/sharp-libvips-linux-ppc64
+433 silly ADD node_modules/@img/sharp-libvips-linux-arm64
+434 silly ADD node_modules/@img/sharp-libvips-linux-arm
+435 silly ADD node_modules/@img/sharp-libvips-darwin-x64
+436 silly ADD node_modules/@img/sharp-darwin-x64
+437 silly ADD node_modules/@emnapi/runtime
+438 verbose cwd /Users/franciscotaveira.ads/Documents/antigravity-kit/srb-empire-hub
+439 verbose os Darwin 25.2.0
+440 verbose node v24.11.0
+441 verbose npm  v11.6.1
+442 notice
+442 notice New [33mminor[39m version of npm available! [33m11.6.1[39m -> [34m11.11.0[39m
+442 notice Changelog: [34mhttps://github.com/npm/cli/releases/tag/v11.11.0[39m
+442 notice To update run: [4mnpm install -g npm@11.11.0[24m
+442 notice  { force: true, Symbol(proc-log.meta): true }
+443 verbose exit 0
+444 info ok

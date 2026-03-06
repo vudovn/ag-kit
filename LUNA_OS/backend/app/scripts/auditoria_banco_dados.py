@@ -114,7 +114,9 @@ class AuditoriaBancoDados:
                         "count": len(set(phones_duplicados)),
                         "sugestao": "Remover clients duplicados por phone"
                     })
-            except:
+            except Exception as e:
+                # [DEBT #A9] Manter fallback mas logar erro específico
+                logger.debug(f"Auditoria: erro ao verificar clients duplicados: {e}")
                 pass
             
             # 4. Verificar mensagens duplicadas
@@ -154,7 +156,9 @@ class AuditoriaBancoDados:
                         "count": len(phones_orfaos),
                         "sugestao": "Criar clients para phones órfãos ou remover conversas"
                     })
-            except:
+            except Exception as e:
+                # [DEBT #A9] Manter fallback mas logar erro específico
+                logger.debug(f"Auditoria: erro ao verificar conversas órfãs: {e}")
                 pass
             
             # 2. Mensagens sem conversa associada
@@ -179,7 +183,9 @@ class AuditoriaBancoDados:
                         "count": len(clients_sem_conversa),
                         "sugestao": "Remover clients sem conversas ou importar histórico"
                     })
-            except:
+            except Exception as e:
+                # [DEBT #A9] Manter fallback mas logar erro específico
+                logger.debug(f"Auditoria: erro ao verificar clients sem conversas: {e}")
                 pass
             
             # 4. Dados com timestamps inválidos
@@ -241,7 +247,9 @@ class AuditoriaBancoDados:
                     result = self.db.table(tabela).select("count", count="exact").execute()
                     count = result.count if hasattr(result, 'count') else 0
                     contagem_registros[tabela] = count
-                except:
+                except Exception as e:
+                    # [DEBT #A9] Manter fallback mas logar erro específico
+                    logger.debug(f"Auditoria: erro ao contar registros de {tabela}: {e}")
                     contagem_registros[tabela] = 0
             
             relatorio = {

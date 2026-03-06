@@ -4,6 +4,7 @@ Knowledge Base Loader
 import json
 import os
 from typing import List, Dict, Optional
+from loguru import logger
 
 class KnowledgeBase:
     def __init__(self):
@@ -16,7 +17,7 @@ class KnowledgeBase:
         self.coupons = []
         self.business = {}
         self._load()
-    
+
     def _load(self):
         """Load all knowledge files"""
         try:
@@ -29,9 +30,11 @@ class KnowledgeBase:
                 self.packages = data.get("packages", {})
                 self.coupons = data.get("coupons", [])
                 self.business = data.get("business", {})
-            print(f"✅ Knowledge Base loaded: {len(self.services)} services, {len(self.professionals)} professionals")
+            # [DEBT #M1] Substituir print() por logger
+            logger.info(f"✅ Knowledge Base loaded: {len(self.services)} services, {len(self.professionals)} professionals")
         except Exception as e:
-            print(f"⚠️ Knowledge Base load error: {e}")
+            # [DEBT #M1] Substituir print() por logger
+            logger.error(f"⚠️ Knowledge Base load error: {e}")
     
     def search_services(self, query: str) -> List[dict]:
         """Search services by query"""

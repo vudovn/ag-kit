@@ -6,6 +6,7 @@ Status: 🟢 PRONTO PARA PRODUÇÃO (com feature flag)
 Risco: BAIXO (rollback 60s)
 """
 
+import os
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 from loguru import logger
@@ -13,8 +14,8 @@ import json
 from pathlib import Path
 import glob
 
-# Caminho para dados REAIS
-LOGS_DIR = Path("/Users/franciscotaveira.ads/LUNA OS/logs")
+# [DEBT #C1] Caminho configurável via ENV (não hardcoded)
+LOGS_DIR = Path(os.getenv("LOGS_DIR", "logs"))
 
 
 class AgendaViva:
@@ -223,12 +224,14 @@ class AgendaViva:
                 
                 alt_1 = dt - timedelta(minutes=30)
                 alt_2 = dt + timedelta(minutes=30)
-                
+
                 alternativas = [
                     {"horario": alt_1.isoformat(), "disponivel": True},
                     {"horario": alt_2.isoformat(), "disponivel": True}
                 ]
-            except:
+            except Exception as e:
+                # [DEBT #A9] Manter fallback mas logar erro específico
+                logger.debug(f"Agenda Viva: erro ao calcular alternativas de encaixe: {e}")
                 alternativas = []
         
         return {

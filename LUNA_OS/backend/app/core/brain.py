@@ -8,6 +8,8 @@ Arquitetura:
 - Fallback em 3 níveis (Local → IA → Safety Net)
 - RAG-based context building
 - Intelligence extraction para BI
+
+DEBT #B3: Comentários padronizados em português
 """
 
 import json
@@ -26,7 +28,7 @@ from app.integrations.openrouter import openrouter
 from app.integrations.wascript import wascript
 from app.core.memory import MemoryManager
 from app.knowledge.loader import KnowledgeBase
-# [LAZY LOADING] Não importar campaign_manager na importação
+# [LAZY LOADING] Não importar campaign_manager na importação do módulo
 # from app.core.campaign_manager import campaign_manager
 from app.core.scheduler import scheduler
 
@@ -243,7 +245,16 @@ def classify_intent(message: str) -> Tuple[IntentType, float]:
 
 
 def select_model(intent: IntentType, message: str) -> str:
-    """Seleção de modelo baseada na complexidade - MCT Token Economy"""
+    """
+    Seleção de modelo baseada na complexidade - MCT Token Economy.
+
+    Args:
+        intent: Intenção classificada
+        message: Mensagem original do usuário
+
+    Returns:
+        ID do modelo a ser usado (quick, standard, ou complex)
+    """
     if intent in QUICK_INTENTS:
         return settings.model_quick
     if intent in COMPLEX_INTENTS or len(message) > 300:
@@ -260,6 +271,12 @@ async def get_quick_response(intent: IntentType) -> Optional[str]:
     """
     Respostas rápidas: KB primeiro, fallback local depois.
     Zero dependência de serviços externos.
+
+    Args:
+        intent: Intenção classificada
+
+    Returns:
+        Resposta rápida para a intenção, ou None se não encontrada
     """
     # Tenta Knowledge Base
     try:
@@ -285,8 +302,18 @@ async def get_quick_response(intent: IntentType) -> Optional[str]:
 # ═══════════════════════════════════════════════
 
 
-async def build_context(client: Dict, intent: IntentType, message: str) -> str:
-    """Construção de contexto RAG baseado na intenção"""
+async def build_context(client: Dict[str, Any], intent: IntentType, message: str) -> str:
+    """
+    Construção de contexto RAG baseado na intenção.
+
+    Args:
+        client: Perfil do cliente
+        intent: Intenção classificada
+        message: Mensagem original do usuário
+
+    Returns:
+        String de contexto formatado para o prompt da IA
+    """
     context_parts = []
 
     # 1. Campanhas Ativas (Prioridade)
@@ -548,9 +575,8 @@ class BrainEngine:
 
         # Chamada 1: Cérebro Lógico (DeepSeek-R1 / MiniMax / Modelos de Raciocínio)
         # O OpenRouter envia para um modelo focado apenas em Extração de Regras
-        logic_model = os.getenv(
-            "LOGIC_MODEL_ID", "google/gemini-2.5-flash"
-        )  # Fallback provisório Flash se n configurado
+        # [DEBT #M5] Usar settings.model_quick como fallback (configurável via ENV)
+        logic_model = os.getenv("LOGIC_MODEL_ID", settings.model_quick)
         logger.info(f"🧠 Pass 1: Logic Engine ({logic_model})")
 
         logic_messages = history.copy() if history else []
