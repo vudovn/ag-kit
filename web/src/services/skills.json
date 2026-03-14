@@ -40,8 +40,18 @@
         "category": "Database"
     },
     {
+        "name": "prisma-expert",
+        "description": "Prisma ORM patterns, migrations, and schema management",
+        "category": "Database"
+    },
+    {
         "name": "deployment-procedures",
         "description": "CI/CD, deploy workflows",
+        "category": "Cloud & Infrastructure"
+    },
+    {
+        "name": "docker-expert",
+        "description": "Containerization, Dockerfiles, and image optimization",
         "category": "Cloud & Infrastructure"
     },
     {
@@ -138,6 +148,11 @@
         "name": "clean-code",
         "description": "Coding standards (Global)",
         "category": "Other"
+    },
+    {
+        "name": "refactoring-patterns",
+        "description": "Safe refactoring strategies for legacy and evolving codebases",
+        "category": "Testing & Quality"
     },
     {
         "name": "behavioral-modes",

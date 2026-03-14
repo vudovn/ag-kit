@@ -147,6 +147,7 @@
         "description": "Legacy code, refactoring",
         "skills": [
             "clean-code",
+            "refactoring-patterns",
             "code-review-checklist"
         ]
     },
