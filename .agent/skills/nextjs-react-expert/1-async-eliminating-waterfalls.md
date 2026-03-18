@@ -7,7 +7,7 @@
 
 ## Overview
 
-This section contains **5 rules** focused on eliminating waterfalls.
+This section contains **6 rules** focused on eliminating waterfalls, now including Next.js 16 `after()` and `connection()` patterns.
 
 ---
 
@@ -310,3 +310,42 @@ Both components share the same promise, so only one fetch occurs. Layout renders
 
 **Trade-off:** Faster initial paint vs potential layout shift. Choose based on your UX priorities.
 
+
+---
+
+## Rule 1.6: Use `after()` and `connection()` (Next.js 16+)
+
+**Impact:** HIGH  
+**Tags:** nextjs16, async, runtime, performance
+
+Next.js 16 introduced APIs to prevent "Blocking the Main Thread" and ensure "Dynamic Runtime" awareness.
+
+### 1. `after()` for Non-Blocking Logic
+Avoid `await` on logic that doesn't affect the initial UI (logging, analytics, emails).
+
+```tsx
+import { after } from 'next/server'
+
+export default async function Page() {
+  const data = await fetchData() // CRITICAL
+  
+  after(() => {
+    // RUNS AFTER THE RESPONSE IS SENT
+    logTrack(data) 
+  })
+
+  return <View data={data} />
+}
+```
+
+### 2. `connection()` for Dynamic Intent
+Use `connection()` to signal that a component is dynamic and should not be pre-rendered as static, allowing other parts of the page to stream independently.
+
+```tsx
+import { connection } from 'next/server'
+
+async function DynamicData() {
+  await connection() // Signals dynamic intent
+  return await fetchFreshData()
+}
+```

@@ -10,7 +10,8 @@ Frontend:
   language: TypeScript 5.7+
   styling: Tailwind CSS v4
   state: React 19 Actions / Server Components
-  bundler: Turbopack (Stable for Dev)
+  caching: Next.js 16 Cache Components (Stable)
+  bundler: Turbopack (Stable for Dev & Build)
 
 Backend:
   runtime: Node.js 23

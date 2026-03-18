@@ -416,3 +416,37 @@ After implementing your design, run the audit:
 ---
 
 > **Remember:** Design is THINKING, not copying. Every project deserves fresh consideration based on its unique context and users. **Avoid the Modern SaaS Safe Harbor!**
+
+---
+
+## 5. Next.js 16+ Modern Form Patterns
+
+> [!IMPORTANT]
+> For Next.js 16+ projects, use the native `next/form` component instead of standard HTML `<form>` for all GET-based search/filter operations.
+
+### The `<Form>` Component Advantage
+- **Automatic Client Navigation:** Performs client-side transitions on submit.
+- **Progressive Enhancement:** Works even without JavaScript.
+- **URL Sync:** Automatically encodes input values into search params.
+
+### Implementation Example (Search Bar)
+```tsx
+import Form from 'next/form'
+
+export default function SearchBar() {
+  return (
+    <Form action="/search" className="flex gap-2">
+      <input 
+        name="q" 
+        placeholder="Search products..." 
+        className="border p-2"
+      />
+      <button type="submit">Search</button>
+    </Form>
+  )
+}
+```
+
+### When to use `<Form>` vs. standard `<form>`:
+- **Use `next/form`** for: Search, Filtering, Sorting, Pagination (GET requests).
+- **Use standard `<form>`** for: Mutations, Login, Data Entry (POST requests via Server Actions).
