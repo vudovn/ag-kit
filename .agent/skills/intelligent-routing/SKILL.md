@@ -105,6 +105,7 @@ function analyzeRequest(userMessage) {
 | **Security**    | auth, login, jwt, password, hash, token    | `security-auditor`      |
 | **Frontend**    | component, react, vue, css, html, tailwind | `frontend-specialist`   |
 | **Backend**     | api, server, express, fastapi, node        | `backend-specialist`    |
+| **Go/Golang**   | go, golang, goroutine, gin, fiber, chi     | `backend-specialist`    |
 | **Mobile**      | react native, flutter, ios, android, expo  | `mobile-developer`      |
 | **Database**    | prisma, sql, mongodb, schema, migration    | `database-architect`    |
 | **Testing**     | test, jest, vitest, playwright, cypress    | `test-engineer`         |
