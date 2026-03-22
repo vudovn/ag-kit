@@ -1,6 +1,0 @@
-{
-  "enableDataviewJs": true,
-  "enableInlineDataviewJs": true,
-  "enableInlineDataview": true,
-  "refreshInterval": 2500
-}

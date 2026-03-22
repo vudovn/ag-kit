@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Backend (FastAPI)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--reload", "--port", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "Frontend (Next.js)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "Luma Agenda Online (Vite)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "luma-agenda-online", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "Windmill MCP",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "windmill-mcp", "run", "dev"],
+      "port": 5000
+    }
+  ]
+}

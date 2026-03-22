@@ -1,5 +1,0 @@
-{
-    "issue_id": "LUNA-REFAC-001",
-    "description": "\nRealizar um diagn\u00f3stico profundo no backend do LUNA OS (FastAPI).\nFoco: \n1. Identificar redund\u00e2ncias na l\u00f3gica do BrainEngine.\n2. Sugerir refatora\u00e7\u00e3o para melhor separa\u00e7\u00e3o de interesses.\n3. Verificar seguran\u00e7a nos webhooks da Evolution API.\n",
-    "repo_path": "/app/luna_os_to_diagnose"
-}
