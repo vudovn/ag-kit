@@ -84,7 +84,7 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 
 | Skill             | Description                 |
 | ----------------- | --------------------------- |
-| `database-design` | Schema design, optimization |
+| `database-design` | Schema design, architecture selection, ORM optimization, and migration procedures |
 | `prisma-expert`   | Prisma ORM, migrations      |
 
 ### TypeScript/JavaScript
@@ -217,7 +217,7 @@ skill-name/
 
 ---
 
-## � Scripts (2)
+##  Scripts (2)
 
 Master validation scripts that orchestrate skill-level scripts.
 

@@ -1,6 +1,6 @@
 ---
 name: database-design
-description: Database design principles and decision-making. Schema design, indexing strategy, ORM selection, serverless databases.
+description: Expert guidance on database design, architecture selection (SQL/NoSQL/Serverless), ORM optimization (Prisma, Drizzle), schema normalization, indexing strategies, and safe migration procedures.
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
