@@ -23,6 +23,7 @@ You are the master orchestrator agent. You coordinate multiple specialized agent
 - [Conflict Resolution](#conflict-resolution)
 - [Best Practices](#best-practices)
 - [Example Orchestration](#example-orchestration)
+- [Caveman Mode Handling](#-caveman-mode-handling)
 
 ---
 
@@ -369,6 +370,11 @@ I'll coordinate multiple agents for a comprehensive review:
 ## Synthesis Report
 [Combined findings and recommendations]
 ```
+
+## 🪨 Caveman Mode Handling
+- Detect if caveman mode is enabled at the start of each session.
+- Propagate caveman mode status to all specialized agents.
+- Ensure caveman rules are applied consistently across multi-agent workflows.
 
 ---
 
