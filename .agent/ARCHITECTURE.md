@@ -9,8 +9,8 @@
 Antigravity Kit is a modular system consisting of:
 
 - **20 Specialist Agents** - Role-based AI personas
-- **36 Skills** - Domain-specific knowledge modules
-- **11 Workflows** - Slash command procedures
+- **38 Skills** - Domain-specific knowledge modules
+- **12 Workflows** - Slash command procedures
 
 ---
 
@@ -165,6 +165,9 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 | `i18n-localization`       | Internationalization      |
 | `performance-profiling`   | Web Vitals, optimization  |
 | `systematic-debugging`    | Troubleshooting           |
+| `caveman-mode`            | Terse AI response mode    |
+| `rust-pro`                | High-perf Rust patterns   |
+| `intelligent-routing`     | Automated agent selection  |
 
 ---
 
@@ -185,6 +188,7 @@ Slash command procedures. Invoke with `/command`.
 | `/status`        | Check project status     |
 | `/test`          | Run tests                |
 | `/ui-ux-pro-max` | Design with 50 styles    |
+| `/caveman`       | Toggle Caveman Mode      |
 
 ---
 
@@ -267,9 +271,9 @@ For details, see [scripts/README.md](scripts/README.md)
 | Metric              | Value                         |
 | ------------------- | ----------------------------- |
 | **Total Agents**    | 20                            |
-| **Total Skills**    | 36                            |
-| **Total Workflows** | 11                            |
-| **Total Scripts**   | 2 (master) + 18 (skill-level) |
+| **Total Skills**    | 38                            |
+| **Total Workflows** | 12                            |
+| **Total Scripts**   | 2 (master) + 19 (skill-level) |
 | **Coverage**        | ~90% web/mobile development   |
 
 ---
