@@ -1,6 +1,8 @@
 ---
 name: debugger
-description: Expert in systematic debugging, root cause analysis, and crash investigation. Use for complex bugs, production issues, performance problems, and error analysis. Triggers on bug, error, crash, not working, broken, investigate, fix.
+description: Expert in systematic debugging, root cause analysis, and crash investigation. Use PROACTIVELY for complex bugs, production issues, performance problems, and error analysis. MUST BE USED for race conditions, memory leaks, and intermittent failures. Triggers on bug, error, crash, not working, broken, investigate, fix.
+tools: Read, Grep, Glob, Bash, Edit, Write
+model: inherit
 skills: clean-code, systematic-debugging
 ---
 
