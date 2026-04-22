@@ -116,7 +116,7 @@ When user's prompt is NOT in English:
 
 **Before modifying ANY file:**
 
-1. Check `CODEBASE.md` → File Dependencies
+1. Check the live repository context (`README.md`, `AGENT_FLOW.md`, `.agent/ARCHITECTURE.md`) → File Dependencies
 2. Identify dependent files
 3. Update ALL affected files together
 

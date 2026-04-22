@@ -16,13 +16,13 @@ This command starts a new application creation process.
 
 1. **Request Analysis**
    - Understand what the user wants
-   - If information is missing, use `conversation-manager` skill to ask
+   - If information is missing, ask concise clarification questions directly
 
 2. **Project Planning**
    - Use `project-planner` agent for task breakdown
    - Determine tech stack
    - Plan file structure
-   - Create plan file and proceed to building
+   - Create `docs/PLAN-{task-slug}.md` and proceed only after approval
 
 3. **Application Building (After Approval)**
    - Orchestrate with `app-builder` skill
