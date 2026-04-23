@@ -1,6 +1,24 @@
-# Ignore
+﻿# Dependencies
 node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Temporary
 .temp_ag_kit/
-antigravity-doc
-tests
-others
+antigravity-doc/
+tests/
+others/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
