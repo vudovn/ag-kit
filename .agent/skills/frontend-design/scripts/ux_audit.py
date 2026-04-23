@@ -101,6 +101,55 @@ class UXAuditor:
         self.warnings = []
         self.passed_count = 0
         self.files_checked = 0
+        self.root_dir = None
+
+    def format_path(self, filepath: str) -> str:
+        if self.root_dir:
+            return os.path.relpath(filepath, self.root_dir)
+        return os.path.basename(filepath)
+
+    @staticmethod
+    def is_component_primitive(filepath: str) -> bool:
+        normalized = filepath.replace("\\", "/").lower()
+        return "/components/" in normalized
+
+    @staticmethod
+    def has_form_controls(content: str) -> bool:
+        return bool(re.search(r"<form\b|<(?:input|select|textarea)\b", content, re.IGNORECASE))
+
+    @staticmethod
+    def extract_nav_blocks(content: str) -> list[str]:
+        return re.findall(r"<nav\b[^>]*>.*?</nav>", content, re.IGNORECASE | re.DOTALL)
+
+    @staticmethod
+    def count_nav_links(fragment: str) -> int:
+        return len(re.findall(r"<NavLink\b|<Link\b|<a\s+[^>]*href=", fragment, re.IGNORECASE))
+
+    @staticmethod
+    def extract_nav_labels(fragment: str) -> list[str]:
+        labels = []
+        matches = re.findall(
+            r"<a\s+[^>]*>(.*?)</a>|<Link\b[^>]*>(.*?)</Link>",
+            fragment,
+            re.IGNORECASE | re.DOTALL,
+        )
+        for match in matches:
+            raw = next((group for group in match if group), "")
+            text = re.sub(r"<[^>]+>", " ", raw)
+            text = re.sub(r"\s+", " ", text).strip().lower()
+            if text:
+                labels.append(text)
+        return labels
+
+    @staticmethod
+    def has_small_interactive_target(content: str) -> bool:
+        return bool(
+            re.search(
+                r"<(?:button|a|Link|input|select|textarea)\b[^>]*(?:height:\s*(?:[01]?\d|2[0-3])px|(?:class|className)=[\"'][^\"']*(?:h-[1-5]\b|w-[1-5]\b)[^\"']*[\"'])",
+                content,
+                re.IGNORECASE,
+            )
+        )
     
     def audit_file(self, filepath: str) -> None:
         try:
@@ -109,22 +158,25 @@ class UXAuditor:
         except: return
         
         self.files_checked += 1
-        filename = os.path.basename(filepath)
+        filename = self.format_path(filepath)
+        is_component_primitive = self.is_component_primitive(filepath)
 
         # Pre-calculate common flags
         has_long_text = bool(re.search(r'<p|<div.*class=.*text|article|<span.*text', content, re.IGNORECASE))
-        has_form = bool(re.search(r'<form|<input|password|credit|card|payment', content, re.IGNORECASE))
+        has_form_controls = self.has_form_controls(content)
+        has_form = has_form_controls and not is_component_primitive
         complex_elements = len(re.findall(r'<input|<select|<textarea|<option', content, re.IGNORECASE))
+        nav_blocks = self.extract_nav_blocks(content)
+        nav_items = sum(self.count_nav_links(block) for block in nav_blocks)
 
         # --- 1. PSYCHOLOGY LAWS ---
         # Hick's Law
-        nav_items = len(re.findall(r'<NavLink|<Link|<a\s+href|nav-item', content, re.IGNORECASE))
         if nav_items > 7:
             self.issues.append(f"[Hick's Law] {filename}: {nav_items} nav items (Max 7)")
         
         # Fitts' Law
-        if re.search(r'height:\s*([0-3]\d)px', content) or re.search(r'h-[1-9]\b|h-10\b', content):
-            self.warnings.append(f"[Fitts' Law] {filename}: Small targets (< 44px)")
+        if self.has_small_interactive_target(content):
+            self.warnings.append(f"[Fitts' Law] {filename}: Likely undersized interactive target (< 24px candidate)")
         
         # Miller's Law
         form_fields = len(re.findall(r'<input|<select|<textarea', content, re.IGNORECASE))
@@ -138,7 +190,9 @@ class UXAuditor:
         # Serial Position Effect - Important items at beginning/end
         if nav_items > 3:
             # Check if last nav item is important (contact, login, etc.)
-            nav_content = re.findall(r'<NavLink|<Link|<a\s+href[^>]*>([^<]+)</a>', content, re.IGNORECASE)
+            nav_content = []
+            for block in nav_blocks:
+                nav_content.extend(self.extract_nav_labels(block))
             if nav_content and len(nav_content) > 2:
                 last_item = nav_content[-1].lower() if nav_content else ''
                 if not any(x in last_item for x in ['contact', 'login', 'sign', 'get started', 'cta', 'button']):
@@ -209,7 +263,9 @@ class UXAuditor:
 
         # Familiar patterns
         if has_form:
-            has_standard_labels = bool(re.search(r'<label|placeholder|aria-label', content, re.IGNORECASE))
+            has_standard_labels = bool(
+                re.search(r'<label\b|<legend\b|placeholder=|aria-label=|aria-labelledby=', content, re.IGNORECASE)
+            )
             if not has_standard_labels:
                 self.issues.append(f"[Cognitive Load] {filename}: Form inputs without labels. Use <label> for accessibility and clarity.")
 
@@ -504,7 +560,7 @@ class UXAuditor:
                         'purple', 'violet', 'fuchsia', 'magenta', 'lavender']
         for purple in purple_hexes:
             if purple.lower() in content.lower():
-                self.issues.append(f"[Color] {filename}: PURPLE DETECTED ('{purple}'). Banned by Maestro rules. Use Teal/Cyan/Emerald instead.")
+                self.warnings.append(f"[Color] {filename}: Purple palette detected ('{purple}'). Verify whether it matches the intended brand system.")
                 break
 
         # 4.2 60-30-10 Rule check
@@ -672,7 +728,8 @@ class UXAuditor:
             self.issues.append(f"[Accessibility] {filename}: Missing img alt text")
 
     def audit_directory(self, directory: str) -> None:
-        extensions = {'.tsx', '.jsx', '.html', '.vue', '.svelte', '.css'}
+        self.root_dir = directory
+        extensions = {'.tsx', '.jsx', '.html', '.vue', '.svelte', '.css', '.mdx'}
         for root, dirs, files in os.walk(directory):
             dirs[:] = [d for d in dirs if d not in {'node_modules', '.git', 'dist', 'build', '.next'}]
             for file in files:

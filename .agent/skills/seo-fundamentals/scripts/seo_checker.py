@@ -1,195 +1,350 @@
 #!/usr/bin/env python3
 """
 SEO Checker - Search Engine Optimization Audit
-Checks HTML/JSX/TSX pages for SEO best practices.
+Checks public HTML/JSX/TSX/MDX routes for baseline SEO quality.
 
 PURPOSE:
-    - Verify meta tags, titles, descriptions
-    - Check Open Graph tags for social sharing
+    - Verify route-level metadata signals
+    - Check Open Graph coverage for social sharing
     - Validate heading hierarchy
     - Check image accessibility (alt attributes)
 
 WHAT IT CHECKS:
     - HTML files (actual web pages)
-    - JSX/TSX files (React page components)
-    - Only files that are likely PUBLIC pages
+    - Next.js App Router route files (`page.*`, `layout.*`)
+    - Next.js Pages Router files under `pages/`
+    - Route metadata inheritance from ancestor App Router layouts
 
 Usage:
     python seo_checker.py <project_path>
 """
-import sys
 import json
 import re
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Fix Windows console encoding
 try:
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-except:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
     pass
 
 
-# Directories to skip
 SKIP_DIRS = {
-    'node_modules', '.next', 'dist', 'build', '.git', '.github',
-    '__pycache__', '.vscode', '.idea', 'coverage', 'test', 'tests',
-    '__tests__', 'spec', 'docs', 'documentation', 'examples'
+    "node_modules",
+    ".next",
+    "dist",
+    "build",
+    ".git",
+    ".github",
+    "__pycache__",
+    ".vscode",
+    ".idea",
+    "coverage",
+    "test",
+    "tests",
+    "__tests__",
+    "spec",
 }
 
-# Files to skip (not pages)
 SKIP_PATTERNS = [
-    'config', 'setup', 'util', 'helper', 'hook', 'context', 'store',
-    'service', 'api', 'lib', 'constant', 'type', 'interface', 'mock',
-    '.test.', '.spec.', '_test.', '_spec.'
+    "config",
+    "setup",
+    "util",
+    "helper",
+    "hook",
+    "context",
+    "store",
+    "service",
+    "api",
+    "lib",
+    "constant",
+    "type",
+    "interface",
+    "mock",
+    ".test.",
+    ".spec.",
+    "_test.",
+    "_spec.",
 ]
 
+NON_ROUTE_DIRS = {
+    "components",
+    "hooks",
+    "lib",
+    "utils",
+    "providers",
+    "contexts",
+    "stores",
+    "styles",
+    "types",
+}
 
-def is_page_file(file_path: Path) -> bool:
-    """Check if this file is likely a public-facing page."""
+ROUTE_CODE_EXTENSIONS = {".js", ".jsx", ".ts", ".tsx", ".md", ".mdx"}
+HTML_EXTENSIONS = {".html", ".htm"}
+METADATA_FILE_PREFIXES = (
+    "opengraph-image.",
+    "twitter-image.",
+    "robots.",
+    "sitemap.",
+    "manifest.",
+    "favicon.",
+    "icon.",
+    "apple-icon.",
+)
+
+
+def lower_parts(path: Path) -> list[str]:
+    return [part.lower() for part in path.parts]
+
+
+def should_skip(file_path: Path) -> bool:
+    parts = lower_parts(file_path)
+    return any(skip in parts for skip in SKIP_DIRS)
+
+
+def is_next_metadata_file(file_path: Path) -> bool:
+    name = file_path.name.lower()
+    return any(name.startswith(prefix) for prefix in METADATA_FILE_PREFIXES)
+
+
+def is_next_app_route(file_path: Path) -> bool:
+    if file_path.suffix.lower() not in ROUTE_CODE_EXTENSIONS:
+        return False
+
+    parts = lower_parts(file_path)
+    if "app" not in parts or any(part in NON_ROUTE_DIRS for part in parts):
+        return False
+
+    if any(skip in file_path.name.lower() for skip in SKIP_PATTERNS):
+        return False
+
+    return file_path.stem.lower() in {"page", "layout"}
+
+
+def is_pages_router_route(file_path: Path) -> bool:
+    if file_path.suffix.lower() not in ROUTE_CODE_EXTENSIONS:
+        return False
+
+    parts = lower_parts(file_path)
+    if "pages" not in parts or any(part in NON_ROUTE_DIRS for part in parts):
+        return False
+
     name = file_path.name.lower()
     stem = file_path.stem.lower()
-    
-    # Skip utility/config files
     if any(skip in name for skip in SKIP_PATTERNS):
         return False
-    
-    # Check path - pages in specific directories are likely pages
-    parts = [p.lower() for p in file_path.parts]
-    page_dirs = ['pages', 'app', 'routes', 'views', 'screens']
-    
-    if any(d in parts for d in page_dirs):
-        return True
-    
-    # Filename indicators for pages
-    page_names = ['page', 'index', 'home', 'about', 'contact', 'blog', 
-                  'post', 'article', 'product', 'landing', 'layout']
-    
-    if any(p in stem for p in page_names):
-        return True
-    
-    # HTML files are usually pages
-    if file_path.suffix.lower() in ['.html', '.htm']:
-        return True
-    
-    return False
+
+    # Skip framework-only files, but audit real routes such as index/about/contact.
+    if stem.startswith("_"):
+        return False
+
+    return True
 
 
-def find_pages(project_path: Path) -> list:
-    """Find page files to check."""
-    patterns = ['**/*.html', '**/*.htm', '**/*.jsx', '**/*.tsx']
-    
+def is_route_file(file_path: Path) -> bool:
+    if should_skip(file_path):
+        return False
+
+    if file_path.suffix.lower() in HTML_EXTENSIONS:
+        return True
+
+    return is_next_app_route(file_path) or is_pages_router_route(file_path)
+
+
+def find_pages(project_path: Path) -> list[Path]:
+    patterns = ["**/*.html", "**/*.htm", "**/*.jsx", "**/*.tsx", "**/*.mdx"]
     files = []
+
     for pattern in patterns:
-        for f in project_path.glob(pattern):
-            # Skip excluded directories
-            if any(skip in f.parts for skip in SKIP_DIRS):
+        for file_path in project_path.glob(pattern):
+            if is_route_file(file_path):
+                files.append(file_path)
+
+    unique_files = sorted(set(files))
+    return unique_files[:100]
+
+
+def read_content(file_path: Path) -> str:
+    return file_path.read_text(encoding="utf-8", errors="ignore")
+
+
+def extract_metadata_signals(content: str, file_path: Path | None = None) -> dict[str, bool]:
+    lower = content.lower()
+    path_name = file_path.name.lower() if file_path else ""
+
+    has_metadata_export = bool(
+        re.search(
+            r"export\s+(?:const\s+metadata\b|(?:async\s+)?function\s+generateMetadata\b)",
+            content,
+            re.IGNORECASE,
+        )
+    )
+
+    head_tag = bool(re.search(r"<head(?:\s|>)", content, re.IGNORECASE))
+    title_tag = bool(re.search(r"<title\b", content, re.IGNORECASE))
+    description_tag = bool(
+        re.search(r"<meta[^>]+name=[\"']description[\"']", content, re.IGNORECASE)
+    )
+    open_graph_tag = bool(re.search(r"property=[\"']og:", content, re.IGNORECASE))
+
+    title_field = bool(re.search(r"\btitle\s*:", content))
+    description_field = bool(re.search(r"\bdescription\s*:", content))
+    open_graph_field = bool(re.search(r"\bopenGraph\s*:", content))
+
+    return {
+        "title": title_tag or (has_metadata_export and title_field) or (head_tag and title_tag),
+        "description": description_tag
+        or (has_metadata_export and description_field)
+        or description_tag,
+        "open_graph": open_graph_tag
+        or open_graph_field
+        or (file_path is not None and path_name.startswith("opengraph-image.")),
+    }
+
+
+def get_app_root(file_path: Path) -> Path | None:
+    for candidate in [file_path.parent, *file_path.parents]:
+        if candidate.name.lower() == "app":
+            return candidate
+    return None
+
+
+def collect_app_route_context_files(file_path: Path) -> list[Path]:
+    app_root = get_app_root(file_path)
+    if app_root is None:
+        return [file_path]
+
+    route_files = [file_path]
+    current = file_path.parent
+
+    while True:
+        for sibling in current.iterdir():
+            if not sibling.is_file():
                 continue
-            
-            # Check if it's likely a page
-            if is_page_file(f):
-                files.append(f)
-    
-    return files[:50]  # Limit to 50 files
+
+            if sibling == file_path:
+                continue
+
+            sibling_name = sibling.name.lower()
+            if sibling_name.startswith("layout.") or is_next_metadata_file(sibling):
+                route_files.append(sibling)
+
+        if current == app_root:
+            break
+
+        current = current.parent
+
+    return route_files
 
 
-def check_page(file_path: Path) -> dict:
-    """Check a single page for SEO issues."""
+def collect_route_metadata(file_path: Path) -> dict[str, bool]:
+    metadata = {"title": False, "description": False, "open_graph": False}
+
+    context_files = (
+        collect_app_route_context_files(file_path)
+        if is_next_app_route(file_path)
+        else [file_path]
+    )
+
+    for context_file in context_files:
+        if is_next_metadata_file(context_file):
+            if context_file.name.lower().startswith("opengraph-image."):
+                metadata["open_graph"] = True
+            continue
+
+        try:
+            content = read_content(context_file)
+        except Exception:
+            continue
+
+        signals = extract_metadata_signals(content, context_file)
+        for key, value in signals.items():
+            metadata[key] = metadata[key] or value
+
+    return metadata
+
+
+def check_page(file_path: Path, project_path: Path) -> dict:
     issues = []
-    
+
     try:
-        content = file_path.read_text(encoding='utf-8', errors='ignore')
-    except Exception as e:
-        return {"file": str(file_path.name), "issues": [f"Error: {e}"]}
-    
-    # Detect if this is a layout/template file (has Head component)
-    is_layout = 'Head>' in content or '<head' in content.lower()
-    
-    # 1. Title tag
-    has_title = '<title' in content.lower() or 'title=' in content or 'Head>' in content
-    if not has_title and is_layout:
-        issues.append("Missing <title> tag")
-    
-    # 2. Meta description
-    has_description = 'name="description"' in content.lower() or 'name=\'description\'' in content.lower()
-    if not has_description and is_layout:
+        content = read_content(file_path)
+    except Exception as error:
+        return {"file": str(file_path.relative_to(project_path)), "issues": [f"Error: {error}"]}
+
+    metadata = collect_route_metadata(file_path)
+
+    if not metadata["title"]:
+        issues.append("Missing title metadata")
+
+    if not metadata["description"]:
         issues.append("Missing meta description")
-    
-    # 3. Open Graph tags
-    has_og = 'og:' in content or 'property="og:' in content.lower()
-    if not has_og and is_layout:
-        issues.append("Missing Open Graph tags")
-    
-    # 4. Heading hierarchy - multiple H1s
-    h1_matches = re.findall(r'<h1[^>]*>', content, re.I)
+
+    if not metadata["open_graph"]:
+        issues.append("Missing Open Graph metadata")
+
+    h1_matches = re.findall(r"<h1[^>]*>", content, re.IGNORECASE)
     if len(h1_matches) > 1:
         issues.append(f"Multiple H1 tags ({len(h1_matches)})")
-    
-    # 5. Images without alt
-    img_pattern = r'<img[^>]+>'
-    imgs = re.findall(img_pattern, content, re.I)
-    for img in imgs:
-        if 'alt=' not in img.lower():
+
+    images = re.findall(r"<img[^>]+>", content, re.IGNORECASE)
+    for image in images:
+        if "alt=" not in image.lower():
             issues.append("Image missing alt attribute")
             break
-        if 'alt=""' in img or "alt=''" in img:
+        if 'alt=""' in image or "alt=''" in image:
             issues.append("Image has empty alt attribute")
             break
-    
-    # 6. Check for canonical link (nice to have)
-    # has_canonical = 'rel="canonical"' in content.lower()
-    
+
     return {
-        "file": str(file_path.name),
-        "issues": issues
+        "file": str(file_path.relative_to(project_path)),
+        "issues": issues,
     }
 
 
 def main():
     project_path = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
-    
-    print(f"\n{'='*60}")
-    print(f"  SEO CHECKER - Search Engine Optimization Audit")
-    print(f"{'='*60}")
+
+    print(f"\n{'=' * 60}")
+    print("  SEO CHECKER - Search Engine Optimization Audit")
+    print(f"{'=' * 60}")
     print(f"Project: {project_path}")
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("-"*60)
-    
-    # Find pages
+    print("-" * 60)
+
     pages = find_pages(project_path)
-    
+
     if not pages:
         print("\n[!] No page files found.")
-        print("    Looking for: HTML, JSX, TSX in pages/app/routes directories")
+        print("    Looking for: HTML, App Router routes, and Pages Router files")
         output = {"script": "seo_checker", "files_checked": 0, "passed": True}
         print("\n" + json.dumps(output, indent=2))
         sys.exit(0)
-    
+
     print(f"Found {len(pages)} page files to analyze\n")
-    
-    # Check each page
+
     all_issues = []
-    for f in pages:
-        result = check_page(f)
+    for file_path in pages:
+        result = check_page(file_path, project_path)
         if result["issues"]:
             all_issues.append(result)
-    
-    # Summary
+
     print("=" * 60)
     print("SEO ANALYSIS RESULTS")
     print("=" * 60)
-    
+
     if all_issues:
-        # Group by issue type
         issue_counts = {}
         for item in all_issues:
             for issue in item["issues"]:
                 issue_counts[issue] = issue_counts.get(issue, 0) + 1
-        
+
         print("\nIssue Summary:")
-        for issue, count in sorted(issue_counts.items(), key=lambda x: -x[1]):
+        for issue, count in sorted(issue_counts.items(), key=lambda item: (-item[1], item[0])):
             print(f"  [{count}] {issue}")
-        
+
         print(f"\nAffected files ({len(all_issues)}):")
         for item in all_issues[:5]:
             print(f"  - {item['file']}")
@@ -197,21 +352,20 @@ def main():
             print(f"  ... and {len(all_issues) - 5} more")
     else:
         print("\n[OK] No SEO issues found!")
-    
+
     total_issues = sum(len(item["issues"]) for item in all_issues)
     passed = total_issues == 0
-    
+
     output = {
         "script": "seo_checker",
         "project": str(project_path),
         "files_checked": len(pages),
         "files_with_issues": len(all_issues),
         "issues_found": total_issues,
-        "passed": passed
+        "passed": passed,
     }
-    
+
     print("\n" + json.dumps(output, indent=2))
-    
     sys.exit(0 if passed else 1)
 
 
