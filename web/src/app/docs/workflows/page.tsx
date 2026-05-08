@@ -34,7 +34,7 @@ export default function WorkflowsPage() {
                     What are Workflows?
                 </h2>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                    Workflows are well-defined, step-by-step procedures for achieving specific development tasks. They're invoked using slash commands and provide consistent, repeatable processes.
+                    Workflows are well-defined, step-by-step procedures for achieving specific development tasks. They&apos;re invoked using slash commands and provide consistent, repeatable processes.
                 </p>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6">
                     Each workflow contains specific instructions, decision points, and best practices for its domain.
@@ -61,7 +61,7 @@ export default function WorkflowsPage() {
                 <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
                     <p className="text-sm text-blue-900 dark:text-blue-100 mb-0">
                         <Lightbulb className="w-4 h-4 inline" />
-                        <strong className="font-semibold"> Tip:</strong> Some workflows have a <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">// turbo</code> annotation that allows auto-running safe commands without user approval.
+                        <strong className="font-semibold"> Tip:</strong> Some workflows have a <code className="px-1 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 font-mono text-xs">{'// turbo'}</code> annotation that allows auto-running safe commands without user approval.
                     </p>
                 </div>
             </section>

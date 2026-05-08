@@ -1,18 +1,19 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Button } from '../../../ui/button';
 
+const subscribe = () => () => {};
+const getMountedSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export default function ThemeToggle() {
-    const [mounted, setMounted] = useState(false);
-    const { theme, setTheme } = useTheme();
+    const { resolvedTheme, setTheme } = useTheme();
+    const isMounted = useSyncExternalStore(subscribe, getMountedSnapshot, getServerSnapshot);
+    const isDark = resolvedTheme === 'dark';
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!mounted) {
+    if (!isMounted) {
         return (
             <div className="w-9 h-9 rounded-md border border-zinc-200 dark:border-zinc-800" />
         );
@@ -20,12 +21,12 @@ export default function ThemeToggle() {
 
     return (
         <Button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
             variant="ghost"
             size="icon"
             aria-label="Toggle theme"
         >
-            {theme === 'dark' ? (
+            {isDark ? (
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width={24}

@@ -1,9 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CoffeeIcon, Heart, QrCodeIcon, User } from 'lucide-react';
+import { CoffeeIcon, Heart, QrCodeIcon } from 'lucide-react';
 
 interface DonateDialogProps {
     className?: string;
@@ -24,7 +25,7 @@ export default function DonateDialog({ className }: DonateDialogProps) {
                         <span>Fuel the Developer</span>
                     </DialogTitle>
                     <DialogDescription className="space-y-2 pt-2">
-                        Hi! I'm <strong>Vu</strong>. I'm dedicating my full-time work to building this kit. <br />
+                        Hi! I&apos;m <strong>Vu</strong>. I&apos;m dedicating my full-time work to building this kit. <br />
                         Your support helps me keep shipping and maintaining it. If you find this tool helpful, please consider buying me a coffee.
                     </DialogDescription>
                 </DialogHeader>
@@ -71,7 +72,13 @@ export default function DonateDialog({ className }: DonateDialogProps) {
                         <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
                             <div className="flex flex-col items-center gap-4">
                                 {/* QR Code Placeholder - Replace with actual QR code image */}
-                                <img className="w-48 h-48 rounded-lg" src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="" />
+                                <Image
+                                    className="w-48 h-48 rounded-lg"
+                                    src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg"
+                                    alt="MB Bank transfer QR code"
+                                    width={192}
+                                    height={192}
+                                />
                                 {/* Bank Details */}
                                 <div className="text-center space-y-1">
                                     <div className="text-sm font-medium text-zinc-900 dark:text-zinc-50">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import DonateDialog from '@/components/layout/header/components/donate-dialog';
@@ -34,11 +34,7 @@ const navSections = [
 export default function MobileMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
-
-    // Close menu when route changes
-    useEffect(() => {
-        setIsOpen(false);
-    }, [pathname]);
+    const closeMenu = () => setIsOpen(false);
 
     return (
         <>
@@ -47,6 +43,7 @@ export default function MobileMenu() {
                 onClick={() => setIsOpen(!isOpen)}
                 className="lg:hidden p-2 rounded-md text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 aria-label="Toggle menu"
+                aria-expanded={isOpen}
             >
                 {isOpen ? (
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,6 +74,7 @@ export default function MobileMenu() {
                                                 <Link
                                                     key={item.href}
                                                     href={item.href}
+                                                    onClick={closeMenu}
                                                     className={`
                                                         block px-3 py-2 text-sm rounded-md transition-colors
                                                         ${isActive
@@ -97,13 +95,13 @@ export default function MobileMenu() {
                         {/* Mobile Action Buttons */}
                         <div className="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-800 flex gap-3">
                             <DonateDialog className="" />
-                            <Link href="https://github.com/vudovn/antigravity-kit" target="_blank" rel="noopener noreferrer">
+                            <Link href="https://github.com/vudovn/antigravity-kit" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
                                 <Button variant="outline" className="w-full justify-start">
                                     <GithubIcon className="w-4 h-4 mr-2" />
                                     GitHub
                                 </Button>
                             </Link>
-                            <Link href="https://unikorn.vn/" target="_blank" rel="noopener noreferrer">
+                            <Link href="https://unikorn.vn/" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
                                 <Button variant="outline" className="w-full justify-start">
                                     <svg
                                         width={24}

@@ -33,7 +33,7 @@ export default function AgentsPage() {
                     Agents are specialist AI personas configured with domain-specific expertise, tools, and behavioral patterns. Each agent is designed to excel in a particular area of software development.
                 </p>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6">
-                    When you make a request, Antigravity Kit's <strong>Intelligent Routing</strong> system automatically detects which agents are needed and activates them for you. You can also mention them by name to force a specific perspective.
+                    When you make a request, Antigravity Kit&apos;s <strong>Intelligent Routing</strong> system automatically detects which agents are needed and activates them for you. You can also mention them by name to force a specific perspective.
                 </p>
             </section>
 

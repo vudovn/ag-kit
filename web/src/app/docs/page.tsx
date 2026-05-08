@@ -37,14 +37,14 @@ export default function DocsPage() {
                     </a>.
                 </p>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                    Whether you're an individual developer or part of a larger team, Antigravity Kit helps you build better software faster with {skills.length}+ skills, {agents.length}+ specialist agents, and {workflows.length}+ production-ready workflows.
+                    Whether you&apos;re an individual developer or part of a larger team, Antigravity Kit helps you build better software faster with {skills.length}+ skills, {agents.length}+ specialist agents, and {workflows.length}+ production-ready workflows.
                 </p>
             </section>
 
             {/* What's Included */}
             <section className="mb-12">
                 <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-4">
-                    What's Included
+                    What&apos;s Included
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-3 mb-6">
                     <div className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">

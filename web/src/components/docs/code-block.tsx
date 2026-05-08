@@ -22,7 +22,7 @@ export function CodeBlock({ code, language = 'bash', showLineNumbers = false, cl
     return (
         <div className={`relative group ${className}`}>
             <pre className={`p-4 rounded-lg bg-zinc-900 dark:bg-zinc-900 overflow-x-auto border border-zinc-800 font-mono text-sm ${showLineNumbers ? 'pl-12' : ''}`}>
-                <code className="text-zinc-100">{code}</code>
+                <code className="text-zinc-100" data-language={language}>{code}</code>
             </pre>
             <button
                 onClick={copyToClipboard}
