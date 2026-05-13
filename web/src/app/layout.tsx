@@ -1,17 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -23,9 +12,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Antigravity Kit - AI Agent Capability Expansion Toolkit",
-  description: "A comprehensive collection of skills, rules, and workflows to supercharge AI coding assistants for Antigravity. 35+ skills, 57 UI Styles, production-ready workflows.",
-  metadataBase: new URL("https://antigravity-kit.vercel.app/"),
+  title: "AG Kit - AI Agent Capability Expansion Toolkit",
+  description:
+    "A comprehensive collection of skills, rules, and workflows for modern AI coding assistants. 35+ skills, 57 UI Styles, production-ready workflows.",
+  metadataBase: new URL("https://ag-kit.vercel.app/"),
   robots: {
     index: true,
     follow: true,
@@ -33,8 +23,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://antigravity-kit.vercel.app/",
-    siteName: "Antigravity Kit",
+    url: "https://ag-kit.vercel.app/",
+    siteName: "AG Kit",
     images: ["/images/logo.png"],
   },
 };
@@ -47,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased"
       >
         <ThemeProvider
           attribute="class"

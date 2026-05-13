@@ -1,14 +1,14 @@
-# Antigravity Skills
+# AG Kit Skills
 
-> **Guide to creating and using Skills in the Antigravity Kit**
+> **Guide to creating and using Skills in the AG Kit**
 
 ---
 
 ## 📋 Overview
 
-While Antigravity's base models (like Gemini) are powerful generalists, they don't know your specific project context or your team's standards. Loading every rule or tool into the agent's context window leads to "tool bloat," higher costs, latency, and confusion.
+While AG Kit's base models (like Gemini) are powerful generalists, they don't know your specific project context or your team's standards. Loading every rule or tool into the agent's context window leads to "tool bloat," higher costs, latency, and confusion.
 
-**Antigravity Skills** solve this through **Progressive Disclosure**. A Skill is a package of specialized knowledge that remains dormant until needed. This information is only loaded into the agent's context when your specific request matches the skill's description.
+**AG Kit Skills** solve this through **Progressive Disclosure**. A Skill is a package of specialized knowledge that remains dormant until needed. This information is only loaded into the agent's context when your specific request matches the skill's description.
 
 ---
 

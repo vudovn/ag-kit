@@ -13,38 +13,32 @@ export default function DocsPage() {
                 </h1>
                 <p className="text-lg text-zinc-600 dark:text-zinc-400">
                     Welcome to the <span className="before:-inset-x-1 before:-rotate-1 relative z-4 before:pointer-events-none before:absolute before:inset-y-0 before:z-4 before:bg-linear-to-r before:from-blue-500 before:via-purple-500 before:to-orange-500 before:opacity-16 before:mix-blend-hard-light">
-                        Antigravity Kit
+                        AG Kit
                     </span> documentation.
                 </p>
             </div>
 
-            {/* What is Antigravity Kit */}
+            {/* What is AG Kit */}
             <section className="mb-12">
                 <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-4">
                     What is <span className="before:-inset-x-1 before:-rotate-1 relative z-4 before:pointer-events-none before:absolute before:inset-y-0 before:z-4 before:bg-linear-to-r before:from-blue-500 before:via-purple-500 before:to-orange-500 before:opacity-16 before:mix-blend-hard-light">
-                        Antigravity Kit
+                        AG Kit
                     </span> ?
                 </h2>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
                     <span className="before:-inset-x-1 before:-rotate-1 relative z-4 before:pointer-events-none before:absolute before:inset-y-0 before:z-4 before:bg-linear-to-r before:from-blue-500 before:via-purple-500 before:to-orange-500 before:opacity-16 before:mix-blend-hard-light">
-                        Antigravity Kit
-                    </span> is a comprehensive collection of AI Agent templates with Skills, Agents, and Workflows designed to supercharge AI coding assistants for{" "}
-                    <a
-                        href="https://antigravity.google/t"
-                        className="text-zinc-900 dark:text-zinc-50 underline underline-offset-4 decoration-zinc-300 dark:decoration-zinc-700 hover:decoration-zinc-900 dark:hover:decoration-zinc-50 transition-colors"
-                    >
-                        Antigravity
-                    </a>.
+                        AG Kit
+                    </span> is a comprehensive collection of AI agent templates with Skills, Agents, and Workflows designed to supercharge modern coding assistants.
                 </p>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                    Whether you're an individual developer or part of a larger team, Antigravity Kit helps you build better software faster with {skills.length}+ skills, {agents.length}+ specialist agents, and {workflows.length}+ production-ready workflows.
+                    Whether you&apos;re an individual developer or part of a larger team, AG Kit helps you build better software faster with {skills.length}+ skills, {agents.length}+ specialist agents, and {workflows.length}+ production-ready workflows.
                 </p>
             </section>
 
             {/* What's Included */}
             <section className="mb-12">
                 <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 mb-4">
-                    What's Included
+                    What&apos;s Included
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-3 mb-6">
                     <div className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
@@ -124,7 +118,7 @@ export default function DocsPage() {
                             <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">Installation →</h3>
                         </div>
                         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                            Get started with Antigravity Kit in under a minute
+                            Get started with AG Kit in under a minute
                         </p>
                     </Link>
                     <Link

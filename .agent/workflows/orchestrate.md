@@ -192,7 +192,7 @@ Combine all agent outputs into unified report.
 [Original task summary]
 
 ### Mode
-[Current Antigravity Agent mode: plan/edit/ask]
+[Current AG Kit Agent mode: plan/edit/ask]
 
 ### Agents Invoked (MINIMUM 3)
 | # | Agent | Focus Area | Status |

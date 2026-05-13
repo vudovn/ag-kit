@@ -1,11 +1,11 @@
-# Antigravity Kit
+# AG Kit
 
 > AI Agent templates with Skills, Agents, and Workflows
 
 <div  align="center">
-    <a href="https://unikorn.vn/p/antigravity-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/antigravity-kit?theme=dark" alt="Antigravity Kit - Nổi bật trên Unikorn.vn" style="width: 210px; height: 54px;" width="210" height="54" /></a>
-    <a href="https://unikorn.vn/p/antigravity-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/antigravity-kit/rank?theme=dark&type=daily" alt="Antigravity Kit - Hàng ngày" style="width: 250px; height: 64px;" width="250" height="64" /></a>
-    <a href="https://launch.j2team.dev/products/antigravity-kit" target="_blank"><img src="https://launch.j2team.dev/badge/antigravity-kit/dark" alt="Antigravity Kit on J2TEAM Launch" width="250" height="54" /></a>
+    <a href="https://unikorn.vn/p/ag-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/ag-kit?theme=dark" alt="AG Kit - Nổi bật trên Unikorn.vn" style="width: 210px; height: 54px;" width="210" height="54" /></a>
+    <a href="https://unikorn.vn/p/ag-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/ag-kit/rank?theme=dark&type=daily" alt="AG Kit - Hàng ngày" style="width: 250px; height: 64px;" width="250" height="64" /></a>
+    <a href="https://launch.j2team.dev/products/ag-kit" target="_blank"><img src="https://launch.j2team.dev/badge/ag-kit/dark" alt="AG Kit on J2TEAM Launch" width="250" height="54" /></a>
 </div>
 
 ## Quick Install
@@ -105,8 +105,8 @@ ag-kit init --dry-run      # Preview actions without executing
 
 ## Documentation
 
-- **[Web App Example](https://antigravity-kit.vercel.app//docs/guide/examples/web-app)** - Step-by-step guide to creating a web application
-- **[Online Docs](https://antigravity-kit.vercel.app//docs)** - Browse all documentation online
+- **[Web App Example](https://ag-kit.vercel.app//docs/guide/examples/web-app)** - Step-by-step guide to creating a web application
+- **[Online Docs](https://ag-kit.vercel.app//docs)** - Browse all documentation online
 
 ## Buy me coffee
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import DonateDialog from '@/components/layout/header/components/donate-dialog';
@@ -35,14 +35,8 @@ export default function MobileMenu() {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
 
-    // Close menu when route changes
-    useEffect(() => {
-        setIsOpen(false);
-    }, [pathname]);
-
     return (
         <>
-            {/* Mobile Menu Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="lg:hidden p-2 rounded-md text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -59,11 +53,9 @@ export default function MobileMenu() {
                 )}
             </button>
 
-            {/* Mobile Menu Dropdown - Renders in parent header component */}
             {isOpen && (
                 <div className="lg:hidden absolute left-0 right-0 top-full border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-lg animate-in slide-in-from-top-2 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                        {/* Navigation */}
                         <nav className="space-y-6">
                             {navSections.map((section) => (
                                 <div key={section.title}>
@@ -77,6 +69,7 @@ export default function MobileMenu() {
                                                 <Link
                                                     key={item.href}
                                                     href={item.href}
+                                                    onClick={() => setIsOpen(false)}
                                                     className={`
                                                         block px-3 py-2 text-sm rounded-md transition-colors
                                                         ${isActive
@@ -94,10 +87,9 @@ export default function MobileMenu() {
                             ))}
                         </nav>
 
-                        {/* Mobile Action Buttons */}
                         <div className="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-800 flex gap-3">
                             <DonateDialog className="" />
-                            <Link href="https://github.com/vudovn/antigravity-kit" target="_blank" rel="noopener noreferrer">
+                            <Link href="https://github.com/vudovn/ag-kit" target="_blank" rel="noopener noreferrer">
                                 <Button variant="outline" className="w-full justify-start">
                                     <GithubIcon className="w-4 h-4 mr-2" />
                                     GitHub

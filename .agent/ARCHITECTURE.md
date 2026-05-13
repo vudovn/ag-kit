@@ -1,14 +1,14 @@
-# Antigravity Kit Architecture
+# AG Kit Architecture
 
-> Comprehensive AI Agent Capability Expansion Toolkit — v3.0
+> Comprehensive AI Agent Capability Expansion Toolkit — 2026.5.13
 
 ---
 
 ## 📋 Overview
 
-Antigravity Kit is a modular system consisting of:
+AG Kit is a modular system consisting of:
 
-- **20 Specialist Agents** - Role-based AI personas (1 major upgrade in v3.0)
+- **20 Specialist Agents** - Role-based AI personas (1 major upgrade in 2026.5.13)
 - **45 Skills** - Domain-specific knowledge modules with conditional loading
 - **14 Workflows** - Slash command procedures
 
@@ -23,7 +23,7 @@ Antigravity Kit is a modular system consisting of:
 ├── skills/                  # 45 Skills (with conditional loading)
 ├── workflows/               # 14 Slash Commands
 ├── rules/                   # Global Rules
-├── memory/                  # Persistent Memory (v3.0)
+├── memory/                  # Persistent Memory (2026.5.13)
 └── scripts/                 # Master Validation Scripts
 ```
 
@@ -154,7 +154,7 @@ Modular knowledge domains that agents can load on-demand based on task context. 
 | `bash-linux`         | Linux commands, scripting |
 | `powershell-windows` | Windows PowerShell        |
 
-### Orchestration & Memory (v3.0)
+### Orchestration & Memory (2026.5.13)
 
 | Skill                     | Description                                                 |
 | ------------------------- | ----------------------------------------------------------- |
@@ -205,7 +205,7 @@ Slash command procedures. Invoke with `/command`.
 
 ---
 
-## 🎯 Skill Loading Protocol (v3.0 — Conditional)
+## 🎯 Skill Loading Protocol (2026.5.13 — Conditional)
 
 ```plaintext
 User Request → Check `when_to_use` frontmatter → Match? → Load full SKILL.md
@@ -229,7 +229,7 @@ skill-name/
 ---
 name: skill-name
 description: What this skill does
-when_to_use: "When to activate. NOT for X."  # v3.0
+when_to_use: "When to activate. NOT for X."  # 2026.5.13
 allowed-tools: Read, Grep, Glob
 ---
 ```
@@ -292,12 +292,12 @@ For details, see [scripts/README.md](scripts/README.md)
 
 | Metric              | Value                             |
 | ------------------- | --------------------------------- |
-| **Total Agents**    | 20 (1 major upgrade in v3.0)      |
-| **Total Skills**    | 45 (+8 new in v3.0)               |
-| **Total Workflows** | 14 (+3 new in v3.0)               |
+| **Total Agents**    | 20 (1 major upgrade in 2026.5.13) |
+| **Total Skills**    | 45 (+8 new in 2026.5.13)          |
+| **Total Workflows** | 14 (+3 new in 2026.5.13)          |
 | **Total Scripts**   | 2 (master) + 18 (skill-level)     |
 | **Coverage**        | ~95% web/mobile + orchestration   |
-| **Token Efficiency**| 13-33% better than v2 (v3.0)      |
+| **Token Efficiency**| 13-33% better than v2 (2026.5.13) |
 
 ---
 

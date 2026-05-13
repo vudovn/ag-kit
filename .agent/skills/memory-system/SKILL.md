@@ -102,7 +102,7 @@ updated: 2026-04-01
 | **user** | Role, preferences, tools, communication style | "Senior DevOps, prefers dark mode" |
 | **feedback** | What user liked/disliked about agent output | "User said 'too verbose', prefers tables" |
 | **project** | Coding standards, tech choices, conventions | "Use bun not npm, Tailwind v4" |
-| **reference** | Infrastructure, URLs, credentials notes, configs | "Prod API at api.example.com:8080" |
+| **reference** | Non-sensitive infrastructure notes, public URLs, configs | "Prod API hostname and port" |
 
 ---
 
@@ -110,6 +110,7 @@ updated: 2026-04-01
 
 | Don't Save | Why |
 |---|---|
+| Secrets, credentials, tokens, passwords, private keys, or API keys | Memory is persistent and may be shared across sessions |
 | Information derivable from code | Read `package.json` instead of memorizing deps |
 | Temporary debug context | Clutters memory, not useful later |
 | Exact code snippets | Code changes — memory becomes stale |

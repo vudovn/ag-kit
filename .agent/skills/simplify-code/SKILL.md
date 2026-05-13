@@ -59,7 +59,7 @@ function process(data) {
 // ✅ After: Early returns + filter
 function process(data) {
   if (!data?.items) return
-  
+
   data.items
     .filter(item => item.active)
     .forEach(doSomething)

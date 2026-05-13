@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">AG Kit logo</title>
+  <desc id="desc">A dark rounded square mark with interlocking A and G letterforms.</desc>
+  <defs>
+    <linearGradient id="edge" x1="96" y1="96" x2="416" y2="416" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset="0.52" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="fill" x1="80" y1="56" x2="432" y2="456" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#18181b"/>
+      <stop offset="1" stop-color="#09090b"/>
+    </linearGradient>
+  </defs>
+  <rect x="56" y="56" width="400" height="400" rx="96" fill="url(#fill)"/>
+  <rect x="72" y="72" width="368" height="368" rx="82" fill="none" stroke="url(#edge)" stroke-width="16"/>
+  <path d="M148 338L222 174L296 338" fill="none" stroke="#f8fafc" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M181 278H263" fill="none" stroke="#2dd4bf" stroke-width="28" stroke-linecap="round"/>
+  <path d="M346 176C318 154 274 150 238 171C194 197 180 255 207 299C235 344 296 356 340 326C365 309 380 283 382 255H313" fill="none" stroke="#fb923c" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="346" cy="176" r="12" fill="#2dd4bf"/>
+  <circle cx="382" cy="255" r="12" fill="#f8fafc"/>
+</svg>

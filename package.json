@@ -1,17 +1,17 @@
 {
-  "name": "antigravity-kit",
-  "version": "3.1.0",
+  "name": "ag-kit",
+  "version": "2026.5.13",
   "description": "AI Agent templates - Skills, Agents, and Workflows for enhanced coding assistance",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vudovn/antigravity-kit.git"
+    "url": "git+https://github.com/vudovn/ag-kit.git"
   },
-  "homepage": "https://github.com/vudovn/antigravity-kit#readme",
+  "homepage": "https://github.com/vudovn/ag-kit#readme",
   "bugs": {
-    "url": "https://github.com/vudovn/antigravity-kit/issues"
+    "url": "https://github.com/vudovn/ag-kit/issues"
   },
   "keywords": [
-    "antigravity",
+    "ag-kit",
     "ai",
     "agent",
     "gemini",

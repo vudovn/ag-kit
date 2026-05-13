@@ -54,7 +54,7 @@ export default function SkillsPage() {
                     What are Skills?
                 </h2>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                    Skills are modular knowledge packages that contain principles, patterns, and decision-making frameworks for specific domains. They're loaded automatically when an agent needs them.
+                    Skills are modular knowledge packages that contain principles, patterns, and decision-making frameworks for specific domains. They&apos;re loaded automatically when an agent needs them.
                 </p>
                 <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6">
                     Unlike hard-coded templates, skills teach <em>principles</em> — enabling agents to make contextual decisions rather than copying patterns.
@@ -62,7 +62,7 @@ export default function SkillsPage() {
                 <div className="mt-2 p-4 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/20 mb-6">
                     <p className="text-sm text-blue-900 dark:text-blue-100 mb-0">
                         <Lightbulb className="w-4 h-4 inline" />
-                        <strong className="font-semibold"> Note:</strong> Skills are loaded on-demand based on task context. You don't need to configure anything manually.
+                        <strong className="font-semibold"> Note:</strong> Skills are loaded on-demand based on task context. You don&apos;t need to configure anything manually.
                     </p>
                 </div>
             </section>

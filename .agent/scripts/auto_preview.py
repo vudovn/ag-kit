@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Auto Preview - Antigravity Kit
+Auto Preview - AG Kit
 ==============================
 Manages (start/stop/status) the local development server for previewing the application.
 

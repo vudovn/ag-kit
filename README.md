@@ -1,20 +1,20 @@
-# Antigravity Kit
+# AG Kit
 
 > AI Agent templates with Skills, Agents, and Workflows — now with Coordinator Mode, Persistent Memory, and Context Compression
 
 <div  align="center">
-    <a href="https://unikorn.vn/p/antigravity-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/antigravity-kit?theme=dark" alt="Antigravity Kit - Nổi bật trên Unikorn.vn" style="width: 210px; height: 54px;" width="210" height="54" /></a>
-    <a href="https://unikorn.vn/p/antigravity-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/antigravity-kit/rank?theme=dark&type=daily" alt="Antigravity Kit - Hàng ngày" style="width: 250px; height: 64px;" width="250" height="64" /></a>
-    <a href="https://launch.j2team.dev/products/antigravity-kit" target="_blank"><img src="https://launch.j2team.dev/badge/antigravity-kit/dark" alt="Antigravity Kit on J2TEAM Launch" width="250" height="54" /></a>
+    <a href="https://unikorn.vn/p/ag-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/ag-kit?theme=dark" alt="AG Kit - Nổi bật trên Unikorn.vn" style="width: 210px; height: 54px;" width="210" height="54" /></a>
+    <a href="https://unikorn.vn/p/ag-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/ag-kit/rank?theme=dark&type=daily" alt="AG Kit - Hàng ngày" style="width: 250px; height: 64px;" width="250" height="64" /></a>
+    <a href="https://launch.j2team.dev/products/ag-kit" target="_blank"><img src="https://launch.j2team.dev/badge/ag-kit/dark" alt="AG Kit on J2TEAM Launch" width="250" height="54" /></a>
 </div>
 
-## 🚀 What's New in v3.0
+## 🚀 What's New in 2026.5.13
 
-Antigravity Kit v3.0 introduces **7 new skills**, **3 new workflows**, and a **major orchestrator upgrade** — informed by studying advanced AI agent architectural patterns. The result: **13-33% fewer tokens per session** through smarter orchestration, persistent memory, and context compression.
+AG Kit 2026.5.13 introduces **7 new skills**, **3 new workflows**, and a **major orchestrator upgrade** — informed by studying advanced AI agent architectural patterns. The result: **13-33% fewer tokens per session** through smarter orchestration, persistent memory, and context compression.
 
-### v2 vs v3 Comparison
+### v2 vs 2026.5.13 Comparison
 
-| Feature | v2.0 (Before) | v3.0 (After) | Token Impact |
+| Feature | v2.0 (Before) | 2026.5.13 (After) | Token Impact |
 |---------|---------------|--------------|--------------|
 | **Orchestration** | Sequential agent chains | Coordinator mode with parallel workers | –33% fewer retries |
 | **Memory** | None — re-discovers every session | Persistent MEMORY.md with 4-type taxonomy | –3,000-10,000/session |
@@ -29,7 +29,7 @@ Antigravity Kit v3.0 introduces **7 new skills**, **3 new workflows**, and a **m
 | **Skills** | 37 | 44 (+7 new) | Smarter loading |
 | **Workflows** | 11 | 14 (+3 new) | — |
 
-### ✅ Pros of v3.0
+### ✅ Pros of 2026.5.13
 
 - **Token-efficient**: 13-33% fewer tokens per session through memory, compression, and smarter prompts
 - **Cross-session memory**: Never re-explain preferences, conventions, or past decisions
@@ -73,7 +73,7 @@ This installs the `.agent` folder containing all templates into your project.
 
 ### 🌍 Global / Shared Setup (Avoid Copying)
 
-If you use Antigravity Kit across many projects and don't want to copy-paste the `.agent/` folder into every single one, you can use **Symbolic Links (Symlinks)** to reference a single global `.agent` folder.
+If you use AG Kit across many projects and don't want to copy-paste the `.agent/` folder into every single one, you can use **Symbolic Links (Symlinks)** to reference a single global `.agent` folder.
 
 1. Install it somewhere globally, e.g., `~/.ag-kit/`
    ```bash
@@ -126,7 +126,7 @@ This creates a lightweight folder shortcut. Your IDE and AI assistants will trea
 | **Workflows** | 14    | Slash command procedures                                           |
 | **Modern ES** | 2026+ | **Next.js 16 & React 19 Native** (Cache Components, PPR, Proxy)   |
 
-### New in v3.0
+### New in 2026.5.13
 
 | Component | Name | Description |
 |-----------|------|-------------|
@@ -143,8 +143,8 @@ This creates a lightweight folder shortcut. Your IDE and AI assistants will trea
 | **Workflow** | `/verify` | Verify code through execution |
 
 #### 📊 49x Token Optimization Details (Code-Review-Graph)
-The `code-review-graph` skill automates blast-radius mapping for your codebase (via Tree-sitter & SQLite). 
-If it is installed globally via Pip/Pipx, Antigravity Agents will now intelligently auto-query it, dropping token usage massively on large projects:
+The `code-review-graph` skill automates blast-radius mapping for your codebase (via Tree-sitter & SQLite).
+If it is installed globally via Pip/Pipx, AG Kit Agents will now intelligently auto-query it, dropping token usage massively on large projects:
 
 | Codebase Type | Scenario Tested | Token Cost (Standard) | Token Cost (With Graph) | Token Savings | Impact & Outcome |
 |---|---|---|---|---|---|
@@ -253,7 +253,7 @@ ag-kit init --dry-run      # Preview actions without executing
 
 ## Attribution
 
-Antigravity Kit v3.0 was informed by studying advanced AI agent source code architectures, including patterns observed in production AI coding assistants. Architectural patterns and prompt engineering insights were analyzed and rewritten as **original markdown-based skill templates**. **No external code was copied** — all skills are original implementations.
+AG Kit 2026.5.13 was informed by studying advanced AI agent source code architectures, including patterns observed in production AI coding assistants. Architectural patterns and prompt engineering insights were analyzed and rewritten as **original markdown-based skill templates**. **No external code was copied** — all skills are original implementations.
 
 Key patterns distilled:
 - **Coordinator mode**: Multi-agent orchestration with parallel workers and synthesis protocol
@@ -264,8 +264,8 @@ Key patterns distilled:
 
 ## Documentation
 
-- **[Web App Example](https://antigravity-kit.unikorn.vn/docs/guide/examples/brainstorm)** - Step-by-step guide to creating a web application
-- **[Online Docs](https://antigravity-kit.unikorn.vn/docs)** - Browse all documentation online
+- **[Web App Example](https://ag-kit.unikorn.vn/docs/guide/examples/brainstorm)** - Step-by-step guide to creating a web application
+- **[Online Docs](https://ag-kit.unikorn.vn/docs)** - Browse all documentation online
 
 ## Buy me coffee
 

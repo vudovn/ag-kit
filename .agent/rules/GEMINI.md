@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# GEMINI.md - Antigravity Kit
+# GEMINI.md - AG Kit
 
 > This file defines how the AI behaves in this workspace.
 

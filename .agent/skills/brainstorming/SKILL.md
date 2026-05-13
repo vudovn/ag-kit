@@ -22,7 +22,7 @@ allowed-tools: Read, Glob, Grep
 | Update/change request | 🛑 Confirm scope |
 | Vague requirements | 🛑 Ask purpose, users, constraints |
 
-### 🧠 Memory Check (v3.0 — Before Questioning)
+### 🧠 Memory Check (2026.5.13 — Before Questioning)
 
 > Before asking questions, check if past context exists:
 

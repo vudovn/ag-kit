@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Callout } from "@/components/mdx";
 
 export const metadata = {
-  title: "Installation | Antigravity Kit",
-  description: "Get started with Antigravity Kit in under a minute.",
+  title: "Installation | AG Kit",
+  description: "Get started with AG Kit in under a minute.",
 };
 
 export default function InstallationPage() {
@@ -20,7 +20,7 @@ export default function InstallationPage() {
           Installation
         </h1>
         <p className="text-lg text-zinc-600 dark:text-zinc-400">
-          Get started with Antigravity Kit in under a minute.
+          Get started with AG Kit in under a minute.
         </p>
       </div>
 
@@ -29,7 +29,7 @@ export default function InstallationPage() {
           Quick Start
         </h2>
         <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6">
-          The fastest way to install Antigravity Kit is using <code className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-sm font-mono">npx</code> in root project:
+          The fastest way to install AG Kit is using <code className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-sm font-mono">npx</code> in root project:
         </p>
 
         <pre className="p-4 rounded-lg bg-zinc-900 overflow-x-auto mb-4 text-sm font-mono text-zinc-100">
@@ -67,7 +67,7 @@ export default function InstallationPage() {
           What Gets Installed
         </h2>
         <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6">
-          After running the installation command, you'll have the following structure:
+          After running the installation command, you&apos;ll have the following structure:
         </p>
 
         <pre className="p-4 rounded-lg bg-zinc-900 overflow-x-auto mb-4 text-sm font-mono text-zinc-100">
@@ -138,7 +138,7 @@ export default function InstallationPage() {
           Next Steps
         </h2>
         <p className="text-base text-zinc-600 dark:text-zinc-400 mb-6">
-          Now that you have Antigravity Kit installed, learn about the core concepts:
+          Now that you have AG Kit installed, learn about the core concepts:
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Link

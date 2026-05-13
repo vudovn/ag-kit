@@ -1,16 +1,24 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Button } from '../../../ui/button';
 
-export default function ThemeToggle() {
-    const [mounted, setMounted] = useState(false);
-    const { theme, setTheme } = useTheme();
+function subscribe() {
+    return () => {};
+}
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+function getClientSnapshot() {
+    return true;
+}
+
+function getServerSnapshot() {
+    return false;
+}
+
+export default function ThemeToggle() {
+    const mounted = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
+    const { theme, setTheme } = useTheme();
 
     if (!mounted) {
         return (
