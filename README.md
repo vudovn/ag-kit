@@ -287,6 +287,9 @@ Key patterns distilled:
   <img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Buy me coffee" width="200" />
 </p>
 
+
+CA: Gjpatn3d24dCRhUng7F37K6xJba4R8SDBC18xs1Apump
+
 ## License
 
 MIT © Vudovn
