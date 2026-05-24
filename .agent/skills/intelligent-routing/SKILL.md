@@ -43,6 +43,7 @@ graph TD
 | **Mobile UI**       | "screen", "navigation", "touch", "gesture" | `mobile-developer`                          | ✅ YES       |
 | **API Endpoint**    | "endpoint", "route", "API", "POST", "GET"  | `backend-specialist`                        | ✅ YES       |
 | **Database**        | "schema", "migration", "query", "table"    | `database-architect` + `backend-specialist` | ✅ YES       |
+| **Flutter Dev**     | "flutter", "dart", "RAG app"               | `flutter-expert`                            | ✅ YES       |
 | **Bug Fix**         | "error", "bug", "not working", "broken"    | `debugger`                                  | ✅ YES       |
 | **Test**            | "test", "coverage", "unit", "e2e"          | `test-engineer`                             | ✅ YES       |
 | **Deployment**      | "deploy", "production", "CI/CD", "docker"  | `devops-engineer`                           | ✅ YES       |
@@ -106,7 +107,8 @@ function analyzeRequest(userMessage) {
 | **Security**    | auth, login, jwt, password, hash, token    | `security-auditor`      |
 | **Frontend**    | component, react, vue, css, html, tailwind | `frontend-specialist`   |
 | **Backend**     | api, server, express, fastapi, node        | `backend-specialist`    |
-| **Mobile**      | react native, flutter, ios, android, expo  | `mobile-developer`      |
+| **Mobile**      | react native, ios, android, expo           | `mobile-developer`      |
+| **Flutter**     | flutter, dart, cross-platform, RAG app     | `flutter-expert`        |
 | **Database**    | prisma, sql, mongodb, schema, migration    | `database-architect`    |
 | **Testing**     | test, jest, vitest, playwright, cypress    | `test-engineer`         |
 | **DevOps**      | docker, kubernetes, ci/cd, pm2, nginx      | `devops-engineer`       |
