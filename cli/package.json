@@ -1,0 +1,44 @@
+{
+    "name": "@vudovn/ag-kit",
+    "version": "2026.5.25",
+    "description": "CLI tool to install Antigravity Kit - AI Agent templates",
+    "main": "bin/index.js",
+    "type": "module",
+    "engines": {
+        "node": ">=18"
+    },
+    "scripts": {
+        "test": "node --test test/*.test.js"
+    },
+    "bin": {
+        "ag-kit": "bin/index.js"
+    },
+    "files": [
+        "bin"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vudovn/ag-kit.git"
+    },
+    "homepage": "https://ag-kit.unikorn.vn/docs",
+    "bugs": {
+        "url": "https://github.com/vudovn/ag-kit/issues"
+    },
+    "keywords": [
+        "antigravity",
+        "cli",
+        "ai",
+        "agent",
+        "gemini",
+        "skills"
+    ],
+    "author": "Do Van Vu",
+    "license": "MIT",
+    "dependencies": {
+        "chalk": "^5.6.2",
+        "commander": "^12.1.0",
+        "fs-extra": "^11.3.3",
+        "giget": "^2.0.0",
+        "ora": "^8.2.0"
+    }
+}

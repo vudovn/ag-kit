@@ -9,6 +9,22 @@ Starting with `2026.5.13`, this project uses calendar versioning in `YYYY.M.D` f
 
 No unreleased changes.
 
+## [2026.5.25] - 2026-05-25
+
+### Added
+- **Vietnamese Documentation**: Created [README-VI.md](file:///Users/vudovn/Desktop/project/ag-kit/README-VI.md) providing a high-quality, professional Vietnamese translation of the refactored project guide.
+
+### Changed
+- **Folder Structure Normalization**: Successfully migrated the workspace from `.agent` to `.agents` folder naming across all documentation, architecture guides, and CLI configurations.
+- **Singular Agent Directory**: Renamed the specialist agents directory inside `.agents` from `agents/` to `agent/` to maintain clean singular naming conventions.
+- **Polished README Layouts**: Refactored `README.md` and `web/README.md` to remove old comparison tables, convert relative branding assets to absolute URLs, and reorganize the support section into a beautiful, compact side-by-side grid showing donations (MBBank QR) and the donation CA of the official project project.
+- **Website Documentation Sync**: Refactored Next.js documentation pages (`installation/page.tsx`, `cli/page.tsx`, and `workflows/page.tsx`) to align with the new `.agents/agent/` folder paths, 20 agents, 45 skills, and 13 workflows.
+
+### Fixed
+- **Dynamic Path Detection in Scripts**: Refactored the Python validation suite (`checklist.py`, `verify_all.py`, `auto_preview.py`, and `session_manager.py`) to dynamically detect `.agents` or `.agent` directories at runtime, eliminating the need for a root symlink while preserving backward compatibility.
+- **Syntax Error in verify_all.py**: Removed a broken, invalid import statement (`from 930-15 import results`) that was causing syntax errors in the full verification script.
+- **Documentation Component Counts**: Corrected inaccurate counts of workflows (from 14 to 13) and skills (from 44 to 45) in `.agents/ARCHITECTURE.md` and all related README tables.
+
 ## [2026.5.13] - 2026-05-13
 
 ### Added
@@ -104,7 +120,8 @@ No unreleased changes.
 - CLI tool for easy installation and updates.
 - Comprehensive documentation and architecture guide.
 
-[Unreleased]: https://github.com/vudovn/ag-kit/compare/2026.5.13...HEAD
+[Unreleased]: https://github.com/vudovn/ag-kit/compare/2026.5.25...HEAD
+[2026.5.25]: https://github.com/vudovn/ag-kit/compare/2026.5.13...2026.5.25
 [2026.5.13]: https://github.com/vudovn/ag-kit/compare/v3.0.0...2026.5.13
 [3.0.0]: https://github.com/vudovn/ag-kit/compare/v2.0.2...v3.0.0
 [2.0.2]: https://github.com/vudovn/ag-kit/compare/v2.0.1...v2.0.2

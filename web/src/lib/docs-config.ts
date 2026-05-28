@@ -55,10 +55,6 @@ export const docsConfig = {
                     href: "/docs/guide/examples/new-feature",
                 },
                 {
-                    title: "Advanced UI Design",
-                    href: "/docs/guide/examples/ui-design",
-                },
-                {
                     title: "Systematic Debugging",
                     href: "/docs/guide/examples/debugging",
                 },

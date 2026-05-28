@@ -1,127 +1,73 @@
-# AG Kit
-
-> AI Agent templates with Skills, Agents, and Workflows
-
-<div  align="center">
-    <a href="https://unikorn.vn/p/ag-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/ag-kit?theme=dark" alt="AG Kit - Nổi bật trên Unikorn.vn" style="width: 210px; height: 54px;" width="210" height="54" /></a>
-    <a href="https://unikorn.vn/p/ag-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/ag-kit/rank?theme=dark&type=daily" alt="AG Kit - Hàng ngày" style="width: 250px; height: 64px;" width="250" height="64" /></a>
-    <a href="https://launch.j2team.dev/products/ag-kit" target="_blank"><img src="https://launch.j2team.dev/badge/ag-kit/dark" alt="AG Kit on J2TEAM Launch" width="250" height="54" /></a>
-</div>
-
-## Quick Install
-
-```bash
-npx @vudovn/ag-kit init
-```
-
-Or install globally:
-
-```bash
-npm install -g @vudovn/ag-kit
-ag-kit init
-```
-
-This installs the `.agent` folder containing all templates into your project.
-
-## Usage
-
-### Using Agents
-
-**No need to mention agents explicitly!** The system automatically detects and applies the right specialist(s):
-
-```
-You: "Add JWT authentication"
-AI: 🤖 Applying @security-auditor + @backend-specialist...
-
-You: "Fix the dark mode button"
-AI: 🤖 Using @frontend-specialist...
-
-You: "Login returns 500 error"
-AI: 🤖 Using @debugger for systematic analysis...
-```
-
-**How it works:**
-
-- Analyzes your request silently
-- Detects domain(s) automatically (frontend, backend, security, etc.)
-- Selects the best specialist(s)
-- Informs you which expertise is being applied
-- You get specialist-level responses without needing to know the system architecture
-
-**Benefits:**
-
-- ✅ Zero learning curve - just describe what you need
-- ✅ Always get expert responses
-- ✅ Transparent - shows which agent is being used
-- ✅ Can still override by mentioning agent explicitly
-
-### Using Workflows
-
-Invoke workflows with slash commands:
-
-| Command          | Description                           |
-| ---------------- | ------------------------------------- |
-| `/brainstorm`    | Explore options before implementation |
-| `/create`        | Create new features or apps           |
-| `/debug`         | Systematic debugging                  |
-| `/deploy`        | Deploy application                    |
-| `/enhance`       | Improve existing code                 |
-| `/orchestrate`   | Multi-agent coordination              |
-| `/plan`          | Create task breakdown                 |
-| `/preview`       | Preview changes locally               |
-| `/status`        | Check project status                  |
-| `/test`          | Generate and run tests                |
-| `/ui-ux-pro-max` | Design with 50 styles                 |
-
-Example:
-
-```
-/brainstorm authentication system
-/create landing page with hero section
-/debug why login fails
-```
-
-### Using Skills
-
-Skills are loaded automatically based on task context. The AI reads skill descriptions and applies relevant knowledge.
-
-## CLI Tool
-
-| Command         | Description                               |
-| --------------- | ----------------------------------------- |
-| `ag-kit init`   | Install `.agent` folder into your project |
-| `ag-kit update` | Update to the latest version              |
-| `ag-kit status` | Check installation status                 |
-
-### Options
-
-```bash
-ag-kit init --force        # Overwrite existing .agent folder
-ag-kit init --path ./myapp # Install in specific directory
-ag-kit init --branch dev   # Use specific branch
-ag-kit init --quiet        # Suppress output (for CI/CD)
-ag-kit init --dry-run      # Preview actions without executing
-```
-
-## Documentation
-
-- **[Web App Example](https://ag-kit.vercel.app//docs/guide/examples/web-app)** - Step-by-step guide to creating a web application
-- **[Online Docs](https://ag-kit.vercel.app//docs)** - Browse all documentation online
-
-## Buy me coffee
-
 <p align="center">
-  <a href="https://buymeacoffee.com/vudovn">
-    <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" />
-  </a>
+  <img src="https://raw.githubusercontent.com/vudovn/ag-kit/main/web/public/images/logo.png" width="128" height="128" alt="AGKIT">
 </p>
 
-<p align="center"> - or - </p>
+<h1 align="center">AG Kit - Web Application</h1>
 
 <p align="center">
-  <img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Buy me coffee" width="200" />
+    Next.js documentation and dashboard portal for AG Kit — AI Agent templates with Skills, Agents, and Workflows.
 </p>
 
-## License
+---
 
-MIT © Vudovn
+## ⚡ Quick Start (Local Development)
+
+The `web/` directory contains the official online documentation site and interactive dashboard portal built using Next.js 16 and React 19.
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Run local development server**:
+   ```bash
+   npm run dev
+   ```
+
+3. **Open browser**:
+   Navigate to [http://localhost:3000](http://localhost:3000) to view the documentation portal locally.
+
+---
+
+## 🏗️ Architecture & Stack
+
+*   **Framework:** [Next.js 16 (App Router)](https://nextjs.org/)
+*   **Library:** [React 19](https://react.dev/)
+*   **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+*   **MDX:** [@next/mdx](https://github.com/vercel/next.js/tree/canary/packages/next-mdx) for seamless markdown integration
+*   **Components:** Built with [@base-ui/react](https://base-ui.com/) and Lucide React icons
+
+---
+
+## 📦 What gets installed by the CLI
+
+When downstream developers run `npx @vudovn/ag-kit init`, they install a `.agents/` folder at their project root:
+
+| Directory | Count | Description |
+| :--- | :--- | :--- |
+| **`agent/`** | 20 | Specialist AI agent configurations (Frontend, Backend, Security, PM, QA, etc.) |
+| **`skills/`** | 45 | Domain-specific context modules with conditional loading rules |
+| **`workflows/`** | 13 | Pre-configured interactive slash commands |
+
+---
+
+## 📚 Online Documentation
+
+*   **[Official Documentation Portal](https://ag-kit.unikorn.vn/docs)**
+*   **[GitHub Repository](https://github.com/vudovn/ag-kit)**
+
+---
+
+## ☕ Support the Project
+
+If AG Kit has made your AI programming sessions more productive, consider supporting the project:
+
+| ☕ Support & Donations | 🚀 Support |
+| :---: | :---: |
+| <a href="https://buymeacoffee.com/vudovn" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a><br/><br/>**Vietnamese Bank (MBBank QR):**<br/><img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Donate QR" width="140" style="border-radius: 8px; margin-top: 10px;" /> | **donation donation info (CA):**<br/><br/>`Gjpatn3d24dCRhUng7F37K6xJba4R8SDBC18xs1Apump`<br/><br/>*Copy the donation info (CA) above to trade on Raydium, Jupiter, or your favorite DEX.* |
+
+---
+
+## 📄 License
+
+Released under the [MIT License](LICENSE) © [Vudovn](https://github.com/vudovn).

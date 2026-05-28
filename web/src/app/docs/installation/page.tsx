@@ -37,7 +37,7 @@ export default function InstallationPage() {
         </pre>
 
         <Callout type="info">
-          <strong>Note:</strong> This command will create a <code>.agent</code> folder in your current directory containing all templates.
+          <strong>Note:</strong> This command will create a <code>.agents</code> folder in your current directory containing all templates.
         </Callout>
       </section>
 
@@ -71,31 +71,31 @@ export default function InstallationPage() {
         </p>
 
         <pre className="p-4 rounded-lg bg-zinc-900 overflow-x-auto mb-4 text-sm font-mono text-zinc-100">
-{`.agent/
-├── agents/          # 16 Specialist Agents
-├── skills/          # 40+ Skills
-├── workflows/       # 11 Slash Commands
+{`.agents/
+├── agent/           # 20 Specialist Agents
+├── skills/          # 45 Skills
+├── workflows/       # 13 Slash Commands
 ├── rules/           # Workspace Rules
 └── ARCHITECTURE.md  # Full documentation`}
         </pre>
 
         <div className="space-y-4">
           <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800">
-            <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">agents/</h3>
+            <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">agent/</h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Contains 16 specialist AI agent configurations for different domains (frontend, backend, security, etc.)
+              Contains 20 specialist AI agent configurations for different domains (frontend, backend, security, etc.)
             </p>
           </div>
           <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800">
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">skills/</h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              40+ domain-specific knowledge modules that agents can use
+              45 domain-specific knowledge modules that agents can use
             </p>
           </div>
           <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800">
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">workflows/</h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              11 slash command procedures for common development tasks
+              13 slash command procedures for common development tasks
             </p>
           </div>
           <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800">
@@ -156,7 +156,7 @@ export default function InstallationPage() {
           >
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Skills →</h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Discover 40+ domain-specific skills
+              Discover 45 domain-specific skills
             </p>
           </Link>
         </div>

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: "AG Kit - AI Agent Capability Expansion Toolkit",
   description:
     "A comprehensive collection of skills, rules, and workflows for modern AI coding assistants. 35+ skills, 57 UI Styles, production-ready workflows.",
-  metadataBase: new URL("https://ag-kit.vercel.app/"),
+  metadataBase: new URL("https://ag-kit.unikorn.vn/"),
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://ag-kit.vercel.app/",
+    url: "https://ag-kit.unikorn.vn/",
     siteName: "AG Kit",
     images: ["/images/logo.png"],
   },

@@ -1,6 +1,6 @@
 # 🔄 Agent Flow Architecture
 
-> **AG Kit 2026.5.13** — Comprehensive AI Agent Workflow Documentation
+> **AG Kit 2026.5.25** — Comprehensive AI Agent Workflow Documentation
 
 ---
 
@@ -39,7 +39,6 @@
     │ /preview          │      │ • devops-*       │
     │ /status           │      │ • test-*         │
     │ /test             │      │ • security-*     │
-    │ /ui-ux-pro-max    │      │ • game-*         │
     └─────────┬─────────┘      └────────┬─────────┘
               │                         │
               └────────────┬────────────┘
@@ -141,7 +140,7 @@ Before ANY code/design work:
 | Step | Check                        | If Unchecked                             |
 | ---- | ---------------------------- | ---------------------------------------- |
 | 1    | Identify correct agent       | → Analyze request domain                 |
-| 2    | Read agent's .md file        | → Open `.agent/agents/{agent}.md`        |
+| 2    | Read agent's .md file        | → Open `.agent/agent/{agent}.md`         |
 | 3    | Announce agent               | → `🤖 Applying knowledge of @[agent]...` |
 | 4    | Load skills from frontmatter | → Check `skills:` field                  |
 
@@ -311,13 +310,6 @@ Slash Command Flow:
     3. Break down: Tasks with estimates
     4. Output: Structured plan with milestones
 
-/ui-ux-pro-max
-    ↓
-    1. Load: ui-ux-pro-max skill
-    2. Access: 50 design styles
-    3. Access: 21 color palettes
-    4. Access: 50 font combinations
-    5. Generate: Professional UI with selected style
 ```
 
 ### 5️⃣ **Multi-Agent Orchestration**
@@ -528,14 +520,14 @@ User Request: "Build a Next.js dashboard with authentication"
 │                    SYSTEM CAPABILITIES                    │
 ├──────────────────────────────────────────────────────────┤
 │ Total Agents:              20                            │
-│ Total Skills:              45 (+8 new in 2026.5.13)      │
-│ Total Workflows:           14 (+3 new in 2026.5.13)      │
+│ Total Skills:              45 (+8 new in 2026.5.25)      │
+│ Total Workflows:           13 (+3 new in 2026.5.25)      │
 │ Master Scripts:            2 (checklist, verify_all)     │
 │ Skill-Level Scripts:       18                            │
 │ Coverage:                  ~95% web/mobile + orchestration│
-│ Token Efficiency:          13-33% better (2026.5.13)     │
+│ Token Efficiency:          13-33% better (2026.5.25)     │
 │                                                          │
-│ New in 2026.5.13:                                        │
+│ New in 2026.5.25:                                        │
 │ ├─ Coordinator Mode (parallel orchestration)             │
 │ ├─ Persistent Memory System (MEMORY.md)                  │
 │ ├─ Context Compression (auto-compact)                    │
@@ -600,12 +592,12 @@ User Request: "Build a Next.js dashboard with authentication"
 ## 🔗 Quick Reference Links
 
 - **Architecture**: `.agent/ARCHITECTURE.md`
-- **Agents**: `.agent/agents/`
+- **Agents**: `.agent/agent/`
 - **Skills**: `.agent/skills/`
 - **Workflows**: `.agent/workflows/`
 - **Scripts**: `.agent/scripts/`
 
 ---
 
-**Last Updated**: 2026-05-13
-**Version**: 2026.5.13
+**Last Updated**: 2026-05-25
+**Version**: 2026.5.25

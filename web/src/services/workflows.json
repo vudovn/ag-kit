@@ -38,9 +38,5 @@
     {
         "command": "/test",
         "description": "Run tests"
-    },
-    {
-        "command": "/ui-ux-pro-max",
-        "description": "Design with 50 styles"
     }
 ]

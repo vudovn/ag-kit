@@ -43,7 +43,7 @@ export default function CLIPage() {
                             <code className="font-mono">ag-kit init</code>
                         </h3>
                         <p className="text-base text-zinc-600 dark:text-zinc-400 mb-4">
-                            Initialize AG Kit in your project by installing the <code className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-sm font-mono">.agent</code> folder.
+                            Initialize AG Kit in your project by installing the <code className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-sm font-mono">.agents</code> folder.
                         </p>
 
                         <div className="relative group mb-4">
@@ -55,9 +55,9 @@ export default function CLIPage() {
                         <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
                             <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 mb-2">Behavior</div>
                             <ul className="text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
-                                <li>• Creates <code className="px-1 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 font-mono text-xs">.agent/</code> directory in current folder</li>
+                                <li>• Creates <code className="px-1 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 font-mono text-xs">.agents/</code> directory in current folder</li>
                                 <li>• Downloads latest templates from GitHub</li>
-                                <li>• Skips  if <code className="px-1 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 font-mono text-xs">.agent/</code> already exists (use <code className="px-1 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 font-mono text-xs">--force</code> to override)</li>
+                                <li>• Skips  if <code className="px-1 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 font-mono text-xs">.agents/</code> already exists (use <code className="px-1 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 font-mono text-xs">--force</code> to override)</li>
                             </ul>
                         </div>
                     </div>
@@ -79,7 +79,7 @@ export default function CLIPage() {
 
                         <div className="p-4 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/20">
                             <p className="text-sm text-amber-900 dark:text-amber-200">
-                                <strong className="font-semibold">Warning:</strong> This will delete and replace your <code className="px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 font-mono text-xs">.agent/</code> folder. Make sure to backup any custom changes.
+                                <strong className="font-semibold">Warning:</strong> This will delete and replace your <code className="px-1 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 font-mono text-xs">.agents/</code> folder. Make sure to backup any custom changes.
                             </p>
                         </div>
                     </div>
@@ -136,7 +136,7 @@ export default function CLIPage() {
                                     <code className="font-mono text-zinc-900 dark:text-zinc-50">--force</code>
                                 </td>
                                 <td className="py-3 px-4 text-zinc-600 dark:text-zinc-400">
-                                    Overwrite existing <code className="px-1 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 font-mono text-xs">.agent</code> folder
+                                    Overwrite existing <code className="px-1 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 font-mono text-xs">.agents</code> folder
                                 </td>
                             </tr>
                             <tr>
