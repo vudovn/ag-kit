@@ -3,6 +3,7 @@ import { Command, Option } from "commander";
 import chalk from "chalk";
 import ora from "ora";
 import { downloadTemplate } from "giget";
+import fs from "node:fs";
 import path from "node:path";
 import fse from "fs-extra";
 import readline from "node:readline";
@@ -428,8 +429,15 @@ export const runCli = async (argv = process.argv) => {
     await program.parseAsync(argv);
 };
 
-const isDirectRun = process.argv[1]
-    && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+let isDirectRun = false;
+if (process.argv[1]) {
+    try {
+        const resolvedPath = fs.realpathSync(process.argv[1]);
+        isDirectRun = pathToFileURL(resolvedPath).href === import.meta.url;
+    } catch {
+        isDirectRun = pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+    }
+}
 
 if (isDirectRun) {
     process.on("SIGINT", async () => {
