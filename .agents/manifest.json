@@ -155,7 +155,7 @@
           "clean-code": "^2.0.0",
           "design-spec": "^1.0.0",
           "frontend-architecture": "^1.0.0",
-          "frontend-design": "^1.0.0",
+          "frontend-design": "",
           "lint-and-validate": "^1.0.0",
           "nextjs-react-expert": "^1.0.0",
           "tailwind-patterns": "^1.0.0",
@@ -608,6 +608,12 @@
       "scripts": [],
       "version": "1.0.0"
     },
+    "canvas-design": {
+      "allowedTools": [],
+      "path": "skills/canvas-design/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
     "clean-code": {
       "allowedTools": [
         "Read",
@@ -723,20 +729,13 @@
       "version": "1.0.0"
     },
     "frontend-design": {
-      "allowedTools": [
-        "Read",
-        "Write",
-        "Edit",
-        "Glob",
-        "Grep",
-        "Bash"
-      ],
+      "allowedTools": [],
       "path": "skills/frontend-design/SKILL.md",
       "scripts": [
         "skills/frontend-design/scripts/accessibility_checker.py",
         "skills/frontend-design/scripts/ux_audit.py"
       ],
-      "version": "1.0.0"
+      "version": ""
     },
     "game-development": {
       "allowedTools": [
@@ -922,6 +921,12 @@
       "scripts": [],
       "version": "1.0.0"
     },
+    "react-best-practices": {
+      "allowedTools": [],
+      "path": "skills/react-best-practices/SKILL.md",
+      "scripts": [],
+      "version": "1.0.0"
+    },
     "red-team-tactics": {
       "allowedTools": [
         "Read",
@@ -957,6 +962,12 @@
       ],
       "version": "1.0.0"
     },
+    "seo-optimizer": {
+      "allowedTools": [],
+      "path": "skills/seo-optimizer/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
     "server-management": {
       "allowedTools": [
         "Read",
@@ -981,6 +992,22 @@
       "path": "skills/simplify-code/SKILL.md",
       "scripts": [],
       "version": "1.0.0"
+    },
+    "skill-creator": {
+      "allowedTools": [],
+      "path": "skills/skill-creator/SKILL.md",
+      "scripts": [
+        "skills/skill-creator/scripts/__init__.py",
+        "skills/skill-creator/scripts/aggregate_benchmark.py",
+        "skills/skill-creator/scripts/generate_report.py",
+        "skills/skill-creator/scripts/improve_description.py",
+        "skills/skill-creator/scripts/package_skill.py",
+        "skills/skill-creator/scripts/quick_validate.py",
+        "skills/skill-creator/scripts/run_eval.py",
+        "skills/skill-creator/scripts/run_loop.py",
+        "skills/skill-creator/scripts/utils.py"
+      ],
+      "version": ""
     },
     "skillify": {
       "allowedTools": [
@@ -1042,6 +1069,24 @@
         "skills/testing-patterns/scripts/test_runner.py"
       ],
       "version": "1.0.0"
+    },
+    "ui-design-system": {
+      "allowedTools": [],
+      "path": "skills/ui-design-system/SKILL.md",
+      "scripts": [
+        "skills/ui-design-system/scripts/design_token_generator.py"
+      ],
+      "version": ""
+    },
+    "ui-ux-pro-max": {
+      "allowedTools": [],
+      "path": "skills/ui-ux-pro-max/SKILL.md",
+      "scripts": [
+        "skills/ui-ux-pro-max/scripts/core.py",
+        "skills/ui-ux-pro-max/scripts/design_system.py",
+        "skills/ui-ux-pro-max/scripts/search.py"
+      ],
+      "version": ""
     },
     "verify-changes": {
       "allowedTools": [
