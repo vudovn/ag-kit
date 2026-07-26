@@ -668,6 +668,12 @@
       "scripts": [],
       "version": ""
     },
+    "brand-identity-extractor": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-identity-extractor/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
     "brand-init": {
       "allowedTools": [],
       "path": "skills/brand/brand-init/SKILL.md",
@@ -893,6 +899,12 @@
         "skills/geo-fundamentals/scripts/geo_checker.py"
       ],
       "version": "1.0.0"
+    },
+    "hostinger-deploy": {
+      "allowedTools": [],
+      "path": "skills/hostinger-deploy/SKILL.md",
+      "scripts": [],
+      "version": ""
     },
     "i18n-localization": {
       "allowedTools": [

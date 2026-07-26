@@ -113,6 +113,7 @@
     "skills/brand/brand-context/SKILL.md": "2a7ca854eb2024770594ada3e039440a2fd432a044fa58cd185e38aa2ae2ff31",
     "skills/brand/brand-extractor/SKILL.md": "445fbd87e13e4d76bebe8c23080c71833dc189fd3e2aa79520d3639c88536353",
     "skills/brand/brand-guidelines/SKILL.md": "56a29b8575832774720b30c6704b38acdc35496d2586fd0bc94cc3ef8577febf",
+    "skills/brand/brand-identity-extractor/SKILL.md": "d927ee2ff02390685a07d313780125dc63e51db5b8eb9028dcba8a11170affb6",
     "skills/brand/brand-identity/SKILL.md": "c07e60115cf1459e630a19699ef3e503482611e99e36ddc5b6258fdaaabcd98d",
     "skills/brand/brand-init/SKILL.md": "d1ea213b7e0837336908185bada4fd868bf366efcef1dd71456b504c09c849aa",
     "skills/brand/brand-init/scripts/brand.sh": "77afa44bbda60678e56d593886b2ed185df82507b52ab8c3bd30fa72fa3453d6",
@@ -186,6 +187,7 @@
     "skills/game-development/web-games/SKILL.md": "03e4654b861085b758d7b6ac3d275bca39d06f5a91985c82aafb4d0c5d5eca3a",
     "skills/geo-fundamentals/SKILL.md": "d1beb1f5326da0380dca27548b57b6a259988dac693c1b6ea3277284e85a57dc",
     "skills/geo-fundamentals/scripts/geo_checker.py": "6dead364cf1dd64e887dfcae82fb0ba23d48dcdec31b11d02cc57b40d3d3e0cf",
+    "skills/hostinger-deploy/SKILL.md": "86546301181c4753423dcdce3ccb8a47aea9cd4c8955d7a816723ebc8da80e97",
     "skills/i18n-localization/SKILL.md": "22ff506463b0b10a698983088f7af61d4e48b9e86873d8c37e62795c39d6af9e",
     "skills/i18n-localization/scripts/i18n_checker.py": "dba44a532b0e39ed99dc751542e2f868902d78e12db629728b3a62d7f338fb3e",
     "skills/intelligent-routing/SKILL.md": "b2976fa3ad25c093033750639e5fadce1e75c2e87d7890850cfe5d5b64d6c67c",
@@ -312,6 +314,6 @@
     "workflows/verify.md": "187e9be5b0c04647a37d01bab11721945e2cd8aa5fc2eb17959c017206491b14"
   },
   "kitVersion": "2026.7.27",
-  "manifestSha256": "caceaf03396abe1bab36f4159f7706b00006c268cf4d8ccebb3ff17a1847f579",
+  "manifestSha256": "fedfb8569199c16d7a2af2b47497842499eacd0f74983c5690439719e9270641",
   "schemaVersion": "1.0.0"
 }
