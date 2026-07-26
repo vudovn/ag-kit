@@ -1,0 +1,44 @@
+{
+  "skill_name": "brand-strategy",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a new branding client — it's a sustainable skincare brand for Indian women aged 25-40. They filled out the questionnaire. Help me build the brand strategy.",
+      "expected_output": "Should recognize this is a filled-questionnaire scenario and proceed to generate the full brand strategy report. Should produce all 12 sections: brand origin, vision, mission, values, goals, target audience with personas, brand personality, brand voice, competitor analysis, positioning, differentiation, and tagline suggestions. Should write in a confident, editorial voice — not generic or AI-sounding. Should include India-specific context in audience and competitor sections. Should offer 3-5 tagline options.",
+      "assertions": [
+        "Generates all 12 report sections",
+        "Writes in confident editorial voice, not AI-sounding",
+        "Includes audience personas with real-feeling detail",
+        "Includes competitor analysis with named competitors",
+        "Offers 3-5 tagline options with rationale",
+        "Uses brand-specific language throughout, not generic filler",
+        "Positioning section includes both narrative and statement"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I have a new branding client and need to start collecting information. Can you help me?",
+      "expected_output": "Should recognize this as a fresh-start scenario and present the full brand questionnaire. Should present all 5 sections of the questionnaire in clean, formatted structure: The Basics, Audience & Market, Brand Values & Personality, Brand Personality Sliders, and Goals. Should wait for the user to fill it out before generating the report.",
+      "assertions": [
+        "Presents the questionnaire (not the report)",
+        "Includes all 5 questionnaire sections",
+        "Includes personality slider questions",
+        "Presents in clean, formatted structure",
+        "Instructs user to fill out before proceeding"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "create a brand report",
+      "expected_output": "Should trigger on the casual phrase 'create a brand report'. Should ask whether the user has a filled questionnaire or wants to start fresh. Should not jump to generating a report without information.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Asks for clarification on mode (questionnaire vs. existing brief)",
+        "Does not generate a report without information"
+      ],
+      "files": []
+    }
+  ]
+}

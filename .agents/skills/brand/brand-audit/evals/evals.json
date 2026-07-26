@@ -1,0 +1,46 @@
+{
+  "skill_name": "brand-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Something feels off with our brand. We've been growing but the brand hasn't kept up. Can you help us figure out what's wrong?",
+      "expected_output": "Should recognize this as a brand audit situation triggered by 'something feels off'. Should ask for brand materials to review (website, social, guidelines). Should conduct the audit across all 6 dimensions. Should produce a scored scorecard. Should list what's working, what's not working, and prioritized recommendations.",
+      "assertions": [
+        "Triggers on 'something feels off' phrasing",
+        "Requests brand materials before auditing",
+        "Audits all 6 dimensions",
+        "Produces a scored scorecard",
+        "Lists strengths specifically",
+        "Lists issues with evidence and impact",
+        "Provides prioritized recommendations (immediate, short-term, long-term)"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "our brand feels outdated",
+      "expected_output": "Should trigger on casual phrasing. Should ask diagnostic questions to understand whether this is a visual identity problem, positioning problem, or both. Should not assume it's just a logo refresh.",
+      "assertions": [
+        "Triggers on casual phrasing",
+        "Asks diagnostic questions",
+        "Does not assume it's purely a visual identity problem",
+        "May reference rebranding skill if deeper change is needed"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Audit our brand. We have a brand book in docs/brand/ and our site is live at example.com. We also have an old landing-v1 repo and a newer landing-v2 repo.",
+      "expected_output": "Should establish the source of truth before scoring: confirm which repo/site is the CURRENT production touchpoint (landing-v2 vs landing-v1) and whether the brand book is still current, rather than assuming the brand book or the first repo found is ground truth. Should treat the brand book as 'declared' and production as 'real', score the live brand, and surface the declared-vs-real gap as a primary finding — explicitly distinguishing stale docs (documentation debt) from real drift.",
+      "assertions": [
+        "Asks which repo/site is the current production version before scoring",
+        "Does not assume the brand book or first repo found is ground truth",
+        "Treats docs as 'declared' and production as 'real'",
+        "Scores the live brand, not the documented brand, when they diverge",
+        "Surfaces the declared-vs-real gap as a primary finding",
+        "Distinguishes stale docs (documentation debt) from real drift"
+      ],
+      "files": []
+    }
+  ]
+}

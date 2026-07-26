@@ -524,6 +524,30 @@
   },
   "schemaVersion": "1.0.0",
   "skills": {
+    "2d-games": {
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/2d-games/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "3d-games": {
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/3d-games/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
     "api-patterns": {
       "allowedTools": [
         "Read",
@@ -608,6 +632,78 @@
       "scripts": [],
       "version": "1.0.0"
     },
+    "brand-architecture": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-architecture/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-audit": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-audit/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-context": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-context/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-extractor": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-extractor/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-guidelines": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-guidelines/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-identity": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-identity/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-init": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-init/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-messaging": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-messaging/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-positioning": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-positioning/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-story": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-story/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-strategy": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-strategy/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "brand-voice": {
+      "allowedTools": [],
+      "path": "skills/brand/brand-voice/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
     "canvas-design": {
       "allowedTools": [],
       "path": "skills/canvas-design/SKILL.md",
@@ -644,6 +740,12 @@
       "path": "skills/code-review-graph/SKILL.md",
       "scripts": [],
       "version": "1.0.0"
+    },
+    "competitor-branding": {
+      "allowedTools": [],
+      "path": "skills/brand/competitor-branding/SKILL.md",
+      "scripts": [],
+      "version": ""
     },
     "context-compression": {
       "allowedTools": [
@@ -735,6 +837,36 @@
         "skills/frontend-design/scripts/accessibility_checker.py",
         "skills/frontend-design/scripts/ux_audit.py"
       ],
+      "version": ""
+    },
+    "game-art": {
+      "allowedTools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/game-art/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "game-audio": {
+      "allowedTools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/game-audio/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "game-design": {
+      "allowedTools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/game-design/SKILL.md",
+      "scripts": [],
       "version": ""
     },
     "game-development": {
@@ -834,6 +966,47 @@
       ],
       "version": "1.0.0"
     },
+    "mobile-games": {
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/mobile-games/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "multiplayer": {
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "path": "skills/game-development/multiplayer/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
+    "naming": {
+      "allowedTools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash(whois *)",
+        "Bash(curl *)",
+        "Bash(npm view *)",
+        "Bash(gh repo view *)",
+        "WebSearch",
+        "WebFetch"
+      ],
+      "path": "skills/brand/naming/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
     "nextjs-react-expert": {
       "allowedTools": [
         "Read",
@@ -871,6 +1044,18 @@
       "path": "skills/parallel-agents/SKILL.md",
       "scripts": [],
       "version": "1.0.0"
+    },
+    "pc-games": {
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/pc-games/SKILL.md",
+      "scripts": [],
+      "version": ""
     },
     "performance-profiling": {
       "allowedTools": [
@@ -926,6 +1111,12 @@
       "path": "skills/react-best-practices/SKILL.md",
       "scripts": [],
       "version": "1.0.0"
+    },
+    "rebranding": {
+      "allowedTools": [],
+      "path": "skills/brand/rebranding/SKILL.md",
+      "scripts": [],
+      "version": ""
     },
     "red-team-tactics": {
       "allowedTools": [
@@ -1042,6 +1233,12 @@
       "scripts": [],
       "version": "1.0.0"
     },
+    "target-audience": {
+      "allowedTools": [],
+      "path": "skills/brand/target-audience/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
     "tdd-workflow": {
       "allowedTools": [
         "Read",
@@ -1054,6 +1251,16 @@
       "path": "skills/tdd-workflow/SKILL.md",
       "scripts": [],
       "version": "1.0.0"
+    },
+    "templates": {
+      "allowedTools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/app-builder/templates/SKILL.md",
+      "scripts": [],
+      "version": ""
     },
     "testing-patterns": {
       "allowedTools": [
@@ -1099,6 +1306,18 @@
       "scripts": [],
       "version": "1.0.0"
     },
+    "vr-ar": {
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/vr-ar/SKILL.md",
+      "scripts": [],
+      "version": ""
+    },
     "vulnerability-scanner": {
       "allowedTools": [
         "Read",
@@ -1123,6 +1342,18 @@
       "path": "skills/web-design-guidelines/SKILL.md",
       "scripts": [],
       "version": "1.0.0"
+    },
+    "web-games": {
+      "allowedTools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "path": "skills/game-development/web-games/SKILL.md",
+      "scripts": [],
+      "version": ""
     },
     "webapp-testing": {
       "allowedTools": [
