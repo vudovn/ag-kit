@@ -1,0 +1,30 @@
+{
+  "skill_name": "brand-positioning",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We make project management software but we're tired of competing with Asana and Monday. They're too big. How do we find a position we can own?",
+      "expected_output": "Should recognize this is a competitive positioning problem. Should help reframe the category (not just 'project management' — what specific audience or use case can be owned?). Should map the competitive landscape and identify open territory. Should produce a positioning statement. Should address what the brand refuses to be.",
+      "assertions": [
+        "Addresses competitive positioning problem directly",
+        "Challenges the category framing",
+        "Maps competitive landscape",
+        "Identifies open or underserved territory",
+        "Produces a positioning statement",
+        "Includes 'what this brand refuses to be' section"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "positioning statement",
+      "expected_output": "Should trigger on the keyword phrase. Should recognize there is no brand context and ask for the minimum information needed: category, audience, key differentiator, and competitors.",
+      "assertions": [
+        "Triggers on keyword phrase",
+        "Asks for context before producing positioning",
+        "Does not generate a generic positioning statement without information"
+      ],
+      "files": []
+    }
+  ]
+}

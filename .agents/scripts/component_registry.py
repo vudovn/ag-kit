@@ -109,7 +109,7 @@ def build_manifest(root: Path) -> dict[str, Any]:
     kit_version = (root / "VERSION").read_text("utf-8").strip()
 
     skills: dict[str, dict[str, Any]] = {}
-    for path in sorted((root / "skills").glob("*/SKILL.md")):
+    for path in sorted((root / "skills").rglob("SKILL.md")):
         data = load_frontmatter(path)
         name = path.parent.name
         version = str(data.get("version", ""))
