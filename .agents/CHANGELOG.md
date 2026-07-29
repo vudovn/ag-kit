@@ -1,5 +1,16 @@
 # AG Kit Toolkit Changelog
 
+## Unreleased
+
+### Changed
+
+- Updated the `mcp-builder` skill for the stable MCP `2026-07-28` specification: stateless per-request metadata, `server/discover`, explicit state handles, extension negotiation, JSON Schema 2020-12, compatibility behavior, and migration guidance for deprecated features.
+- Clearly separated stable core features from opt-in Tasks, Skills over MCP, and MCP Apps extensions.
+
+### Security
+
+- Added required safeguards for external `$ref` resolution, schema-validation resource limits, untrusted tool annotations, explicit consent, least privilege, secret handling, and execution isolation.
+
 ## 2026.7.26
 
 ### Added
