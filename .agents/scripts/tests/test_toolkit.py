@@ -48,7 +48,9 @@ class ToolkitRegressionTests(unittest.TestCase):
     def test_security_scanner_ignores_patterns_inside_strings(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / "sample.py").write_text("PATTERN = r'eval\\s*\\('\nTOKEN = 'YOUR_API_KEY'\n", "utf-8")
+            (root / "sample.py").write_text("PATTERN = r'eval\\s*\\('
+TOKEN = 'YOUR_API_KEY'
+", "utf-8")
             report = security_scan.run_full_scan(str(root), "all")
             self.assertEqual(0, report["summary"]["critical"])
             self.assertEqual(0, report["summary"]["high"])
@@ -56,7 +58,9 @@ class ToolkitRegressionTests(unittest.TestCase):
     def test_security_scanner_detects_executable_eval_and_secret(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / "bad.py").write_text("api_key = 'sk_live_12345678901234567890'\neval(user_input)\n", "utf-8")  # agkit: allow-secret
+            (root / "bad.py").write_text("api_key = 'sk_live_12345678901234567890'
+eval(user_input)
+", "utf-8")  # agkit: allow-secret
             report = security_scan.run_full_scan(str(root), "all")
             self.assertGreaterEqual(report["summary"]["critical"], 1)
             self.assertGreaterEqual(report["summary"]["high"], 1)
@@ -95,7 +99,6 @@ class ToolkitRegressionTests(unittest.TestCase):
             report = bundle_analyzer.analyze(root, file_warn_kib=1, file_fail_kib=2, total_fail_kib=100)
             self.assertTrue(report["findings"])
             self.assertEqual("high", report["findings"][0]["severity"])
-
 
     def test_geo_checker_follows_localized_mdx_and_skips_layouts(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -162,8 +165,6 @@ class ToolkitRegressionTests(unittest.TestCase):
             located = validation_runner.locate_toolkit_root(project, str(SCRIPTS / "checklist.py"))
             self.assertEqual(TOOLKIT, located)
 
-
-
     def test_all_components_use_strict_semver(self):
         manifest = component_registry.build_manifest(TOOLKIT)
         for group in ("agents", "skills", "workflows", "rules"):
@@ -195,6 +196,21 @@ class ToolkitRegressionTests(unittest.TestCase):
                 self.assertLessEqual(set(workflow["requires"]["skills"]), skills)
                 self.assertTrue(workflow["artifactOutputs"])
 
+    def test_orchestration_guidance_is_antigravity_first_and_bounded(self):
+        orchestrator = (TOOLKIT / "agent/orchestrator.md").read_text("utf-8")
+        parallel = (TOOLKIT / "skills/parallel-agents/SKILL.md").read_text("utf-8")
+        combined = orchestrator + "\n" + parallel
+
+        self.assertNotIn("Claude Code's native Agent Tool", combined)
+        self.assertNotIn("Claude orchestrates autonomously", combined)
+        self.assertNotIn("**Explore** | Haiku", combined)
+        self.assertNotIn("**Plan** | Sonnet", combined)
+        self.assertIn("Google Antigravity is the primary production runtime", combined)
+        self.assertIn("max_delegation_depth", combined)
+        self.assertIn("Never allow an open-ended ReAct", combined)
+        self.assertIn("isolated worktree", combined)
+        self.assertIn("untrusted data", combined)
+
     def test_caret_semver_resolution(self):
         self.assertTrue(component_registry.version_satisfies("1.4.2", "^1.2.0"))
         self.assertFalse(component_registry.version_satisfies("2.0.0", "^1.2.0"))
@@ -210,6 +226,7 @@ class ToolkitRegressionTests(unittest.TestCase):
         }
         self.assertLessEqual(topics, {path.name for path in (TOOLKIT / "memory").glob("*.md")})
         self.assertLessEqual(len((TOOLKIT / "memory/MEMORY.md").read_text("utf-8").splitlines()), 200)
+
 
 if __name__ == "__main__":
     unittest.main()
