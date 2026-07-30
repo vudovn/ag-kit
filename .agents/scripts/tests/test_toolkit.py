@@ -48,9 +48,12 @@ class ToolkitRegressionTests(unittest.TestCase):
     def test_security_scanner_ignores_patterns_inside_strings(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / "sample.py").write_text("PATTERN = r'eval\\s*\\('
+            (root / "sample.py").write_text(
+                """PATTERN = r'eval\\s*\\('
 TOKEN = 'YOUR_API_KEY'
-", "utf-8")
+""",
+                "utf-8",
+            )
             report = security_scan.run_full_scan(str(root), "all")
             self.assertEqual(0, report["summary"]["critical"])
             self.assertEqual(0, report["summary"]["high"])
@@ -58,9 +61,12 @@ TOKEN = 'YOUR_API_KEY'
     def test_security_scanner_detects_executable_eval_and_secret(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root / "bad.py").write_text("api_key = 'sk_live_12345678901234567890'
+            (root / "bad.py").write_text(
+                """api_key = 'sk_live_12345678901234567890'
 eval(user_input)
-", "utf-8")  # agkit: allow-secret
+""",
+                "utf-8",
+            )  # agkit: allow-secret
             report = security_scan.run_full_scan(str(root), "all")
             self.assertGreaterEqual(report["summary"]["critical"], 1)
             self.assertGreaterEqual(report["summary"]["high"], 1)
