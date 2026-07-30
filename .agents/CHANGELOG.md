@@ -6,10 +6,15 @@
 
 - Updated the `mcp-builder` skill for the stable MCP `2026-07-28` specification: stateless per-request metadata, `server/discover`, explicit state handles, extension negotiation, JSON Schema 2020-12, compatibility behavior, and migration guidance for deprecated features.
 - Clearly separated stable core features from opt-in Tasks, Skills over MCP, and MCP Apps extensions.
+- Reworked the orchestrator and `parallel-agents` guidance around Antigravity-native agents and tasks while retaining best-effort portability for other runtimes.
+- Removed Claude-specific built-in agent and model-tier assumptions from managed orchestration instructions; runtime capabilities must now be discovered before delegation.
 
 ### Security
 
 - Added required safeguards for external `$ref` resolution, schema-validation resource limits, untrusted tool annotations, explicit consent, least privilege, secret handling, and execution isolation.
+- Added explicit trust boundaries for repository content, MCP responses, tool annotations, web content, logs, and subagent outputs.
+- Added finite agent, delegation-depth, turn/retry, timeout, cancellation, and no-progress controls to prevent recursive delegation and indefinite ReAct loops.
+- Parallel writers now require isolated worktrees, sandboxes, branches, or non-overlapping path grants, followed by coordinator-owned integration and repository-wide verification.
 
 ## 2026.7.26
 
