@@ -60,7 +60,7 @@
     "scripts/dependency_graph.py": "2a92705a7830bbe6465c05def2fb8e1729c9ce167f02e05bc03985f76bfbfd9d",
     "scripts/generate_manifest.py": "3b4e271cbe82abfecd72419331c9bcc4e165f3f825bcea579e2c4a6ea76b6f50",
     "scripts/session_manager.py": "dcacd94cc1117f81440c158fb6073cce69ab1e7bc7ecd54684bdef7c1b405d64",
-    "scripts/tests/test_toolkit.py": "ea94bfce2393a05cb10ca75f2ab75b2e43a61308e92b728eec2757d6fd6cc4de",
+    "scripts/tests/test_toolkit.py": "9e3937b2873d2954b9820d36b085c0d18a7da9afb85b7995da7ec410bb526805",
     "scripts/validate_kit.py": "c23e2c925172c71f416eab70b0b656900a8ec4b4ad29a6d6e7b13bfd10678f72",
     "scripts/validation_runner.py": "382463ab326c1978e76b45b45943ff99c60b04392e23aa46570e46359bff8664",
     "scripts/verify_all.py": "8a8d5f45cb2d76dbd34464ce81954c8e8f8b350f1ca39d98ea305595f827c2e6",
