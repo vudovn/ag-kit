@@ -1,8 +1,11 @@
 ---
 name: universal-rules
+description: Always-active rules for language handling, clean code, and STE output tone
+priority: 0
 version: 1.0.0
-priority: P0
 trigger: always_on
+globs: "*"
+alwaysApply: true
 ---
 
 # Universal Rules (TIER 0) - AG Kit
@@ -31,3 +34,10 @@ When user's prompt is NOT in English:
 - **Infra/Safety**: 5-Phase Deployment. Verify secrets security.
 
 ---
+
+## ✍️ Output Tone & Technical Writing
+
+**ALL English documentation, code comments, commit messages, and technical explanations MUST follow `@[skills/simple-english]`.**
+
+- Apply ASD-STE100 rules: max 20 words/instruction, active voice, simple tenses, no AI filler/buzzwords.
+- When responding in a non-English language, maintain STE principles: direct structure, active voice, and zero fluff.
