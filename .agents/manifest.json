@@ -464,7 +464,7 @@
     },
     "universal-rules": {
       "path": "rules/universal-rules.md",
-      "priority": "P0",
+      "priority": "0",
       "trigger": "always_on",
       "version": "1.0.0"
     }
@@ -967,6 +967,14 @@
         "Bash"
       ],
       "path": "skills/server-management/SKILL.md",
+      "scripts": [],
+      "version": "1.0.0"
+    },
+    "simple-english": {
+      "allowedTools": [
+        "[\"*\"]"
+      ],
+      "path": "skills/simple-english/SKILL.md",
       "scripts": [],
       "version": "1.0.0"
     },
