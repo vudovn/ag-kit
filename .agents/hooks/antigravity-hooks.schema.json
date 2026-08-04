@@ -3,42 +3,64 @@
   "$id": "https://ag-kit.dev/schemas/antigravity-hooks.schema.json",
   "title": "AG Kit Antigravity Native Hooks",
   "type": "object",
-  "required": ["enabled"],
-  "properties": {
-    "$schema": {"type": "string"},
-    "enabled": {"type": "boolean"},
-    "PreToolUse": {
-      "type": "array",
-      "items": {"$ref": "#/$defs/hook"}
+  "propertyNames": {"minLength": 1},
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "enabled": {"type": "boolean"},
+      "PreToolUse": {
+        "type": "array",
+        "items": {"$ref": "#/$defs/toolEvent"}
+      },
+      "PostToolUse": {
+        "type": "array",
+        "items": {"$ref": "#/$defs/toolEvent"}
+      },
+      "PreInvocation": {
+        "type": "array",
+        "items": {"$ref": "#/$defs/handler"}
+      },
+      "PostInvocation": {
+        "type": "array",
+        "items": {"$ref": "#/$defs/handler"}
+      },
+      "Stop": {
+        "type": "array",
+        "items": {"$ref": "#/$defs/handler"}
+      }
     },
-    "PostToolUse": {
-      "type": "array",
-      "items": {"$ref": "#/$defs/hook"}
-    },
-    "PreInvocation": {
-      "type": "array",
-      "items": {"$ref": "#/$defs/hook"}
-    },
-    "PostInvocation": {
-      "type": "array",
-      "items": {"$ref": "#/$defs/hook"}
-    },
-    "Stop": {
-      "type": "array",
-      "items": {"$ref": "#/$defs/hook"}
-    }
+    "additionalProperties": false,
+    "anyOf": [
+      {"required": ["PreToolUse"]},
+      {"required": ["PostToolUse"]},
+      {"required": ["PreInvocation"]},
+      {"required": ["PostInvocation"]},
+      {"required": ["Stop"]}
+    ]
   },
   "$defs": {
-    "hook": {
+    "toolEvent": {
       "type": "object",
-      "required": ["matcher", "command", "timeout"],
+      "required": ["matcher", "hooks"],
       "properties": {
-        "matcher": {"type": "string", "minLength": 1},
+        "matcher": {"type": "string"},
+        "hooks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/handler"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "handler": {
+      "type": "object",
+      "required": ["command"],
+      "properties": {
+        "type": {"const": "command"},
         "command": {"type": "string", "minLength": 1},
         "timeout": {"type": "integer", "minimum": 1, "maximum": 300}
       },
       "additionalProperties": false
     }
-  },
-  "additionalProperties": false
+  }
 }
