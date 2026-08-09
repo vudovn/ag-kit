@@ -8,6 +8,8 @@
 - Clearly separated stable core features from opt-in Tasks, Skills over MCP, and MCP Apps extensions.
 - Reworked the orchestrator and `parallel-agents` guidance around Antigravity-native agents and tasks while retaining best-effort portability for other runtimes.
 - Removed Claude-specific built-in agent and model-tier assumptions from managed orchestration instructions; runtime capabilities must now be discovered before delegation.
+- Added a durable-memory trust boundary: explicit `/remember` or user-approved facts may persist, while inferred/background observations remain session-local until approved.
+- Memory recall now projects only relevant confirmed entries, and contradictory durable facts require an explicit supersession decision instead of silent overwrite.
 
 ### Security
 
@@ -15,6 +17,7 @@
 - Added explicit trust boundaries for repository content, MCP responses, tool annotations, web content, logs, and subagent outputs.
 - Added finite agent, delegation-depth, turn/retry, timeout, cancellation, and no-progress controls to prevent recursive delegation and indefinite ReAct loops.
 - Parallel writers now require isolated worktrees, sandboxes, branches, or non-overlapping path grants, followed by coordinator-owned integration and repository-wide verification.
+- Prevented unapproved model inference, repository/tool content, or behavioral guesses from being promoted silently into cross-session memory.
 
 ## 2026.7.26
 
