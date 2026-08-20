@@ -677,6 +677,19 @@
       ],
       "version": "1.0.0"
     },
+    "deep-research": {
+      "allowedTools": [
+        "Read",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "path": "skills/deep-research/SKILL.md",
+      "scripts": [
+        "skills/deep-research/scripts/validate_report.py"
+      ],
+      "version": "1.0.0"
+    },
     "deployment-procedures": {
       "allowedTools": [
         "Read",
