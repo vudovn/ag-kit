@@ -170,7 +170,7 @@ Plugin installation is optional; the repository-native `.agents/` workspace rema
 | Component | Count | Purpose |
 | --- | ---: | --- |
 | Agents | 20 | Domain specialist and orchestration role definitions |
-| Skills | 47 | Progressive domain knowledge and executable validation helpers |
+| Skills | 48 | Progressive domain knowledge and executable validation helpers |
 | Workflows | 13 | Repeatable slash-command procedures |
 | Rules | 6 | Workspace-wide routing, safety, design, and coding constraints |
 | Memory topics | 4 required topics plus index | Durable project conventions, decisions, preferences, and feedback |

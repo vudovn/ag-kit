@@ -1,7 +1,7 @@
 {
   "$schema": "schemas/manifest-lock.schema.json",
   "components": {
-    "ARCHITECTURE.md": "d76626492126b02b5562ec8a88bc9fcc5401932c252ede64415c98a1805fa392",
+    "ARCHITECTURE.md": "a8320096f0b141be5dabaf4bc03c9e5b2848673f044f7b6ff054711dff6e8510",
     "CHANGELOG.md": "ca4fac7f180773358d679ae09fd058b293c6dd1d7063280d63b78316cd6d515b",
     "README.md": "d6a29fbc3367f5ab5739f84bad71710879119d1b697b6a18943dcdad5e2ec654",
     "VERSION": "8f5c2029067175ceac1b444a2e6d39702d0971ef161e9427478e32435a968a47",
@@ -60,6 +60,7 @@
     "scripts/dependency_graph.py": "2a92705a7830bbe6465c05def2fb8e1729c9ce167f02e05bc03985f76bfbfd9d",
     "scripts/generate_manifest.py": "3b4e271cbe82abfecd72419331c9bcc4e165f3f825bcea579e2c4a6ea76b6f50",
     "scripts/session_manager.py": "dcacd94cc1117f81440c158fb6073cce69ab1e7bc7ecd54684bdef7c1b405d64",
+    "scripts/tests/test_deep_research.py": "c9281f85cf6bfef353433f77aa14974faaa52c7959000df6f96c026162d35fd6",
     "scripts/tests/test_toolkit.py": "9e3937b2873d2954b9820d36b085c0d18a7da9afb85b7995da7ec410bb526805",
     "scripts/validate_kit.py": "c23e2c925172c71f416eab70b0b656900a8ec4b4ad29a6d6e7b13bfd10678f72",
     "scripts/validation_runner.py": "382463ab326c1978e76b45b45943ff99c60b04392e23aa46570e46359bff8664",
@@ -120,6 +121,9 @@
     "skills/database-design/orm-selection.md": "1ef4ad7ac69c952ee36f8def36f2f383f98910d9eb64dde7d98ef8709573788d",
     "skills/database-design/schema-design.md": "0a83addd1e9963e3d958eb00474d7dc72881c4290a97bac03bf09553607e3f6f",
     "skills/database-design/scripts/schema_validator.py": "30002411da4b6b82471d7e33ac3906daec72e69fab0fd29dd8c201b6a5777748",
+    "skills/deep-research/SKILL.md": "c7604600a0b024215a79053a936c85afef249d19804f94b432b5a708d0871b1e",
+    "skills/deep-research/references/report-schema.md": "6b1ff70716516462502eb0877f304a9002864280c7b975e7bc05a0ccdb980911",
+    "skills/deep-research/scripts/validate_report.py": "520cb1cda81f69822b547dcb9baaf1acc1489c9360885b6e01e7833c8b621a3f",
     "skills/deployment-procedures/SKILL.md": "cddf606b695ef344537072860a524e6d59dbb7e8d430fec620689b31372d4931",
     "skills/design-spec/SKILL.md": "ca2d60c173c15622baab0fdde86a9437a462234809e0d40a08a1d86fc8927ee9",
     "skills/design-spec/collection.md": "3a3f86e594a4cc229a11b387634282af6de0c85cbaea85202da1e41d43ad1979",
@@ -221,6 +225,6 @@
     "workflows/verify.md": "2dc26bcbe24c7e71571953da75629521ea3d7a0a444a7101e3601b39864971fc"
   },
   "kitVersion": "2026.7.27",
-  "manifestSha256": "78392f4acd6db7053d4e36aea42cd6b43b6c288bc9722ea38d1cf579db0e7bc4",
+  "manifestSha256": "6125c232aa68e6c73bdb0aef8722f5f67a37ebfb4513a5375210a6d4a85e0883",
   "schemaVersion": "1.0.0"
 }
