@@ -15,7 +15,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "AG Kit - AI Agent Capability Expansion Toolkit",
   description:
-    "A comprehensive collection of 47 skills, 20 specialist agents, rules, and production-ready workflows for modern AI coding assistants.",
+    "A comprehensive collection of 48 skills, 20 specialist agents, rules, and production-ready workflows for modern AI coding assistants.",
   metadataBase: new URL("https://ag-kit.unikorn.vn/"),
   icons: {
     icon: [

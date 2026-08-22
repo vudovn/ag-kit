@@ -45,6 +45,16 @@ class ToolkitRegressionTests(unittest.TestCase):
         data = json.loads((TOOLKIT / "mcp_config.json").read_text("utf-8"))
         self.assertIn("mcpServers", data)
 
+    def test_xquik_mcp_uses_remote_oauth_discovery(self):
+        data = json.loads((TOOLKIT / "mcp_config.json").read_text("utf-8"))
+        self.assertEqual({"url": "https://xquik.com/mcp"}, data["mcpServers"]["xquik"])
+
+    def test_deep_research_skill_preserves_source_boundaries(self):
+        text = (TOOLKIT / "skills/deep-research/SKILL.md").read_text("utf-8")
+        self.assertIn("per-claim citations", text)
+        self.assertIn("XQUIK_UNTRUSTED_X_CONTENT", text)
+        self.assertIn("Contradictions and gaps", text)
+
     def test_security_scanner_ignores_patterns_inside_strings(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

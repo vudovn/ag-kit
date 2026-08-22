@@ -133,6 +133,7 @@
           "architecture": "^1.0.0",
           "brainstorming": "^1.0.0",
           "clean-code": "^2.0.0",
+          "deep-research": "^1.0.0",
           "plan-writing": "^1.0.0",
           "systematic-debugging": "^1.0.0"
         }
@@ -145,7 +146,7 @@
         "ViewCodeItem",
         "FindByName"
       ],
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     "frontend-specialist": {
       "model": "inherit",
@@ -677,6 +678,17 @@
       ],
       "version": "1.0.0"
     },
+    "deep-research": {
+      "allowedTools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "WebFetch"
+      ],
+      "path": "skills/deep-research/SKILL.md",
+      "scripts": [],
+      "version": "1.0.0"
+    },
     "deployment-procedures": {
       "allowedTools": [
         "Read",
@@ -783,7 +795,7 @@
       ],
       "path": "skills/intelligent-routing/SKILL.md",
       "scripts": [],
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     "lint-and-validate": {
       "allowedTools": [

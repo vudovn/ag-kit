@@ -116,7 +116,7 @@ export const landingEn: LandingDictionary = {
   hero: {
     title: "Expand your AI coding agents with",
     subtitle:
-      "47 skills, 20 specialist agents, and production workflows you can install in one command. Safe merge updates keep your local changes.",
+      "48 skills, 20 specialist agents, and production workflows you can install in one command. Safe merge updates keep your local changes.",
     getStarted: "Get started",
     github: "GitHub",
   },
@@ -124,7 +124,7 @@ export const landingEn: LandingDictionary = {
     title: "Everything in one toolkit",
     items: [
       "20 Agents",
-      "47 Skills",
+      "48 Skills",
       "13 Workflows",
       "CLI",
       "Merge-safe",
@@ -173,7 +173,7 @@ export const landingEn: LandingDictionary = {
       {
         title: "Domain skills",
         description:
-          "47 skills covering architecture, testing, i18n, SEO, GEO, deployment, and clean code standards.",
+          "48 skills covering architecture, research, testing, i18n, SEO, GEO, deployment, and clean code standards.",
       },
       {
         title: "Guided workflows",
@@ -389,7 +389,7 @@ export const landingVi: LandingDictionary = {
   hero: {
     title: "Mở rộng AI coding agent của bạn với",
     subtitle:
-      "47 kỹ năng, 20 agent chuyên biệt và các quy trình production cài chỉ bằng một lệnh. Cập nhật merge an toàn, giữ nguyên chỉnh sửa cục bộ của bạn.",
+      "48 kỹ năng, 20 agent chuyên biệt và các quy trình production cài chỉ bằng một lệnh. Cập nhật merge an toàn, giữ nguyên chỉnh sửa cục bộ của bạn.",
     getStarted: "Bắt đầu",
     github: "GitHub",
   },
@@ -397,7 +397,7 @@ export const landingVi: LandingDictionary = {
     title: "Mọi thứ trong một bộ toolkit",
     items: [
       "20 Agent",
-      "47 Kỹ năng",
+      "48 Kỹ năng",
       "13 Quy trình",
       "CLI",
       "Cập nhật an toàn",
@@ -446,7 +446,7 @@ export const landingVi: LandingDictionary = {
       {
         title: "Skill theo domain",
         description:
-          "47 skill gồm kiến trúc, testing, i18n, SEO, GEO, triển khai và chuẩn clean code.",
+          "48 skill gồm nghiên cứu, kiến trúc, testing, i18n, SEO, GEO, triển khai và chuẩn clean code.",
       },
       {
         title: "Workflow có hướng dẫn",
@@ -667,13 +667,13 @@ export const landingZh: LandingDictionary = {
   hero: {
     title: "用以下工具扩展你的 AI 编程助手",
     subtitle:
-      "47 项技能、20 位专业 agent 与生产级工作流，一条命令即可安装。安全合并更新，保留你的本地修改。",
+      "48 项技能、20 位专业 agent 与生产级工作流，一条命令即可安装。安全合并更新，保留你的本地修改。",
     getStarted: "开始使用",
     github: "GitHub",
   },
   stack: {
     title: "一站式工具包",
-    items: ["20 个 Agent", "47 项技能", "13 个工作流", "CLI", "安全更新", "开源"],
+    items: ["20 个 Agent", "48 项技能", "13 个工作流", "CLI", "安全更新", "开源"],
   },
   sponsored: {
     ...landingEn.sponsored,
@@ -735,7 +735,7 @@ export const landingZh: LandingDictionary = {
       {
         title: "领域技能",
         description:
-          "47 项技能覆盖架构、测试、i18n、SEO、GEO、部署与整洁代码标准。",
+          "48 项技能覆盖研究、架构、测试、i18n、SEO、GEO、部署与整洁代码标准。",
       },
       {
         title: "引导式工作流",
@@ -883,7 +883,7 @@ export const landingJa: LandingDictionary = {
   hero: {
     title: "AI コーディングエージェントを拡張",
     subtitle:
-      "47 のスキル、20 の専門エージェント、本番向けワークフローを 1 コマンドで導入。安全なマージ更新でローカル変更を守ります。",
+      "48 のスキル、20 の専門エージェント、本番向けワークフローを 1 コマンドで導入。安全なマージ更新でローカル変更を守ります。",
     getStarted: "はじめる",
     github: "GitHub",
   },
@@ -891,7 +891,7 @@ export const landingJa: LandingDictionary = {
     title: "すべてが 1 つのツールキットに",
     items: [
       "20 Agents",
-      "47 Skills",
+      "48 Skills",
       "13 Workflows",
       "CLI",
       "安全な更新",
@@ -958,7 +958,7 @@ export const landingJa: LandingDictionary = {
       {
         title: "ドメインスキル",
         description:
-          "アーキテクチャ、テスト、i18n、SEO、GEO、デプロイ、クリーンコードを網羅する 47 のスキル。",
+          "リサーチ、アーキテクチャ、テスト、i18n、SEO、GEO、デプロイ、クリーンコードを網羅する 48 のスキル。",
       },
       {
         title: "ガイド付きワークフロー",

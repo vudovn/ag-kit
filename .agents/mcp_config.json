@@ -8,6 +8,9 @@
         "--api-key",
         "YOUR_API_KEY"
       ]
+    },
+    "xquik": {
+      "url": "https://xquik.com/mcp"
     }
   }
 }

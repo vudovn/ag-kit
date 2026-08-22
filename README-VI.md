@@ -150,6 +150,15 @@ node .agents/hooks/sync-mcp.mjs --apply --target cli
 
 Server trùng tên được giữ nguyên trừ khi dùng `--force`. Công cụ tạo backup có timestamp trước khi thay đổi target đã tồn tại. Không commit credential MCP thật.
 
+Chọn riêng một server đã sẵn sàng khi ví dụ khác vẫn còn placeholder:
+
+```bash
+node .agents/hooks/sync-mcp.mjs --print --server xquik
+node .agents/hooks/sync-mcp.mjs --apply --target suite --server xquik
+```
+
+Mục Xquik dùng cơ chế khám phá OAuth từ xa. Nó hỗ trợ quy trình thu thập bằng chứng X công khai, có giới hạn của Skill `deep-research`.
+
 ### Build và kiểm tra plugin
 
 ```bash
@@ -170,7 +179,7 @@ Cài plugin là tùy chọn; `.agents/` trong repository vẫn là source of tru
 | Thành phần | Số lượng | Mục đích |
 | --- | ---: | --- |
 | Agents | 20 | Vai trò chuyên môn và điều phối |
-| Skills | 47 | Tri thức domain tải theo nhu cầu và helper có thể chạy |
+| Skills | 48 | Tri thức domain tải theo nhu cầu và helper có thể chạy |
 | Workflows | 13 | Quy trình slash command lặp lại được |
 | Rules | 6 | Ràng buộc routing, safety, design và coding toàn workspace |
 | Memory topics | 4 topic bắt buộc cùng index | Quy ước, quyết định, preference và feedback dài hạn |

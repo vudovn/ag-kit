@@ -57,6 +57,13 @@ node .agents/hooks/sync-mcp.mjs --check
 node .agents/hooks/sync-mcp.mjs --print
 ```
 
+Select a ready entry without applying unrelated placeholder examples:
+
+```bash
+node .agents/hooks/sync-mcp.mjs --print --server xquik
+node .agents/hooks/sync-mcp.mjs --apply --target suite --server xquik
+```
+
 No home-directory file is changed without `--apply`. Existing server names are preserved unless `--force` is explicit, and an existing target is backed up before writing.
 
 ## Plugin bundle

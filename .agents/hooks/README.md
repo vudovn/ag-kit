@@ -61,6 +61,13 @@ node .agents/hooks/sync-mcp.mjs --apply --target suite
 node .agents/hooks/sync-mcp.mjs --apply --target cli
 ```
 
+Use `--server` to review or apply one named server without selecting unrelated placeholder entries. Repeat the flag to select more than one server:
+
+```bash
+node .agents/hooks/sync-mcp.mjs --print --server xquik
+node .agents/hooks/sync-mcp.mjs --apply --target suite --server xquik
+```
+
 The helper never overwrites an existing server with the same name unless `--force` is supplied. It creates a timestamped backup before writing.
 
 ## Orchestration
@@ -100,7 +107,7 @@ agy plugin list
 ## Security boundaries
 
 - No MCP configuration is copied to the home directory without explicit `--apply`.
-- Placeholder credentials block MCP application.
+- Placeholder credentials block any selected MCP set that contains them.
 - The plugin builder does not include secrets from environment variables or home-directory configuration.
 - The hook only reads one tool payload from stdin and performs no network calls.
 - AG Kit does not weaken Antigravity permission prompts or workspace trust controls.

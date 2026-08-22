@@ -72,7 +72,7 @@ export default function InstallationContent() {
         <pre className="p-4 rounded-lg bg-code overflow-x-auto mb-4 text-sm font-mono text-code-foreground">
 {`.agents/
 ├── agent/           # 20 Specialist Agents
-├── skills/          # 47 Skills
+├── skills/          # 48 Skills
 ├── workflows/       # 13 Slash Commands
 ├── rules/           # Workspace Rules
 └── ARCHITECTURE.md  # Full documentation`}

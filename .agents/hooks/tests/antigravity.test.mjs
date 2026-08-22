@@ -61,6 +61,20 @@ test('MCP sync detects placeholders and plans without writing', () => {
   assert.ok(Object.keys(plan.workspace.mcpServers).length > 0);
 });
 
+test('MCP sync selects a ready server without unrelated placeholders', () => {
+  const plan = planSync({root, target: 'suite', force: false, servers: ['xquik']});
+  assert.equal(plan.placeholders, false);
+  assert.deepEqual(Object.keys(plan.workspace.mcpServers), ['xquik']);
+  assert.deepEqual(plan.merged.mcpServers.xquik, {url: 'https://xquik.com/mcp'});
+});
+
+test('MCP sync rejects unknown server selection', () => {
+  assert.throws(
+    () => planSync({root, target: 'suite', force: false, servers: ['missing']}),
+    /Unknown workspace MCP server: missing/
+  );
+});
+
 test('plugin builder creates manifest, commands, skills, and hook', () => {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'ag-kit-plugin-'));
   const output = path.join(temporary, 'plugin');

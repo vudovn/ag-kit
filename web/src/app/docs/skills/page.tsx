@@ -28,6 +28,7 @@ export default function SkillsPage() {
         "Mobile",
         "Game Development",
         "SEO & Growth",
+        "Research",
         "Shell/CLI",
         "Orchestration & Memory",
         "Other"

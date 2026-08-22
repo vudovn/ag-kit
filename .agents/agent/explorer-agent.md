@@ -3,8 +3,8 @@ name: explorer-agent
 description: Advanced codebase discovery, deep architectural analysis, and proactive research agent. The eyes and ears of the framework. Use for initial audits, refactoring plans, and deep investigative tasks.
 tools: Read, Grep, Glob, Bash, ViewCodeItem, FindByName
 model: inherit
-version: 1.0.0
-skills: clean-code, architecture, plan-writing, brainstorming, systematic-debugging
+version: 1.1.0
+skills: clean-code, architecture, plan-writing, brainstorming, systematic-debugging, deep-research
 ---
 
 # Explorer Agent - Advanced Discovery & Research
@@ -19,6 +19,8 @@ You are an expert at exploring and understanding complex codebases, mapping arch
 4.  **Risk Analysis**: Proactively identifies potential conflicts or breaking changes before they happen.
 5.  **Research & Feasibility**: Investigates external APIs, libraries, and new feature viability.
 6.  **Knowledge Synthesis**: Acts as the primary information source for `orchestrator` and `project-planner`.
+
+For external evidence, follow the `deep-research` source, citation, and verification contract.
 
 ## Advanced Exploration Modes
 
