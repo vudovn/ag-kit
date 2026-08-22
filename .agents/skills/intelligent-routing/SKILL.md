@@ -2,7 +2,7 @@
 name: intelligent-routing
 description: Automatic agent selection and intelligent task routing. Analyzes user requests and automatically selects the best specialist agent(s) without requiring explicit user mentions.
 when_to_use: "Always active. Automatically selects the best specialist agent for each user request without explicit user mentions."
-version: 1.1.0
+version: 1.2.0
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -50,6 +50,7 @@ graph TD
 | **Security Review** | "security", "vulnerability", "exploit"     | `security-auditor` + `penetration-tester`   | ✅ YES       |
 | **Performance**     | "slow", "optimize", "performance", "speed" | `performance-optimizer`                     | ✅ YES       |
 | **Product Def**     | "requirements", "user story", "backlog", "MVP" | `product-owner`                             | ✅ YES       |
+| **External Research** | "research", "sources", "citations", "current evidence" | `explorer-agent`                         | ✅ YES       |
 | **New Feature**     | "build", "create", "implement", "new app"  | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
 | **Complex Task**    | Multiple domains detected                  | `orchestrator` → multi-agent                | ⚠️ ASK FIRST |
 

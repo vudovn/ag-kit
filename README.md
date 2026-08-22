@@ -150,6 +150,15 @@ node .agents/hooks/sync-mcp.mjs --apply --target cli
 
 Existing servers with the same name are preserved unless `--force` is supplied. A timestamped backup is created before an existing target file is changed. Never commit real MCP credentials.
 
+Select one ready server when another example still contains a placeholder:
+
+```bash
+node .agents/hooks/sync-mcp.mjs --print --server xquik
+node .agents/hooks/sync-mcp.mjs --apply --target suite --server xquik
+```
+
+The Xquik entry uses remote OAuth discovery and supports the `deep-research` Skill's bounded public X evidence workflow.
+
 ### Build and inspect the plugin
 
 ```bash
@@ -170,7 +179,7 @@ Plugin installation is optional; the repository-native `.agents/` workspace rema
 | Component | Count | Purpose |
 | --- | ---: | --- |
 | Agents | 20 | Domain specialist and orchestration role definitions |
-| Skills | 47 | Progressive domain knowledge and executable validation helpers |
+| Skills | 48 | Progressive domain knowledge and executable validation helpers |
 | Workflows | 13 | Repeatable slash-command procedures |
 | Rules | 6 | Workspace-wide routing, safety, design, and coding constraints |
 | Memory topics | 4 required topics plus index | Durable project conventions, decisions, preferences, and feedback |

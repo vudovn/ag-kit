@@ -6,7 +6,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 function parseArgs(argv) {
-  const options = {root: process.cwd(), apply: false, print: false, force: false, target: 'suite'};
+  const options = {root: process.cwd(), apply: false, print: false, force: false, target: 'suite', servers: []};
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--root') options.root = path.resolve(argv[++i]);
@@ -14,6 +14,11 @@ function parseArgs(argv) {
     else if (arg === '--print') options.print = true;
     else if (arg === '--force') options.force = true;
     else if (arg === '--target') options.target = argv[++i];
+    else if (arg === '--server') {
+      const name = argv[++i];
+      if (!name || name.startsWith('--')) throw new Error('--server needs a workspace server name');
+      options.servers.push(name);
+    }
     else if (arg === '--check') { /* default */ }
     else throw new Error(`Unknown argument: ${arg}`);
   }
@@ -35,6 +40,17 @@ function containsPlaceholder(value) {
   };
   walk(value);
   return found;
+}
+
+function selectServers(workspace, names) {
+  const requested = [...new Set(names)];
+  if (!requested.length) return workspace;
+  const missing = requested.filter(name => !Object.hasOwn(workspace.mcpServers, name));
+  if (missing.length) throw new Error(`Unknown workspace MCP server: ${missing.join(', ')}`);
+  return {
+    ...workspace,
+    mcpServers: Object.fromEntries(requested.map(name => [name, workspace.mcpServers[name]]))
+  };
 }
 
 function mergeServers(existing, workspace, force) {
@@ -65,14 +81,15 @@ function backup(file) {
   return backupFile;
 }
 
-export function planSync({root, target = 'suite', force = false}) {
+export function planSync({root, target = 'suite', force = false, servers = []}) {
   const source = path.join(root, '.agents', 'mcp_config.json');
   const workspace = readJson(source);
   if (!workspace || typeof workspace.mcpServers !== 'object') throw new Error('Invalid workspace .agents/mcp_config.json');
+  const selected = selectServers(workspace, servers);
   const destination = targetPath(target);
   const existing = readJson(destination, {mcpServers: {}});
-  const {result, conflicts} = mergeServers(existing, workspace, force);
-  return {source, destination, workspace, merged: result, conflicts, placeholders: containsPlaceholder(workspace)};
+  const {result, conflicts} = mergeServers(existing, selected, force);
+  return {source, destination, workspace: selected, merged: result, conflicts, placeholders: containsPlaceholder(selected)};
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

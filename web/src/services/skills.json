@@ -140,6 +140,11 @@
         "category": "SEO & Growth"
     },
     {
+        "name": "deep-research",
+        "description": "Multi-source research, per-claim citations, and live X evidence",
+        "category": "Research"
+    },
+    {
         "name": "bash-linux",
         "description": "Linux commands, scripting",
         "category": "Shell/CLI"

@@ -7,7 +7,15 @@ Starting with `2026.5.13`, this project uses calendar versioning in `YYYY.M.D` f
 
 ## [Unreleased]
 
-No unreleased changes.
+### Added
+
+- `deep-research` Skill with bounded multi-source collection, per-claim citations, contradiction tracking, and live public X evidence.
+- Optional Xquik remote MCP entry with client-managed OAuth discovery.
+
+### Fixed
+
+- MCP sync can now select one or more named servers. Unrelated placeholder examples no longer block a ready server, while selected placeholders remain blocked.
+- Updated the transitive `nanoid` lock entry to the patched release required by the production dependency audit.
 
 ## [2026.7.27] - 2026-07-26
 
