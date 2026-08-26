@@ -7,6 +7,7 @@ import test from 'node:test';
 
 import {diagnose} from '../antigravity-doctor.mjs';
 import {buildPlugin} from '../build-plugin.mjs';
+import {buildAntigravity2Plugin} from '../build-antigravity-v2-plugin.mjs';
 import {evaluateCommand, extractCommand} from '../validate-tool-call.mjs';
 import {planSync} from '../sync-mcp.mjs';
 
@@ -76,5 +77,20 @@ test('plugin builder creates manifest, commands, skills, and hook', () => {
   buildPlugin(root, output);
   const secondInventory = fs.readFileSync(path.join(output, 'PLUGIN_CONTENTS.json'), 'utf8');
   assert.equal(secondInventory, firstInventory);
+  fs.rmSync(temporary, {recursive: true, force: true});
+});
+
+test('Antigravity v2 plugin builder creates plugin.json, root hooks, skills, and direct commands', () => {
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'ag-kit-v2-plugin-'));
+  const output = path.join(temporary, 'plugin');
+  const manifest = buildAntigravity2Plugin(root, output);
+  assert.equal(manifest.runtime, 'antigravity-2.0');
+  assert.equal(manifest.counts.skills, 60);
+  assert.equal(manifest.counts.commands, 13);
+  assert.ok(fs.existsSync(path.join(output, 'plugin.json')));
+  assert.ok(fs.existsSync(path.join(output, 'hooks.json')));
+  assert.ok(fs.existsSync(path.join(output, 'commands/orchestrate.md')));
+  assert.ok(fs.existsSync(path.join(output, 'skills/orchestrate/SKILL.md')));
+  assert.ok(fs.existsSync(path.join(output, 'PLUGIN_CONTENTS.json')));
   fs.rmSync(temporary, {recursive: true, force: true});
 });
