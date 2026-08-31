@@ -33,6 +33,7 @@
     "check:antigravity": "node .agents/hooks/antigravity-doctor.mjs",
     "test:antigravity": "node --test .agents/hooks/tests/antigravity.test.mjs",
     "build:antigravity-plugin": "node .agents/hooks/build-plugin.mjs",
+    "build:antigravity-v2-plugin": "node .agents/hooks/build-antigravity-v2-plugin.mjs",
     "test:cli": "npm --prefix cli test",
     "lint:web": "npm --prefix web run lint",
     "typecheck:web": "npm --prefix web run typecheck",
