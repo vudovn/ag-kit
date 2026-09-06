@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { I18nProvider } from "@/i18n/provider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -125,6 +126,7 @@ export default function RootLayout({
         >
           <I18nProvider>{children}</I18nProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
