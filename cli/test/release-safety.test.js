@@ -60,10 +60,19 @@ test("release versions stay aligned across packages, locks, and toolkit", async 
     assert.equal(toolkitVersion, expected);
 });
 
-test("public documentation reflects current paths and inventory", async () => {
+test("public documentation reflects the lean v2 inventory and runtime matrix", async () => {
+    const capabilities = await readJson("platform-capabilities.json");
+    assert.equal(capabilities.targets.residentSkills, 1);
+    assert.equal(capabilities.targets.permanentAgents, 4);
+    assert.equal(capabilities.targets.workflowEngines, 1);
+    assert.equal(Object.keys(capabilities.platforms).length, 12);
+
     for (const file of ["README.md", "README-VI.md"]) {
         const content = await read(file);
-        assert.match(content, /\|\s*(?:\*\*)?Skills(?:\*\*)?\s*\|\s*47\s*\|/);
+        assert.match(content, /18[^\n]*(?:skills|skill)/i);
+        assert.match(content, /4[^\n]*(?:permanent\s+agents|agents)/i);
+        assert.match(content, /12[^\n]*runtime/i);
+        assert.doesNotMatch(content, /47\s+(?:skills|kỹ năng)|20\s+(?:specialist\s+agents|agent\s+chuyên)|13\s+(?:workflows|quy trình)/i);
         assert.doesNotMatch(content, /ln -s ~\/\.ag-kit\/\.agents \.agent(?:\s|$)/);
         assert.match(content, /ag-kit rollback/);
     }
