@@ -11,7 +11,8 @@
     "discovery": {
       "rules": ".agents/rules",
       "skills": ".agents/skills",
-      "workflows": ".agents/workflows"
+      "agents": ".agents/agents",
+      "legacyWorkflows": ".agents/workflows"
     },
     "mcp": {
       "workspaceConfig": ".agents/mcp_config.json",
@@ -23,16 +24,18 @@
       "policy": ".agents/hooks/validate-tool-call.mjs"
     },
     "orchestration": {
-      "workflows": ["coordinate", "orchestrate"],
       "agents": ["orchestrator", "project-planner", "security-auditor", "test-engineer"],
-      "skills": ["coordinator-mode", "parallel-agents", "intelligent-routing", "verify-changes"]
+      "skills": ["coordinator-mode", "parallel-agents", "intelligent-routing", "verify-changes"],
+      "legacyWorkflows": ["coordinate", "orchestrate"]
     },
     "plugin": {
+      "manifest": ".agents/plugins/ag-kit/plugin.json",
       "builder": ".agents/hooks/build-plugin.mjs",
       "defaultOutput": "dist/antigravity-plugin"
     },
     "validation": {
       "doctor": ".agents/hooks/antigravity-doctor.mjs",
+      "platformDrift": "scripts/check-platform-drift.mjs",
       "tests": ".agents/hooks/tests"
     }
   }

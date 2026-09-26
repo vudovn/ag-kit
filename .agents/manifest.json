@@ -474,9 +474,10 @@
       "path": "antigravity.json",
       "phases": {
         "discovery": {
+          "agents": ".agents/agents",
+          "legacyWorkflows": ".agents/workflows",
           "rules": ".agents/rules",
-          "skills": ".agents/skills",
-          "workflows": ".agents/workflows"
+          "skills": ".agents/skills"
         },
         "hooks": {
           "config": ".agents/hooks.json",
@@ -494,23 +495,25 @@
             "security-auditor",
             "test-engineer"
           ],
+          "legacyWorkflows": [
+            "coordinate",
+            "orchestrate"
+          ],
           "skills": [
             "coordinator-mode",
             "parallel-agents",
             "intelligent-routing",
             "verify-changes"
-          ],
-          "workflows": [
-            "coordinate",
-            "orchestrate"
           ]
         },
         "plugin": {
           "builder": ".agents/hooks/build-plugin.mjs",
-          "defaultOutput": "dist/antigravity-plugin"
+          "defaultOutput": "dist/antigravity-plugin",
+          "manifest": ".agents/plugins/ag-kit/plugin.json"
         },
         "validation": {
           "doctor": ".agents/hooks/antigravity-doctor.mjs",
+          "platformDrift": "scripts/check-platform-drift.mjs",
           "tests": ".agents/hooks/tests"
         }
       },

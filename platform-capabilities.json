@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "sourceOfTruth": ".agents",
+  "principle": "shared core, thin runtime adapters, verified capability claims",
+  "tiers": {
+    "first-class": "Native rules, skills, agents, hooks, MCP, and plugin packaging",
+    "adapter": "Portable rules and/or MCP with a runtime-specific projection",
+    "compatibility": "Best-effort legacy compatibility without first-class guarantees"
+  },
+  "platforms": {
+    "antigravity": {
+      "tier": "first-class",
+      "displayName": "Google Antigravity",
+      "rules": true,
+      "skills": true,
+      "agents": true,
+      "hooks": true,
+      "mcp": true,
+      "plugins": true,
+      "workspaceRoot": ".agents",
+      "paths": {
+        "rules": ".agents/rules",
+        "skills": ".agents/skills",
+        "agents": ".agents/agents",
+        "hooks": ".agents/hooks.json",
+        "mcp": ".agents/mcp_config.json",
+        "plugins": ".agents/plugins"
+      }
+    },
+    "agents-md": {
+      "tier": "adapter",
+      "displayName": "AGENTS.md-compatible runtimes",
+      "rules": true,
+      "skills": false,
+      "agents": false,
+      "hooks": false,
+      "mcp": false,
+      "plugins": false,
+      "paths": {
+        "rules": "AGENTS.md"
+      }
+    },
+    "legacy-gemini-extension": {
+      "tier": "compatibility",
+      "displayName": "Legacy Gemini extension bundle",
+      "rules": true,
+      "skills": true,
+      "agents": true,
+      "hooks": true,
+      "mcp": true,
+      "plugins": false,
+      "deprecated": true,
+      "notes": "Retained only while AG Kit migrates packaging to native Antigravity plugin.json."
+    }
+  }
+}
