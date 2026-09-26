@@ -5,7 +5,7 @@
 <h1 align="center">AG KIT</h1>
 
 <p align="center">
-  A lean multi-runtime operating layer for AI coding agents: tiny resident core, hot-loaded skills, project memory, specialist teams, MCP, preflight gates, and read-only cross-audit.
+  A lean multi-runtime operating layer for AI coding agents: tiny resident core, hot-loaded skills, evolving project memory, gated execution, MCP, observability, privacy controls, and independent cross-audit.
 </p>
 
 <div align="center">
@@ -27,14 +27,16 @@ Large agent kits usually fail in the same way: too many always-loaded roles, dup
 AG Kit v2 takes the opposite approach:
 
 - **1 tiny resident core** — always-on operating rules only.
-- **18 hot-loaded top-level skills** — behavior is loaded when relevant instead of living permanently in context.
+- **18 hot-loaded top-level skills** — behavior loads only when relevant.
 - **4 permanent agents** — `scout`, `architect`, `builder`, `reviewer`.
-- **1 development flow** — QUICK, STANDARD, or DEEP mode instead of many unrelated workflow engines.
+- **1 development spine** — QUICK, STANDARD, or DEEP with explicit phase gates.
 - **Domain packs** — reference knowledge lives in `packs/`, not inside giant skills.
 - **Shared source of truth** — portable behavior lives in `shared/`; runtime folders are projections/adapters.
-- **Local-first memory** — Markdown is canonical; SQLite FTS5 is an optional rebuildable warm index when available.
-- **Project-local MCP bridge** — runtimes can share memory/team/audit capabilities without pretending to have native feature parity.
-- **Read-only cross-audit** — independent reviewer CLIs receive a snapshot/diff in a temporary directory, never the writable project tree.
+- **Evolving local-first memory** — Markdown stays canonical; SQLite FTS5 is optional acceleration; candidates can become durable, expire, supersede older facts, or be archived by the dream cycle.
+- **Project-local MCP bridge** — runtimes can share memory/team/audit capabilities without fake native parity.
+- **Independent cross-audit** — reviewer lineages inspect read-only snapshots and classify findings as consensus or contested.
+- **Local observability + privacy controls** — explicit token/cost events, localhost dashboard, evidence-backed personalization, disclosure log, forget, and a hard kill switch.
+- **Design contract** — a portable `DESIGN.md` contract with 12 starting templates and validation.
 
 ## Architecture
 
@@ -43,112 +45,144 @@ shared/                  # canonical runtime-neutral behavior
 ├── core/                # tiny always-on core
 ├── skills/              # 18 hot-loaded skills
 ├── agents/              # scout / architect / builder / reviewer
-└── flows/               # one development flow, 3 depth modes
+└── flows/               # one development spine
 
 packs/                   # domain knowledge, loaded only when needed
 runtimes/                # thin capability-aware adapters
-engine/                  # memory, team, audit, preflight wrappers/tests
-cli/                     # published @vudovn/ag-kit CLI + MCP server
+engine/                  # small runtime-neutral wrappers/tests
+cli/                     # @vudovn/ag-kit CLI + MCP + local engines
 .agents/                 # generated lean Antigravity projection
 ```
 
-`shared/` is the source of truth. `.agents/` is no longer a second toolkit implementation; it is the native Antigravity projection of the shared core.
+`shared/` is the source of truth. `.agents/` is not a second toolkit implementation; it is the native Antigravity projection of the shared core.
 
 ## Runtime coverage
 
-AG Kit currently declares **12 verified targets** with honest capability tiers.
+AG Kit declares **16 runtime targets** with honest capability tiers.
 
 | Tier | Runtimes |
 | --- | --- |
-| First-class | Antigravity, Claude, Codex, Gemini, Qwen, Kimi |
+| First-class | Antigravity, Claude, Codex, Gemini, Qwen, Kimi, Cline |
 | Connected | Cursor, Windsurf, GitHub Copilot |
-| Bridge | OpenCode, OpenClaw, Aider |
+| Bridge | OpenCode, OpenClaw, Aider, Wayland, Hermes, Pi |
 
-The exact capability matrix lives in [`platform-capabilities.json`](platform-capabilities.json). AG Kit does not claim native agents, hooks, plugins, or skills on runtimes where those surfaces are not verified.
+The exact matrix lives in [`platform-capabilities.json`](platform-capabilities.json). Project-scoped activation is preferred. If a runtime only exposes user-global configuration, AG Kit stages guidance/snippets instead of silently editing the user's home directory.
 
 ## Requirements
 
 - Node.js **22+**.
 - Git for reviewable updates and rollback.
 - Optional reviewer CLIs such as Codex, Gemini, Qwen, or OpenCode for cross-audit execution.
-- Optional SQLite support from the Node runtime for the warm memory index; Markdown recall remains the fallback.
+- Optional SQLite support from Node for the warm memory index; Markdown recall remains the fallback.
 
 ## Quick start
 
-### Install the CLI
-
 ```bash
 npm install -g @vudovn/ag-kit
+ag-kit runtime list
+ag-kit runtime install antigravity
 ```
 
-Or run it directly:
+Or run directly:
 
 ```bash
 npx @vudovn/ag-kit --help
 ```
 
-### Install a runtime adapter
+### Gated development flow
 
 ```bash
-ag-kit runtime list
-ag-kit runtime install antigravity
-ag-kit runtime install claude
-ag-kit runtime install qwen
+ag-kit flow start "Ship account recovery" --mode deep
+ag-kit flow artifact "Compared three approaches; selected signed one-time tokens"
+ag-kit flow approve "Shape approved"
+ag-kit flow status
 ```
 
-The installer writes only project-scoped runtime files that AG Kit has a verified contract for. It does not silently modify unrelated user-global configuration.
+Every phase needs an artifact summary before approval. DEEP mode also requires an explicit dependency-wave table at CONVERGE. AG Kit never auto-approves a user gate.
 
-### Project memory
+### Evolving project memory
 
 ```bash
 ag-kit memory init
-ag-kit memory add "Use pnpm for this repository" --kind convention --title "Package manager"
-ag-kit memory recall "package manager"
+ag-kit memory add "Use pnpm for this repository" --kind convention --title "Package manager" --session s1
+ag-kit memory recall "package manager" --session s2
+ag-kit memory touch <memory-id> --session s3
+ag-kit memory dream
 ag-kit memory reindex
 ag-kit memory status
 ```
 
-Memory is stored under `.ag-kit/memory/`. Markdown files are canonical. The SQLite/FTS5 index is disposable acceleration and can always be rebuilt.
+Markdown under `.ag-kit/memory/` is canonical. Repeated evidence across sessions can promote candidates to durable memory. Temporal validity windows and supersession keep historical facts queryable without pretending old facts are current.
 
-### Assemble a project team
+### Project specialist team
 
 ```bash
 ag-kit team --archetype auto --name product-v2 --brief "Ship the next release safely"
 ```
 
-Generated project-specific roles live under `.ag-kit/agents/`; the framework itself keeps only four permanent core agents.
+Generated project roles live under `.ag-kit/agents/`; the framework itself keeps only four permanent core agents.
 
-### Run cross-audit
+### Independent cross-audit
 
 ```bash
 ag-kit cross-audit --probe
-ag-kit cross-audit . --reviewers 2
-ag-kit cross-audit src/auth.ts --reviewers 3
+ag-kit cross-audit . --reviewers 3 --exclude-lineage openai
 ```
 
-Cross-audit probes available independent reviewer lineages, snapshots the requested target or git diff, runs reviewers in temporary directories, and stores receipts/reports under `.ag-kit/`.
+Reviewers run in temporary directories against a snapshot or git diff, never a writable source mount. Findings are clustered into **consensus** (multiple independent lineages agree) and **contested** findings, with duration/count receipts saved under `.ag-kit/`.
 
-### Run release gates
+### Local observability
+
+```bash
+ag-kit observe turn --runtime claude --input 1200 --output 300 --cached 500 --cost 0.02
+ag-kit dashboard summary
+ag-kit dashboard start --port 4737
+```
+
+The dashboard binds to `127.0.0.1`. AG Kit records only explicit metrics supplied by the runtime/integration; it does not invent token savings.
+
+### Personalization and privacy
+
+```bash
+ag-kit personalize learn "Use compact prose" --evidence "User requested a shorter release note" --session s1
+ag-kit personalize learn "Use compact prose" --evidence "User shortened the next report again" --session s2
+ag-kit personalize inject on
+ag-kit personalize preview --host claude
+ag-kit personalize egress
+ag-kit personalize forget all
+```
+
+Preferences need verbatim evidence and repeat evidence across sessions before confirmation. Injection is off by default. `AG_KIT_PROFILE_KILL=1` disables profile injection regardless of stored settings. Disclosures are logged locally and `forget` removes both the preference and matching disclosure rows.
+
+### Design contract
+
+```bash
+ag-kit design list
+ag-kit design init --template graphite --brand "Acme"
+ag-kit design check
+```
+
+`DESIGN.md` captures brand intent, colors, typography, layout, components, imagery, motion, accessibility, and do/don't constraints so visual behavior travels across runtimes without another resident prompt.
+
+### Release gates
 
 ```bash
 ag-kit preflight
 ```
 
-The current repository gates cover the v2 architecture budget, engine tests, Antigravity projection drift, runtime projection build, Antigravity doctor/tests/plugin build, CLI tests, and web checks in CI.
+Preflight covers the v2 architecture budget, engine tests, Antigravity projection drift, runtime projections, Antigravity doctor/tests/plugin build, and CLI tests. CI also runs web lint/typecheck/build, dependency audits, and dependency review.
 
 ## MCP bridge
-
-Run the shared project-local bridge over stdio:
 
 ```bash
 ag-kit mcp serve
 ```
 
-The bridge intentionally exposes a small surface around project memory, team assembly/status, runtime status, and audit probing. Runtime installers wire project-scoped MCP configuration where the runtime contract has been verified.
+The stdio MCP bridge intentionally stays small: evolving memory recall/status/add, team initialization, runtime status, and audit probing. Richer local capabilities remain CLI/state modules instead of inflating the MCP tool surface.
 
 ## Antigravity native projection
 
-Antigravity remains the richest native target. The committed `.agents/` projection contains the lean v2 surface:
+Antigravity remains the richest native target. The committed `.agents/` projection contains:
 
 - **18 skills**
 - **4 permanent agents**
@@ -156,8 +190,6 @@ Antigravity remains the richest native target. The committed `.agents/` projecti
 - native safety hook
 - project MCP configuration
 - native plugin packaging
-
-Keep the projection synchronized with:
 
 ```bash
 npm run sync:antigravity
@@ -167,11 +199,11 @@ npm run test:antigravity
 npm run build:antigravity-plugin
 ```
 
-The projection is generated from `shared/`; reusable behavior should be edited in `shared/`, not duplicated inside `.agents/`.
+Reusable behavior belongs in `shared/`, never as a new canonical copy inside `.agents/`.
 
 ## Legacy lifecycle compatibility
 
-The published CLI still keeps the safe managed-tree lifecycle for existing AG Kit installations:
+Existing AG Kit installations keep a safe migration path:
 
 ```bash
 ag-kit init
@@ -182,7 +214,7 @@ ag-kit rollback
 ag-kit status
 ```
 
-Updates remain backup-aware and merge-aware so existing users have a migration path while v2 becomes the canonical architecture.
+Legacy updates remain merge-aware and backup-aware while v2 becomes canonical.
 
 ## Repository validation
 
@@ -199,23 +231,23 @@ npm run typecheck:web
 npm run build:web
 ```
 
-CI also runs dependency review and production dependency audits.
-
 ## Design principles
 
-1. **Context is a budget.** Resident instructions must stay small.
-2. **Behavior and knowledge are different.** Skills define behavior; packs hold domain reference material.
+1. **Context is a budget.** Resident instructions stay small.
+2. **Behavior and knowledge are different.** Skills define behavior; packs hold reference knowledge.
 3. **One source, many runtimes.** Adapters translate the shared core instead of forking it.
 4. **Capability claims must be machine-checkable.** Runtime parity is a matrix, not marketing copy.
 5. **Memory stays human-readable.** Indexes accelerate retrieval; they never become the only copy.
-6. **Verification is executable.** Preflight, CI, doctor, and cross-audit produce evidence and receipts.
-7. **Dangerous automation is narrow.** Safety hooks block high-confidence destructive actions without replacing runtime permissions or human review.
+6. **Judgment stays explicit.** Phase gates require artifacts and user approval; automation does not silently advance.
+7. **Verification is executable.** Preflight, CI, doctor, and cross-audit create evidence and receipts.
+8. **Privacy is inspectable.** Profile injection is opt-in, local disclosures are logged, and forgetting is executable.
+9. **Dangerous automation stays narrow.** Safety hooks supplement runtime permissions and human review.
 
 ## IJFW parity work
 
-AG Kit v2 borrows architectural ideas such as a tiny resident core, hot-loaded skills, portable shared behavior, tiered runtime adapters, local-first memory, and independent audit lines. The implementation is original and AG Kit-specific; the goal is functional/architectural parity where useful, not source-code duplication.
+AG Kit v2 implements the useful feature classes behind IJFW-style tiny-core architecture—hot-loaded skills, tiered runtime adapters, evolving local memory, gated workflow phases, specialist assembly, independent audit, observability, personalization/privacy, and design contracts—using AG Kit's own code and runtime model.
 
-See [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md) for the tracked capability map.
+See [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md) for the tracked capability map and intentional differences.
 
 ## Documentation
 
@@ -235,13 +267,8 @@ See [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md) for the tracked capability map.
 
 <p align="center"> - or - </p>
 
-<p align="center">
-  <img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Buy me coffee" width="200" />
-</p>
-
-<p align="center">
-  <code>CA: Gjpatn3d24dCRhUng7F37K6xJba4R8SDBC18xs1Apump</code>
-</p>
+<p align="center"><img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Buy me coffee" width="200" /></p>
+<p align="center"><code>CA: Gjpatn3d24dCRhUng7F37K6xJba4R8SDBC18xs1Apump</code></p>
 
 ## License
 
