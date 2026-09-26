@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "name": "development",
+  "modes": {
+    "quick": ["FRAME", "PLAN", "EXECUTE", "VERIFY"],
+    "standard": ["FRAME", "SHAPE", "PLAN", "EXECUTE", "VERIFY", "SHIP"],
+    "deep": ["FRAME", "RECON", "SHAPE", "PLAN", "WAVES", "VERIFY", "CROSS_AUDIT", "SHIP"]
+  },
+  "rules": {
+    "planBeforeMultiFileBuild": true,
+    "explicitWaveDependencies": true,
+    "verifyBeforeShip": true,
+    "crossAuditInDeepMode": true
+  }
+}
