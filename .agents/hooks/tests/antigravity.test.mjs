@@ -7,12 +7,16 @@ import test from 'node:test';
 
 import {diagnose} from '../antigravity-doctor.mjs';
 import {buildPlugin} from '../build-plugin.mjs';
-import {evaluateCommand, extractCommand} from '../validate-tool-call.mjs';
+import {evaluateCommand, extractCommand, hookDecision} from '../validate-tool-call.mjs';
 import {planSync} from '../sync-mcp.mjs';
 
 const root = path.resolve(import.meta.dirname, '../../..');
 
-test('extracts Antigravity CommandLine payload', () => {
+test('extracts native Antigravity CommandLine payload', () => {
+  assert.equal(extractCommand({toolCall: {name: 'run_command', args: {CommandLine: 'npm test'}}}), 'npm test');
+});
+
+test('keeps legacy command payload parsing during migration', () => {
   assert.equal(extractCommand({tool_args: {CommandLine: 'npm test'}}), 'npm test');
 });
 
@@ -28,13 +32,28 @@ test('blocks destructive root and disk commands', () => {
   assert.equal(evaluateCommand('format C:').allowed, false);
 });
 
-test('hook process returns non-zero for blocked command', () => {
+test('hook returns a native deny decision for blocked commands', () => {
+  assert.deepEqual(hookDecision({toolCall: {name: 'run_command', args: {CommandLine: 'rm -rf /'}}}), {
+    decision: 'deny',
+    reason: 'AG Kit blocked unix-root-delete: recursive deletion of the filesystem root.'
+  });
+});
+
+test('hook process emits JSON and exits cleanly for blocked commands', () => {
   const result = spawnSync(process.execPath, [path.join(root, '.agents/hooks/validate-tool-call.mjs')], {
-    input: JSON.stringify({tool_args: {CommandLine: 'rm -rf /'}}),
+    input: JSON.stringify({toolCall: {name: 'run_command', args: {CommandLine: 'rm -rf /'}}}),
     encoding: 'utf8'
   });
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /BLOCKED by AG Kit/);
+  assert.equal(result.status, 0);
+  assert.deepEqual(JSON.parse(result.stdout), {
+    decision: 'deny',
+    reason: 'AG Kit blocked unix-root-delete: recursive deletion of the filesystem root.'
+  });
+});
+
+test('native agents path and plugin manifest exist', () => {
+  assert.ok(fs.existsSync(path.join(root, '.agents/agents/orchestrator.md')));
+  assert.ok(fs.existsSync(path.join(root, '.agents/plugins/ag-kit/plugin.json')));
 });
 
 test('doctor recognizes all six implementation phases', () => {
@@ -53,6 +72,8 @@ test('runtime contract uses documented CLI capabilities instead of an invented v
   const contract = JSON.parse(fs.readFileSync(path.join(root, '.agents/antigravity.json'), 'utf8'));
   assert.equal('minimumCliVersion' in contract, false);
   assert.deepEqual(contract.requiredCliCommands, ['changelog', 'plugin', 'update']);
+  assert.equal(contract.phases.discovery.agents, '.agents/agents');
+  assert.equal(contract.phases.plugin.manifest, '.agents/plugins/ag-kit/plugin.json');
 });
 
 test('MCP sync detects placeholders and plans without writing', () => {
@@ -61,7 +82,7 @@ test('MCP sync detects placeholders and plans without writing', () => {
   assert.ok(Object.keys(plan.workspace.mcpServers).length > 0);
 });
 
-test('plugin builder creates manifest, commands, skills, and hook', () => {
+test('legacy plugin builder remains deterministic during native-plugin migration', () => {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'ag-kit-plugin-'));
   const output = path.join(temporary, 'plugin');
   const manifest = buildPlugin(root, output);
