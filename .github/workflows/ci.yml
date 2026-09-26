@@ -34,6 +34,15 @@ jobs:
           python .agents/scripts/generate_manifest.py .agents --check
           python .agents/scripts/dependency_graph.py .agents --check
 
+      - name: Emit generated registry for migration
+        if: failure()
+        run: |
+          python .agents/scripts/generate_manifest.py .agents
+          python .agents/scripts/dependency_graph.py .agents
+          echo "AGKIT_MANIFEST_B64=$(base64 -w0 .agents/manifest.json)"
+          echo "AGKIT_LOCK_B64=$(base64 -w0 .agents/manifest.lock.json)"
+          echo "AGKIT_GRAPH_B64=$(base64 -w0 .agents/DEPENDENCY_GRAPH.md)"
+
       - name: Validate AG Kit structure
         run: python .agents/scripts/validate_kit.py .agents
 
