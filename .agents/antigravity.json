@@ -1,32 +1,19 @@
 {
   "$schema": "hooks/antigravity-contract.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "runtime": "antigravity",
-  "requiredCliCommands": [
-    "changelog",
-    "plugin",
-    "update"
-  ],
+  "sourceOfTruth": "shared",
   "phases": {
     "discovery": {
       "rules": ".agents/rules",
       "skills": ".agents/skills",
-      "agents": ".agents/agents",
-      "legacyWorkflows": ".agents/workflows"
+      "agents": ".agents/agents"
     },
-    "mcp": {
-      "workspaceConfig": ".agents/mcp_config.json",
-      "suiteGlobalConfig": "~/.gemini/config/mcp_config.json",
-      "cliGlobalConfig": "~/.gemini/antigravity-cli/mcp_config.json"
-    },
-    "hooks": {
-      "config": ".agents/hooks.json",
-      "policy": ".agents/hooks/validate-tool-call.mjs"
-    },
+    "mcp": {"workspaceConfig": ".agents/mcp_config.json"},
+    "hooks": {"config": ".agents/hooks.json", "policy": ".agents/hooks/validate-tool-call.mjs"},
     "orchestration": {
-      "agents": ["orchestrator", "project-planner", "security-auditor", "test-engineer"],
-      "skills": ["coordinator-mode", "parallel-agents", "intelligent-routing", "verify-changes"],
-      "legacyWorkflows": ["coordinate", "orchestrate"]
+      "agents": ["scout", "architect", "builder", "reviewer"],
+      "skills": ["ag-core", "ag-workflow", "ag-verify", "ag-cross-audit"]
     },
     "plugin": {
       "manifest": ".agents/plugins/ag-kit/plugin.json",
@@ -35,7 +22,7 @@
     },
     "validation": {
       "doctor": ".agents/hooks/antigravity-doctor.mjs",
-      "platformDrift": "scripts/check-platform-drift.mjs",
+      "projection": "scripts/sync-antigravity-projection.mjs",
       "tests": ".agents/hooks/tests"
     }
   }
