@@ -1,56 +1,21 @@
 {
-  "schema": 1,
-  "sourceOfTruth": ".agents",
-  "principle": "shared core, thin runtime adapters, verified capability claims",
+  "schema": 2,
+  "sourceOfTruth": "shared",
+  "principle": "tiny resident core, hot-loaded skills, domain packs, thin runtime adapters, verified capability claims",
+  "targets": {"residentSkills": 1, "topLevelSkillsMax": 22, "permanentAgents": 4, "workflowEngines": 1},
   "tiers": {
-    "first-class": "Native rules, skills, agents, hooks, MCP, and plugin packaging",
-    "adapter": "Portable rules and/or MCP with a runtime-specific projection",
-    "compatibility": "Best-effort legacy compatibility without first-class guarantees"
+    "first-class": "Native or near-native rules + skills + MCP, with richer surfaces when the runtime supports them.",
+    "connected": "Rules + MCP adapter. Shared skills remain available through orchestration rather than copied as fake native capabilities.",
+    "bridge": "Portable AGENTS.md and/or MCP bridge with no parity claim for richer runtime surfaces."
   },
   "platforms": {
-    "antigravity": {
-      "tier": "first-class",
-      "displayName": "Google Antigravity",
-      "rules": true,
-      "skills": true,
-      "agents": true,
-      "hooks": true,
-      "mcp": true,
-      "plugins": true,
-      "workspaceRoot": ".agents",
-      "paths": {
-        "rules": ".agents/rules",
-        "skills": ".agents/skills",
-        "agents": ".agents/agents",
-        "hooks": ".agents/hooks.json",
-        "mcp": ".agents/mcp_config.json",
-        "plugins": ".agents/plugins"
-      }
-    },
-    "agents-md": {
-      "tier": "adapter",
-      "displayName": "AGENTS.md-compatible runtimes",
-      "rules": true,
-      "skills": false,
-      "agents": false,
-      "hooks": false,
-      "mcp": false,
-      "plugins": false,
-      "paths": {
-        "rules": "AGENTS.md"
-      }
-    },
-    "legacy-gemini-extension": {
-      "tier": "compatibility",
-      "displayName": "Legacy Gemini extension bundle",
-      "rules": true,
-      "skills": true,
-      "agents": true,
-      "hooks": true,
-      "mcp": true,
-      "plugins": false,
-      "deprecated": true,
-      "notes": "Retained only while AG Kit migrates packaging to native Antigravity plugin.json."
-    }
+    "antigravity": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/antigravity/adapter.json"},
+    "claude": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/claude/adapter.json"},
+    "codex": {"tier":"first-class","rules":true,"skills":true,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/codex/adapter.json"},
+    "gemini": {"tier":"first-class","rules":true,"skills":true,"agents":false,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/gemini/adapter.json"},
+    "cursor": {"tier":"connected","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/cursor/adapter.json"},
+    "windsurf": {"tier":"connected","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/windsurf/adapter.json"},
+    "copilot": {"tier":"connected","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/copilot/adapter.json"},
+    "opencode": {"tier":"bridge","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/opencode/adapter.json"}
   }
 }

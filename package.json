@@ -1,30 +1,15 @@
 {
   "name": "ag-kit",
   "version": "2026.8.31",
-  "description": "Antigravity-first AI agent engineering kit with rules, skills, workflows, orchestration, MCP guidance, and safety hooks",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vudovn/ag-kit.git"
-  },
+  "description": "Lean multi-runtime AI agent operating layer with a tiny shared core, hot-loaded skills, domain packs, workflow gates, and native Antigravity support",
+  "repository": {"type":"git","url":"git+https://github.com/vudovn/ag-kit.git"},
   "homepage": "https://github.com/vudovn/ag-kit#readme",
-  "bugs": {
-    "url": "https://github.com/vudovn/ag-kit/issues"
-  },
-  "keywords": [
-    "ag-kit",
-    "antigravity",
-    "ai",
-    "agent",
-    "orchestration",
-    "skills",
-    "workflows"
-  ],
+  "bugs": {"url":"https://github.com/vudovn/ag-kit/issues"},
+  "keywords": ["ag-kit","antigravity","ai","agent","multi-runtime","skills","workflow"],
   "author": "vudovn",
   "license": "MIT",
   "private": true,
-  "engines": {
-    "node": ">=22"
-  },
+  "engines": {"node": ">=22"},
   "scripts": {
     "generate:agents": "python .agents/scripts/generate_manifest.py .agents && python .agents/scripts/dependency_graph.py .agents",
     "check:agents": "python .agents/scripts/generate_manifest.py .agents --check && python .agents/scripts/dependency_graph.py .agents --check && python .agents/scripts/validate_kit.py .agents",
@@ -33,6 +18,8 @@
     "check:antigravity": "node .agents/hooks/antigravity-doctor.mjs",
     "test:antigravity": "node --test .agents/hooks/tests/antigravity.test.mjs",
     "check:platforms": "node scripts/check-platform-drift.mjs",
+    "check:v2": "node scripts/check-v2.mjs",
+    "build:runtimes": "node scripts/build-runtime-adapters.mjs",
     "build:antigravity-plugin": "node .agents/hooks/build-plugin.mjs",
     "test:cli": "npm --prefix cli test",
     "lint:web": "npm --prefix web run lint",

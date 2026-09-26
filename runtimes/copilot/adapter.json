@@ -1,0 +1,1 @@
+{"schema":1,"runtime":"copilot","tier":"connected","rules":".github/copilot-instructions.md","skills":null,"agents":null,"hooks":null,"mcp":".vscode/mcp.json","supports":{"rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false}}

@@ -1,0 +1,1 @@
+{"schema":1,"runtime":"codex","tier":"first-class","rules":"AGENTS.md","skills":".agents/skills","agents":null,"hooks":null,"mcp":".codex/config.toml","supports":{"rules":true,"skills":true,"agents":false,"hooks":false,"mcp":true,"plugins":false},"notes":"Use portable AGENTS.md plus native skills/MCP where available; generated project teams may be projected separately."}

@@ -1,0 +1,1 @@
+{"schema":1,"runtime":"cursor","tier":"connected","rules":".cursor/rules/ag-kit.mdc","skills":null,"agents":null,"hooks":null,"mcp":".cursor/mcp.json","supports":{"rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false}}
