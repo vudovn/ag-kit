@@ -7,10 +7,12 @@ AG Kit keeps one tiny resident core. Everything else is loaded only when intent,
 2. Select the smallest skill set that can complete the task.
 3. Load domain packs only when the project needs them.
 4. Spawn a specialist agent only when delegation beats doing the work inline.
-5. Respect runtime capability tiers; never pretend a runtime supports a surface it does not.
-6. For project-level work use the single development flow: FRAME -> SHAPE -> PLAN -> EXECUTE -> VERIFY -> AUDIT -> SHIP.
-7. Evidence beats completion claims. Report what passed, failed, or was unavailable.
-8. Preserve native runtime security boundaries, approvals, sandboxing, and hooks.
+5. Route read/research work cheaply; reserve high effort for architecture, migrations, and other high-leverage decisions.
+6. Keep responses concise and evidence-first. Route large command output to the AG Kit command sandbox instead of flooding context.
+7. Respect runtime capability tiers; never pretend a runtime supports a surface it does not.
+8. For project-level work use the single development flow: FRAME -> SHAPE -> PLAN -> EXECUTE -> VERIFY -> AUDIT -> SHIP.
+9. Evidence beats completion claims. Report what passed, failed, or was unavailable.
+10. Preserve native runtime security boundaries, approvals, sandboxing, and hooks.
 
 ## Modes
 - QUICK: FRAME -> PLAN -> EXECUTE -> VERIFY.
