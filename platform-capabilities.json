@@ -4,18 +4,22 @@
   "principle": "tiny resident core, hot-loaded skills, domain packs, thin runtime adapters, verified capability claims",
   "targets": {"residentSkills": 1, "topLevelSkillsMax": 22, "permanentAgents": 4, "workflowEngines": 1},
   "tiers": {
-    "first-class": "Native or near-native rules + skills + MCP, with richer surfaces when the runtime supports them.",
+    "first-class": "Native or near-native rules + skills + MCP, with agents/hooks/plugins only where the runtime really supports them.",
     "connected": "Rules + MCP adapter. Shared skills remain available through orchestration rather than copied as fake native capabilities.",
-    "bridge": "Portable AGENTS.md and/or MCP bridge with no parity claim for richer runtime surfaces."
+    "bridge": "Portable instructions and/or a runtime-managed MCP bridge with no parity claim for richer surfaces."
   },
   "platforms": {
     "antigravity": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/antigravity/adapter.json"},
     "claude": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/claude/adapter.json"},
-    "codex": {"tier":"first-class","rules":true,"skills":true,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/codex/adapter.json"},
+    "codex": {"tier":"first-class","rules":true,"skills":true,"agents":false,"hooks":false,"mcp":true,"plugins":true,"adapter":"runtimes/codex/adapter.json"},
     "gemini": {"tier":"first-class","rules":true,"skills":true,"agents":false,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/gemini/adapter.json"},
+    "qwen": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":false,"mcp":true,"plugins":true,"adapter":"runtimes/qwen/adapter.json"},
+    "kimi": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":false,"mcp":true,"plugins":true,"adapter":"runtimes/kimi/adapter.json"},
     "cursor": {"tier":"connected","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/cursor/adapter.json"},
     "windsurf": {"tier":"connected","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/windsurf/adapter.json"},
     "copilot": {"tier":"connected","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/copilot/adapter.json"},
-    "opencode": {"tier":"bridge","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/opencode/adapter.json"}
+    "opencode": {"tier":"bridge","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/opencode/adapter.json"},
+    "openclaw": {"tier":"bridge","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false,"adapter":"runtimes/openclaw/adapter.json"},
+    "aider": {"tier":"bridge","rules":true,"skills":false,"agents":false,"hooks":false,"mcp":false,"plugins":false,"adapter":"runtimes/aider/adapter.json"}
   }
 }
