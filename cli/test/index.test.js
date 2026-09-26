@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { buildProgram } from "../bin/index.js";
 import { buildV2Program } from "../lib/v2-cli.js";
 import { addMemory, recallMemory, initTeam } from "../lib/v2-engine.js";
+import { createMcpServer } from "../lib/mcp-server.js";
 
 test("legacy CLI keeps safe lifecycle commands", () => {
     const program = buildProgram();
@@ -12,9 +13,9 @@ test("legacy CLI keeps safe lifecycle commands", () => {
     assert.ok(commands.get("rollback").options.some((option) => option.long === "--backup"));
 });
 
-test("v2 CLI exposes runtime, memory, team, audit, and preflight", () => {
+test("v2 CLI exposes runtime, memory, team, audit, preflight, and MCP", () => {
     const names = buildV2Program().commands.map((command) => command.name());
-    assert.deepEqual(names, ["runtime", "memory", "team", "cross-audit", "preflight"]);
+    assert.deepEqual(names, ["runtime", "memory", "team", "cross-audit", "preflight", "mcp"]);
 });
 
 test("v2 memory and team engines are project-local", async (t) => {
@@ -27,6 +28,10 @@ test("v2 memory and team engines are project-local", async (t) => {
     addMemory({ root, text: "Use transactions for billing", kind: "decision" });
     assert.equal(recallMemory({ root, query: "billing" }).length, 1);
     assert.equal(initTeam({ root, archetype: "auto" }).archetype, "software");
+});
+
+test("MCP server can be constructed without starting transport", () => {
+    assert.ok(createMcpServer());
 });
 
 test("CLI runs when invoked through an npm bin symlink", async (t) => {

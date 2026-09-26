@@ -14,6 +14,7 @@ import {
     prepareAudit,
     runPreflight,
 } from "./v2-engine.js";
+import { serveMcp } from "./mcp-server.js";
 
 const REPO = "github:vudovn/ag-kit";
 
@@ -41,21 +42,17 @@ export const buildV2Program = () => {
         });
 
     const memory = program.command("memory").description("Local-first project memory");
-    memory.command("init")
-        .option("-p, --path <dir>", "Project directory", process.cwd())
-        .action((options) => console.log(initMemory(options.path)));
+    memory.command("init").option("-p, --path <dir>", "Project directory", process.cwd()).action((options) => console.log(initMemory(options.path)));
     memory.command("add <text...>")
         .option("-p, --path <dir>", "Project directory", process.cwd())
         .option("--kind <kind>", "Entry kind", "learning")
         .option("--title <title>", "Entry title", "")
-        .action((text, options) => console.log(JSON.stringify(addMemory({ root: options.path, text: text.join(" "), kind: options.kind, title: options.title }), null, 2)));
+        .action((body, options) => console.log(JSON.stringify(addMemory({ root: options.path, text: body.join(" "), kind: options.kind, title: options.title }), null, 2)));
     memory.command("recall <query...>")
         .option("-p, --path <dir>", "Project directory", process.cwd())
         .option("--limit <n>", "Maximum results", "5")
         .action((query, options) => console.log(JSON.stringify(recallMemory({ root: options.path, query: query.join(" "), limit: options.limit }), null, 2)));
-    memory.command("status")
-        .option("-p, --path <dir>", "Project directory", process.cwd())
-        .action((options) => console.log(JSON.stringify(memoryStatus(options.path), null, 2)));
+    memory.command("status").option("-p, --path <dir>", "Project directory", process.cwd()).action((options) => console.log(JSON.stringify(memoryStatus(options.path), null, 2)));
 
     program.command("team")
         .description("Generate a project-specific specialist team")
@@ -78,6 +75,9 @@ export const buildV2Program = () => {
             for (const item of result.results) console.log(`${item.ok ? "PASS" : "FAIL"} ${item.name} ${item.durationMs}ms`);
             if (!result.passed) process.exitCode = 1;
         });
+
+    const mcp = program.command("mcp").description("AG Kit MCP bridge");
+    mcp.command("serve").description("Serve the project-local AG Kit MCP over stdio").action(serveMcp);
 
     return program;
 };
