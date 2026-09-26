@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "AG Kit - AI Agent Capability Expansion Toolkit",
+    name: "AG Kit - Lean Multi-Runtime Agent Operating Layer",
     short_name: "AG Kit",
     description:
-      "A comprehensive collection of 47 skills, 20 specialist agents, rules, and production-ready workflows for modern AI coding assistants.",
+      "Tiny shared core, hot-loaded skills, local-first memory, MCP, specialist teams, preflight gates, and read-only cross-audit for modern AI coding agents.",
     start_url: "/",
     display: "standalone",
     background_color: "#09090b",
