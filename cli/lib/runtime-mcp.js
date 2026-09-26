@@ -14,11 +14,14 @@ export function wireRuntimeMcp({root=process.cwd(),runtime}){
   else if(runtime==="gemini")result=mergeMcp(path.join(target,".gemini","settings.json"));
   else if(runtime==="qwen")result=mergeMcp(path.join(target,".qwen","settings.json"));
   else if(runtime==="kimi")result=mergeMcp(path.join(target,".kimi-code","mcp.json"));
+  else if(runtime==="cline")result=mergeMcp(path.join(target,".cline","mcp.json"));
   else if(runtime==="cursor")result=mergeMcp(path.join(target,".cursor","mcp.json"));
   else if(runtime==="copilot")result=mergeMcp(path.join(target,".mcp.json"),{type:"local",...stdio,env:{},tools:["*"]});
   else if(runtime==="codex"){
     const pluginDir=path.join(target,".codex-plugin");const pluginSkills=path.join(pluginDir,"skills");ensureDir(pluginDir);fs.rmSync(pluginSkills,{recursive:true,force:true});const projected=path.join(target,".agents","skills");if(fs.existsSync(projected))fs.cpSync(projected,pluginSkills,{recursive:true});const mcpFile=path.join(pluginDir,".mcp.json");writeJson(mcpFile,{mcpServers:{"ag-kit":stdio}});const pluginFile=path.join(pluginDir,"plugin.json");writeJson(pluginFile,{name:"ag-kit",version:"2.0.0",description:"AG Kit shared skills and project-local MCP bridge",skills:"./skills/",mcpServers:"./.mcp.json"});return{wired:true,file:path.relative(target,mcpFile),plugin:path.relative(target,pluginFile),skills:path.relative(target,pluginSkills)};
-  }else if(runtime==="openclaw")return{wired:false,reason:"Run `openclaw mcp add`/`openclaw mcp set` for the ag-kit stdio server; OpenClaw owns its MCP registry."};
-  else return{wired:false,reason:"runtime has no verified project-scoped MCP projection; configure its MCP client to run `ag-kit mcp serve`"};
+  }else if(runtime==="wayland")return{wired:false,staged:".ag-kit/integrations/wayland/README.md",reason:"Wayland MCP is supported, but AG Kit will not mutate its user-global/plugin registry automatically."};
+  else if(runtime==="hermes")return{wired:false,staged:".ag-kit/integrations/hermes/mcp.yaml",reason:"Hermes MCP config is user-global; merge the staged snippet explicitly."};
+  else if(runtime==="openclaw")return{wired:false,reason:"Run `openclaw mcp add`/`openclaw mcp set` for the ag-kit stdio server; OpenClaw owns its MCP registry."};
+  else return{wired:false,reason:"runtime has no verified project-scoped MCP projection; configure its MCP client to run `ag-kit mcp serve` if supported"};
   return{...result,file:path.relative(target,result.file)};
 }
