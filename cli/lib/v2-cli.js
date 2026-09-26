@@ -6,6 +6,7 @@ import path from "node:path";
 import { initMemory, memoryStatus, rebuildMemoryIndex, initTeam, prepareAudit } from "./v2-engine.js";
 import { addEvolvingMemory, memoryEvolutionStatus, recallEvolvingMemory, referenceMemory, runMemoryDream, supersedeMemory } from "./memory-evolution.js";
 import { RUNTIME_TARGETS, installRuntimeTarget } from "./runtime-registry.js";
+import { doctorRuntimes, finalizeRuntimeInstall, prepareRuntimeInstall, restorePreparedInstall, uninstallRuntime } from "./runtime-lifecycle.js";
 import { serveMcp } from "./mcp-server.js";
 import { wireRuntimeMcp } from "./runtime-mcp.js";
 import { runCurrentPreflight } from "./preflight.js";
@@ -23,9 +24,23 @@ const boolWord = (value) => ["on", "true", "1", "yes"].includes(String(value).to
 export const buildV2Program = () => {
     const program = new Command().name("ag-kit").description("AG Kit v2 multi-runtime commands");
 
-    const runtime = program.command("runtime").description("Inspect or install runtime adapters");
+    const runtime = program.command("runtime").description("Inspect, install, verify, or safely remove runtime adapters");
     runtime.command("list").action(() => console.log(RUNTIME_TARGETS.join("\n")));
-    runtime.command("install <runtime>").option("-p, --path <dir>", "Project directory", process.cwd()).option("-b, --branch <name>", "AG Kit source branch").action(async (name, options) => { const installed = await withSource(options.branch, (sourceRoot) => installRuntimeTarget({ sourceRoot, targetRoot: options.path, runtime: name })); const mcp = wireRuntimeMcp({ root: options.path, runtime: name }); console.log(JSON.stringify({ ...installed, mcp }, null, 2)); });
+    runtime.command("install <runtime>").option("-p, --path <dir>", "Project directory", process.cwd()).option("-b, --branch <name>", "AG Kit source branch").action(async (name, options) => {
+        const prepared = prepareRuntimeInstall({ root: options.path, runtime: name });
+        try {
+            const installed = await withSource(options.branch, (sourceRoot) => installRuntimeTarget({ sourceRoot, targetRoot: options.path, runtime: name }));
+            const mcp = wireRuntimeMcp({ root: options.path, runtime: name });
+            const lifecycle = finalizeRuntimeInstall({ prepared, mcp });
+            console.log(JSON.stringify({ ...installed, mcp, lifecycle: { manifest: `.ag-kit/runtime-installs/${name}.json`, installedAt: lifecycle.installedAt } }, null, 2));
+        } catch (error) {
+            const recovery = restorePreparedInstall(prepared);
+            error.message = `${error.message}\nAG Kit restored pre-install runtime paths: ${recovery.results.length}`;
+            throw error;
+        }
+    });
+    runtime.command("doctor [runtime]").option("-p, --path <dir>", "Project directory", process.cwd()).action((name = "", options) => console.log(JSON.stringify(doctorRuntimes({ root: options.path, runtime: name }), null, 2)));
+    runtime.command("uninstall <runtime>").option("-p, --path <dir>", "Project directory", process.cwd()).action((name, options) => console.log(JSON.stringify(uninstallRuntime({ root: options.path, runtime: name }), null, 2)));
 
     const memory = program.command("memory").description("Local-first evolving project memory");
     memory.command("init").option("-p, --path <dir>", "Project directory", process.cwd()).action((options) => console.log(initMemory(options.path)));
