@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const command = process.argv[2];
-const v2Commands = new Set(["runtime", "memory", "team", "cross-audit", "preflight", "mcp"]);
+const v2Commands = new Set(["runtime", "memory", "team", "flow", "cross-audit", "observe", "dashboard", "personalize", "design", "preflight", "mcp"]);
 
 if (v2Commands.has(command)) {
     const { runV2Cli } = await import("../lib/v2-cli.js");
