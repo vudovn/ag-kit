@@ -28,10 +28,20 @@ EXECUTE IN DEPENDENCY WAVES
     ↓
 VERIFY / CROSS-AUDIT / PREFLIGHT
     ↓
-WRITE RECEIPTS + DURABLE MEMORY
+WRITE RECEIPTS + DURABLE MEMORY + HANDOFF
     ↓
 DELIVER RESULT
 ```
+
+## Activation invariants
+
+Natural-language intent is first-class. CLI and slash commands are aliases, not a requirement for the runtime to expose a particular command UI.
+
+- `plan`, `spec`, `brainstorm`, and architecture intent enter the development flow before multi-file project mutation.
+- `continue`, `resume`, and “pick up where we left off” load the latest handoff plus relevant durable memory before mutation.
+- Before multi-file or cross-system changes, classify QUICK, STANDARD, or DEEP.
+- Confirmed project conventions remain constraints until the current user overrides them; stale memory conflicts should be surfaced and corrected.
+- Runtime capability tiers define which native surfaces may be used; missing surfaces are not invented.
 
 ## The four permanent agents
 
@@ -51,7 +61,7 @@ Project-specific specialists are generated only when needed under `.ag-kit/agent
 Use when the change is narrow, reversible, and well understood.
 
 ```text
-classify → load minimal skill → build → targeted verification → result
+FRAME → PLAN → EXECUTE → VERIFY
 ```
 
 Typical examples: a small bug fix, one-file refactor, copy change, or deterministic config edit.
@@ -61,7 +71,7 @@ Typical examples: a small bug fix, one-file refactor, copy change, or determinis
 Default mode for normal feature work.
 
 ```text
-scout → architect → build → review → verify → result
+FRAME → SHAPE → PLAN → EXECUTE → VERIFY → SHIP
 ```
 
 STANDARD requires explicit acceptance criteria and evidence from the project's own checks.
@@ -71,25 +81,23 @@ STANDARD requires explicit acceptance criteria and evidence from the project's o
 Use for architecture changes, migrations, multi-system work, security-sensitive changes, or broad refactors.
 
 ```text
-scout
+FRAME
   ↓
-architecture + risk map
+RECON + risk map
   ↓
-dependency graph
+SHAPE
   ↓
-wave 1 ─┬─ task A
-         └─ task B
+PLAN
   ↓
-wave 2 ─┬─ task C
-         └─ task D
+WAVES
+  ├── wave 1: independent work may run in parallel
+  └── wave 2: dependent work waits for prerequisites
   ↓
-independent review
+VERIFY
   ↓
-cross-audit when useful
+CROSS-AUDIT
   ↓
-preflight
-  ↓
-result + receipts + memory
+SHIP
 ```
 
 Parallel work is allowed only when tasks are truly independent. Dependency order wins over artificial concurrency.
@@ -105,7 +113,7 @@ Skills are not permanently resident.
 
 The architecture budget currently targets one resident skill and no more than 22 top-level skills; the committed v2 surface contains 18.
 
-## Memory flow
+## Memory and continuity flow
 
 ```text
 accepted durable fact
@@ -121,7 +129,29 @@ ranked recall
 
 The index is disposable. If SQLite is unavailable or the index is stale, recall falls back to scanning Markdown.
 
-Only durable project information belongs in memory: decisions, conventions, recurring constraints, accepted learnings, and handoff context. Temporary chain-of-thought or speculative notes do not.
+Only durable project information belongs in memory: decisions, conventions, recurring constraints, accepted learnings, and handoff context. Temporary hidden reasoning or speculative notes do not.
+
+Session continuity uses a compact `.ag-kit/handoff.md` artifact containing the goal, current state, decisions, changed files, verification evidence, open risks, and next concrete action. Previous handoffs archive under `.ag-kit/` rather than being silently destroyed.
+
+Cross-project brain search is opt-in: only explicitly registered projects participate, searched projects are read-only from the search operation, and AG Kit never recursively crawls `$HOME` looking for context.
+
+## Context economy
+
+Large tool/command output should not flood the model context.
+
+```text
+command
+    ↓
+no-shell-interpolation spawn
+    ↓
+full output → .ag-kit/session-sandbox/
+    ↓
+bounded summary → active context
+```
+
+Bare `python` / `python3` commands may resolve to a usable project virtual environment in `.venv`, `venv`, or `env`. Explicit interpreter paths are preserved.
+
+`ag-kit compress` performs deterministic Markdown compaction and reports measured byte reduction. It writes a separate output by default; explicit in-place writes create a backup and remain project-contained through realpath-aware path checks.
 
 ## Team assembly
 
@@ -154,46 +184,53 @@ stdout findings only
 .ag-kit audit report + receipt
 ```
 
-Reviewer CLIs do not receive a writable mount of the source project. AG Kit prefers multiple independent lineages rather than several reviewers backed by the same model family.
+Reviewer CLIs do not receive a writable mount of the source project. AG Kit prefers multiple independent lineages rather than several reviewers backed by the same model family. Consensus findings are evidence, not automatic authorization to modify source.
 
 ## Preflight flow
 
 `ag-kit preflight` runs blocking repository gates before a release-quality result is accepted.
 
-Current gates include:
+Current repository gates include:
 
 - v2 architecture budget;
+- documentation-link integrity;
 - v2 engine tests;
 - Antigravity projection drift check;
 - runtime projection build;
 - Antigravity doctor;
 - Antigravity regression tests;
-- native plugin build.
-
-CI additionally runs CLI tests, web lint/typecheck/build, production dependency audits, and dependency review.
+- native plugin build;
+- CLI package/tests/audit;
+- web lint/typecheck/build/audit;
+- Dependency Review.
 
 ## Runtime boundary
 
-`shared/` is canonical. Runtime folders are adapters.
+`shared/` is canonical. Runtime folders are adapters, and runtime installs default to the repository release tag matching the CLI version rather than floating `main`.
+
+| Tier | Runtimes |
+| --- | --- |
+| First-class | Antigravity, Claude, Codex, Gemini, Qwen, Kimi, Cline |
+| Connected | Cursor, Windsurf, GitHub Copilot |
+| Bridge | OpenCode, OpenClaw, Aider, Wayland, Hermes, Pi |
+
+A runtime gets only the surfaces AG Kit has actually verified. Missing native agents/hooks/plugins are not simulated in the capability matrix. Project-scoped activation is preferred; global-only integrations are staged for explicit activation rather than silently mutating home configuration.
+
+## Runtime lifecycle
 
 ```text
-shared/
-   ↓
-capability matrix
-   ↓
-┌───────────────┬───────────────┬───────────────┐
-│ first-class   │ connected     │ bridge        │
-├───────────────┼───────────────┼───────────────┤
-│ Antigravity   │ Cursor        │ OpenCode      │
-│ Claude        │ Windsurf      │ OpenClaw      │
-│ Codex         │ Copilot       │ Aider         │
-│ Gemini        │               │               │
-│ Qwen          │               │               │
-│ Kimi          │               │               │
-└───────────────┴───────────────┴───────────────┘
+detect
+  ↓
+prepare backup + ownership manifest
+  ↓
+install projection + verified MCP wiring
+  ↓
+doctor: live / standing-by / degraded / untouched
+  ↓
+uninstall only AG Kit-owned state
 ```
 
-A runtime gets only the surfaces AG Kit has actually verified. Missing native agents/hooks/plugins are not simulated in the capability matrix.
+User drift and project memory are preserved. Filesystem root and the user's home directory are rejected as project targets.
 
 ## Antigravity projection
 
@@ -203,7 +240,8 @@ Antigravity receives a generated `.agents/` projection containing:
 - 4 permanent agents;
 - zero legacy workflow files;
 - one always-on core rule;
-- safety hook;
+- native `PreToolUse` safety hook;
+- privacy-minimal `PostToolUse` observability hook;
 - project MCP config;
 - plugin packaging support.
 
@@ -214,10 +252,8 @@ The projection must match `shared/` exactly. CI rejects drift.
 1. Runtime permissions and workspace trust remain enabled.
 2. AG Kit safety hooks supplement runtime controls; they do not replace sandboxing or human approval.
 3. High-confidence destructive command patterns are denied at the tool boundary.
-4. Cross-audit is read-only and runs outside the writable source tree.
-5. Project-global or user-global configuration is not silently overwritten when a project-scoped adapter is sufficient.
-6. Release-quality work requires executable verification, not inspection-only claims.
-
-## Completion rule
-
-A task is complete only when the requested artifact exists, acceptance criteria are met, relevant checks pass, unresolved risks are surfaced, and durable outcomes are written to receipts/memory where appropriate.
+4. Hook entrypoints resolve real paths so symlink/Windows path differences cannot silently skip decision output.
+5. Cross-audit is read-only and runs outside the writable source tree.
+6. Project-global or user-global configuration is not silently overwritten when a project-scoped adapter is sufficient.
+7. Context artifacts cannot escape the project through symlinked parent paths.
+8. Release-quality work requires executable verification, not inspection-only claims.
