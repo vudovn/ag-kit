@@ -44,24 +44,26 @@ The web site must describe the same v2 architecture that the repository validate
 | Development workflow | 1 gated spine with QUICK / STANDARD / DEEP modes |
 | Runtime targets | 16 across first-class / connected / bridge tiers |
 | Canonical source | `shared/` + capability-aware adapters under `runtimes/` |
-| Memory | local Markdown canonical store with optional rebuildable SQLite/FTS5 index |
+| Memory | local Markdown canonical store with optional rebuildable indexes |
 | Primary runtime | none |
 
 Generated host trees are adapter projections, not product identity or canonical source. Runtime-specific hooks/plugins may be documented as capabilities of that adapter, but public copy must not present one host as AG Kit itself.
 
-The CLI supports both explicit single-runtime installation and detected-runtime activation:
+The CLI has one runtime lifecycle:
 
 ```bash
 ag-kit runtime detect
 ag-kit runtime install-present
+ag-kit runtime install claude
 ag-kit runtime doctor
+ag-kit runtime uninstall claude
 ```
 
-Legacy `ag-kit init/update/rollback/status` remains for safe managed-tree migration compatibility, not as the canonical v2 runtime architecture.
+Pre-v2 Antigravity projects migrate through `runtime install antigravity` with lifecycle backups/ownership metadata; the old managed-tree lifecycle is not part of the v2 public command surface.
 
 ## Content integrity
 
-Repository CI runs documentation-link and runtime-neutrality checks in addition to web lint/typecheck/build. When changing product counts, runtime support, Node requirements, or CLI commands, keep these sources aligned:
+Repository CI runs documentation-link, documentation-claim, and runtime-neutrality checks in addition to web lint/typecheck/build. When changing product counts, runtime support, Node requirements, or CLI commands, keep these sources aligned:
 
 - root `README.md` / `README-VI.md`;
 - `docs/ARCHITECTURE_V2.md` / `docs/RUNTIMES.md`;
@@ -70,7 +72,7 @@ Repository CI runs documentation-link and runtime-neutrality checks in addition 
 - web i18n dictionaries and landing dictionaries;
 - this file.
 
-Do not reintroduce the historical 20-agent / 45–47-skill / 13-workflow inventory or Antigravity-only product framing into current v2 documentation.
+Do not reintroduce the historical 20-agent / 45–47-skill / 13-workflow inventory, Antigravity-only product framing, or a second runtime-specific lifecycle into current v2 documentation.
 
 ## Stack
 
