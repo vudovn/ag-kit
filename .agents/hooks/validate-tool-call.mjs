@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
+import path from 'node:path';
 import process from 'node:process';
+import {pathToFileURL} from 'node:url';
 
 const BLOCK_RULES = [
   {
@@ -30,17 +33,13 @@ const BLOCK_RULES = [
   }
 ];
 
-function readStdin() {
-  return new Promise((resolve, reject) => {
-    let input = '';
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', chunk => {
-      input += chunk;
-      if (input.length > 1024 * 1024) reject(new Error('hook payload exceeds 1 MiB'));
-    });
-    process.stdin.on('end', () => resolve(input));
-    process.stdin.on('error', reject);
-  });
+async function readStdin() {
+  let input = '';
+  for await (const chunk of process.stdin) {
+    input += chunk;
+    if (input.length > 1024 * 1024) throw new Error('hook payload exceeds 1 MiB');
+  }
+  return input;
 }
 
 function firstString(...values) {
@@ -105,6 +104,13 @@ async function main() {
   console.log(JSON.stringify(hookDecision(payload)));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  await main();
-}
+const resolveEntryHref = (entry) => {
+  try {
+    return pathToFileURL(fs.realpathSync(path.resolve(entry))).href;
+  } catch {
+    return null;
+  }
+};
+
+const isDirectRun = process.argv[1] && resolveEntryHref(process.argv[1]) === import.meta.url;
+if (isDirectRun) await main();
