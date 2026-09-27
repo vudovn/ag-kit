@@ -16,6 +16,7 @@ const stateRoot = (root) => path.join(safeProjectRoot(root), ".ag-kit");
 const manifestsRoot = (root) => path.join(stateRoot(root), "runtime-installs");
 const manifestFile = (root, runtime) => path.join(manifestsRoot(root), `${runtime}.json`);
 const timestamp = () => new Date().toISOString().replace(/[:.]/g, "-");
+const portableRelative = (root, target) => path.relative(root, target).split(path.sep).join("/");
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const specsByRuntime = {
@@ -125,9 +126,9 @@ export function prepareRuntimeInstall({ root = process.cwd(), runtime }) {
     const before = digestPath(absolute);
     const backup = before.exists ? path.join(backupRoot, "original", relativePath) : null;
     if (backup) copyPath(absolute, backup);
-    return { relativePath, strategy, before, backup: backup ? path.relative(projectRoot, backup) : null };
+    return { relativePath, strategy, before, backup: backup ? portableRelative(projectRoot, backup) : null };
   });
-  return { schema: 1, id, runtime, root: projectRoot, preparedAt: new Date().toISOString(), backupRoot: path.relative(projectRoot, backupRoot), entries };
+  return { schema: 1, id, runtime, root: projectRoot, preparedAt: new Date().toISOString(), backupRoot: portableRelative(projectRoot, backupRoot), entries };
 }
 
 export function restorePreparedInstall(prepared) {
@@ -232,5 +233,5 @@ export function uninstallRuntime({ root = process.cwd(), runtime }) {
   ensureDir(uninstalls);
   const receipt = path.join(uninstalls, `${runtime}-${timestamp()}.json`);
   fs.writeFileSync(receipt, `${JSON.stringify({ schema: 1, runtime, uninstalledAt: new Date().toISOString(), memoryPreserved: true, results }, null, 2)}\n`);
-  return { runtime, status: results.some((item) => item.drift) ? "uninstalled-with-preserved-drift" : "uninstalled", memoryPreserved: true, receipt: path.relative(projectRoot, receipt), results };
+  return { runtime, status: results.some((item) => item.drift) ? "uninstalled-with-preserved-drift" : "uninstalled", memoryPreserved: true, receipt: portableRelative(projectRoot, receipt), results };
 }
