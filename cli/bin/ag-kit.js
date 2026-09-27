@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const command = process.argv[2];
 const runtimeSubcommand = command === "runtime" ? process.argv[3] : "";
+const memorySubcommand = command === "memory" ? process.argv[3] : "";
 const helpRequested = [undefined, "help", "-h", "--help"].includes(command);
 const runtimeHelpRequested = command === "runtime" && [undefined, "help", "-h", "--help"].includes(runtimeSubcommand);
 const v2Commands = new Set(["runtime", "memory", "team", "flow", "cross-audit", "observe", "dashboard", "personalize", "design", "route", "run", "preflight", "mcp"]);
@@ -20,6 +21,9 @@ if (helpRequested) {
 } else if (command === "hook-ingest") {
     const { runHookIngestCli } = await import("../lib/hook-ingest.js");
     await runHookIngestCli(process.argv);
+} else if (command === "memory" && memorySubcommand === "semantic") {
+    const { runSemanticMemoryCli } = await import("../lib/memory-semantic-cli.js");
+    await runSemanticMemoryCli(process.argv);
 } else if (command === "brain") {
     const { runBrainCli } = await import("../lib/brain-cli.js");
     await runBrainCli(process.argv);
