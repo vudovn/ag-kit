@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { performance } from "node:perf_hooks";
 import { addEvolvingMemory, recallEvolvingMemory } from "../cli/lib/memory-evolution.js";
 import { routeTask } from "../cli/lib/efficiency.js";
@@ -25,6 +25,14 @@ const ensure = (condition, message) => {
 const parseOutput = (argv) => {
   const index = argv.indexOf("--output");
   return index >= 0 && argv[index + 1] ? path.resolve(argv[index + 1]) : null;
+};
+
+const isDirectRun = () => {
+  try {
+    return Boolean(process.argv[1]) && import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href;
+  } catch {
+    return false;
+  }
 };
 
 export async function runBenchmark({ sourceRoot = repoRoot } = {}) {
@@ -93,7 +101,7 @@ export async function runBenchmark({ sourceRoot = repoRoot } = {}) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectRun()) {
   const result = await runBenchmark();
   const output = parseOutput(process.argv.slice(2));
   if (output) {
