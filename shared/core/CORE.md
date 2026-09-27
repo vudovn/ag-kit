@@ -14,6 +14,14 @@ AG Kit keeps one tiny resident core. Everything else is loaded only when intent,
 9. Evidence beats completion claims. Report what passed, failed, or was unavailable.
 10. Preserve native runtime security boundaries, approvals, sandboxing, and hooks.
 
+## Activation invariants
+- Natural-language intent is authoritative; slash and CLI commands are aliases. If a runtime has no slash-command UI, map the same words to the same capability.
+- Explicit plan, spec, brainstorm, or architecture intent enters the development flow before project mutation. Do not silently skip a planning request and start coding.
+- Before multi-file or cross-system mutation, classify QUICK, STANDARD, or DEEP. Use `ag-kit route` / `ag-kit flow` when the CLI is available; otherwise apply the same rubric directly.
+- On continue, resume, pick-up, or recall intent, load `.ag-kit/handoff.md` when present and recall relevant durable project memory before acting.
+- Confirmed project conventions remain constraints until the current user overrides them. Surface and update stale memory instead of silently ignoring either side.
+- Ask clarifying questions only for material blockers; never impose an arbitrary question count.
+
 ## Modes
 - QUICK: FRAME -> PLAN -> EXECUTE -> VERIFY.
 - STANDARD: FRAME -> SHAPE -> PLAN -> EXECUTE -> VERIFY -> SHIP.
