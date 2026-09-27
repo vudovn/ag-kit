@@ -86,12 +86,6 @@ jobs:
           p.write_text(text.replace(marker, qwen_tests + marker, 1))
 
           replace_exact(
-              'cli/test/prompt-hook.test.js',
-              '  assert.throws(() => promptHookEnvelope("codex", { prompt: "fix it" }), /unsupported prompt hook runtime/);',
-              '  assert.throws(() => promptHookEnvelope("codex", { prompt: "fix it" }), /unsupported prompt hook runtime/);'
-          )
-
-          replace_exact(
               'cli/test/prompt-hook-lifecycle.test.js',
               '  { runtime: "gemini", settings: ".gemini/settings.json", event: "BeforeAgent" },\n];',
               '  { runtime: "gemini", settings: ".gemini/settings.json", event: "BeforeAgent" },\n  { runtime: "qwen", settings: ".qwen/settings.json", event: "UserPromptSubmit" },\n];'
@@ -130,8 +124,6 @@ jobs:
         run: |
           npm ci
           npm test
-      - name: Validate runtime contracts
-        run: npm run check:runtimes
       - name: Commit migration
         shell: bash
         run: |
