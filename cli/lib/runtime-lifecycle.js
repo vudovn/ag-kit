@@ -21,9 +21,9 @@ const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const specsByRuntime = {
   antigravity: [[".agents/skills", "tree"], [".agents/agents", "tree"], [".agents/rules/ag-kit-v2.md", "replace"], [".agents/mcp_config.json", "mcp-json"]],
-  claude: [[".claude/skills", "tree"], [".claude/agents", "tree"], ["CLAUDE.md", "block"], [".mcp.json", "mcp-json"]],
+  claude: [[".claude/skills", "tree"], [".claude/agents", "tree"], ["CLAUDE.md", "block"], [".mcp.json", "mcp-json"], [".claude/settings.json", "prompt-hooks-json"]],
   codex: [[".agents/skills", "tree"], ["AGENTS.md", "block"], [".codex-plugin", "tree"]],
-  gemini: [[".gemini/skills", "tree"], ["GEMINI.md", "block"], [".gemini/settings.json", "mcp-json"]],
+  gemini: [[".gemini/skills", "tree"], ["GEMINI.md", "block"], [".gemini/settings.json", "mcp-prompt-hooks-json"]],
   qwen: [[".qwen/skills", "tree"], [".qwen/agents", "tree"], ["QWEN.md", "block"], [".qwen/settings.json", "mcp-json"]],
   kimi: [[".kimi-code/skills", "tree"], [".kimi-code/agents", "tree"], ["AGENTS.md", "block"], [".kimi-code/mcp.json", "mcp-json"]],
   cline: [[".cline/skills", "tree"], [".cline/rules/ag-kit.md", "block"], [".cline/mcp.json", "mcp-json"]],
@@ -95,6 +95,46 @@ const removeMcpEntry = (file) => {
   if (Object.keys(data).length === 0) { fs.rmSync(file, { force: true }); return { changed: true, removed: true }; }
   fs.writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`);
   return { changed: true, removed: false };
+};
+
+const promptHookDefinition = (runtime) => runtime === "claude"
+  ? { event: "UserPromptSubmit", command: "ag-kit prompt-hook claude" }
+  : runtime === "gemini"
+    ? { event: "BeforeAgent", command: "ag-kit prompt-hook gemini" }
+    : null;
+
+const removePromptHook = (file, runtime) => {
+  if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) return { changed: false, removed: false };
+  const definition = promptHookDefinition(runtime);
+  if (!definition) return { changed: false, removed: false };
+  let data;
+  try { data = JSON.parse(fs.readFileSync(file, "utf8")); } catch { return { changed: false, removed: false, invalidJson: true }; }
+  const groups = Array.isArray(data?.hooks?.[definition.event]) ? data.hooks[definition.event] : [];
+  let changed = false;
+  const nextGroups = groups.flatMap((group) => {
+    const handlers = Array.isArray(group?.hooks) ? group.hooks : [];
+    const kept = handlers.filter((handler) => handler?.command !== definition.command);
+    if (kept.length !== handlers.length) changed = true;
+    if (!kept.length) return [];
+    return [{ ...group, hooks: kept }];
+  });
+  if (!changed) return { changed: false, removed: false };
+  if (nextGroups.length) data.hooks[definition.event] = nextGroups;
+  else delete data.hooks[definition.event];
+  if (data.hooks && Object.keys(data.hooks).length === 0) delete data.hooks;
+  if (Object.keys(data).length === 0) { fs.rmSync(file, { force: true }); return { changed: true, removed: true }; }
+  fs.writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`);
+  return { changed: true, removed: false };
+};
+
+const hasPromptHook = (file, runtime) => {
+  const definition = promptHookDefinition(runtime);
+  if (!definition) return false;
+  try {
+    const data = JSON.parse(fs.readFileSync(file, "utf8"));
+    const groups = Array.isArray(data?.hooks?.[definition.event]) ? data.hooks[definition.event] : [];
+    return groups.some((group) => Array.isArray(group?.hooks) && group.hooks.some((handler) => handler?.type === "command" && handler.command === definition.command));
+  } catch { return false; }
 };
 
 const hasManagedBlock = (file, label = MARKER_LABEL) => {
@@ -178,6 +218,8 @@ export function doctorRuntime({ root = process.cwd(), runtime }) {
     let state = "missing";
     if (entry.strategy === "block") { ok = hasManagedBlock(absolute); state = ok ? "managed" : current.exists ? "drift" : "missing"; }
     else if (entry.strategy === "mcp-json") { ok = hasMcpEntry(absolute); state = ok ? "wired" : current.exists ? "drift" : "missing"; }
+    else if (entry.strategy === "prompt-hooks-json") { ok = hasPromptHook(absolute, runtime); state = ok ? "wired" : current.exists ? "drift" : "missing"; }
+    else if (entry.strategy === "mcp-prompt-hooks-json") { ok = hasMcpEntry(absolute) && hasPromptHook(absolute, runtime); state = ok ? "wired" : current.exists ? "drift" : "missing"; }
     else { ok = current.exists && current.digest === entry.after?.digest; state = ok ? "managed" : current.exists ? "drift" : "missing"; }
     return { path: entry.relativePath, strategy: entry.strategy, ok, state, expectedDigest: entry.after?.digest || null, currentDigest: current.digest };
   });
@@ -223,6 +265,18 @@ export function uninstallRuntime({ root = process.cwd(), runtime }) {
     if (entry.strategy === "mcp-json") {
       const result = removeMcpEntry(absolute);
       results.push({ path: entry.relativePath, action: result.changed ? "removed-mcp-entry" : "preserved-drift", drift: !result.changed });
+      continue;
+    }
+    if (entry.strategy === "prompt-hooks-json") {
+      const result = removePromptHook(absolute, runtime);
+      results.push({ path: entry.relativePath, action: result.changed ? "removed-prompt-hook" : "preserved-drift", drift: !result.changed });
+      continue;
+    }
+    if (entry.strategy === "mcp-prompt-hooks-json") {
+      const mcpResult = removeMcpEntry(absolute);
+      const hookResult = removePromptHook(absolute, runtime);
+      const changed = mcpResult.changed || hookResult.changed;
+      results.push({ path: entry.relativePath, action: changed ? "removed-managed-json-entries" : "preserved-drift", drift: !changed });
       continue;
     }
     results.push({ path: entry.relativePath, action: "preserved-drift", drift: true });
