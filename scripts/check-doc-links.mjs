@@ -6,10 +6,15 @@ const root = process.cwd();
 const roots = [
   "README.md",
   "README-VI.md",
+  "AGENTS.md",
+  "CLAUDE.md",
   "MIGRATION.md",
   "SECURITY.md",
   "PRODUCTION_CHECKLIST.md",
   "AGENT_FLOW.md",
+  "cli/README.md",
+  "web/README.md",
+  ".github/RELEASE_SETUP.md",
   "docs",
 ];
 const ignoredDirs = new Set(["node_modules", ".git", ".next", "dist", "coverage"]);
