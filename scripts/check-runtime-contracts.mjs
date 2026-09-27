@@ -52,6 +52,7 @@ const forbiddenLegacyFiles=[
   '.agents/hooks/build-plugin.mjs',
   '.agents/hooks/tests/antigravity.test.mjs',
   '.github/workflows/antigravity.yml',
+  'scripts/check-platform-drift.mjs',
 ];
 for(const relative of forbiddenLegacyFiles)if(exists(relative))errors.push(`legacy runtime-centric file must stay removed: ${relative}`);
 
@@ -64,14 +65,21 @@ if(fs.existsSync(workflowDir)){
   }
 }
 
-const publicDocs=['README.md','README-VI.md','MIGRATION.md','PRODUCTION_CHECKLIST.md','.github/RELEASE_SETUP.md'];
-const obsoleteRuntimeCommand=/npm run (?:sync|check|test|build):antigravity[^\s`)]*/gi;
+const publicDocs=[
+  'README.md','README-VI.md','MIGRATION.md','PRODUCTION_CHECKLIST.md','SECURITY.md','AGENT_FLOW.md','CLAUDE.md',
+  '.github/RELEASE_SETUP.md','docs/ARCHITECTURE_V2.md','docs/RUNTIMES.md','docs/PARITY_IJFW.md','cli/README.md','web/README.md'
+];
+const npmRun=/npm run ([\w:@.-]+)/g;
 for(const relative of publicDocs){
   if(!exists(relative))continue;
   const body=read(relative);
-  const matches=[...body.matchAll(obsoleteRuntimeCommand)].map((match)=>match[0]);
-  for(const command of matches)errors.push(`${relative}: obsolete runtime-specific root command ${command}`);
-  if(body.includes('Antigravity Compatibility'))errors.push(`${relative}: obsolete Antigravity Compatibility gate name; use Runtime Compatibility`);
+  for(const match of body.matchAll(npmRun)){
+    const script=match[1];
+    const lowered=script.toLowerCase();
+    const runtime=runtimeNames.find((name)=>lowered.includes(name.toLowerCase()));
+    if(runtime)errors.push(`${relative}: root command npm run ${script} is runtime-specific (${runtime}); document the generic runtime runner instead`);
+  }
+  if(body.includes('Antigravity Compatibility'))errors.push(`${relative}: obsolete Antigravity Compatibility gate name; use Runtime Compatibility / Runtime contracts`);
 }
 
 if(errors.length){for(const error of errors)console.error(`runtime contract: ${error}`);process.exitCode=1;}
