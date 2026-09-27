@@ -44,21 +44,34 @@ test("release versions stay aligned across packages, locks, and toolkit", async 
     assert.equal(toolkitVersion, expected);
 });
 
-test("public documentation reflects the lean v2 inventory and runtime matrix", async () => {
+test("public and runtime instruction docs reflect the lean v2 inventory", async () => {
     const capabilities = await readJson("platform-capabilities.json");
     const runtimeCount = Object.keys(capabilities.platforms).length;
     assert.equal(capabilities.targets.residentSkills, 1);
     assert.equal(capabilities.targets.permanentAgents, 4);
     assert.equal(capabilities.targets.workflowEngines, 1);
     assert.equal(runtimeCount, 16);
-    for (const file of ["README.md", "README-VI.md"]) {
+
+    const inventoryDocs = ["README.md", "README-VI.md", "web/README.md", "AGENT_FLOW.md"];
+    for (const file of inventoryDocs) {
         const content = await read(file);
-        assert.match(content, /18[^\n]*(?:skills|skill)/i);
-        assert.match(content, /4[^\n]*(?:permanent\s+agents|agents)/i);
-        assert.match(content, new RegExp(`${runtimeCount}[^\\n]*runtime`, "i"));
-        assert.doesNotMatch(content, /47\s+(?:skills|kỹ năng)|20\s+(?:specialist\s+agents|agent\s+chuyên)|13\s+(?:workflows|quy trình)/i);
-        assert.doesNotMatch(content, /ln -s ~\/\.ag-kit\/\.agents \.agent(?:\s|$)/);
-        assert.match(content, /ag-kit rollback/);
+        assert.match(content, /18[^\n]*(?:skills|skill)/i, `${file} should mention the 18-skill v2 surface`);
+        assert.match(content, /4[^\n]*(?:permanent\s+agents|agents|agent)/i, `${file} should mention the four-agent v2 surface`);
+        assert.match(content, new RegExp(`${runtimeCount}[^\\n]*runtime`, "i"), `${file} should mention all ${runtimeCount} runtimes`);
+    }
+
+    for (const file of ["README.md", "README-VI.md", "web/README.md", "AGENTS.md", "CLAUDE.md", "MIGRATION.md", "AGENT_FLOW.md"]) {
+        const content = await read(file);
+        assert.doesNotMatch(content, /47\s+(?:skills|kỹ năng)|20\s+(?:specialist\s+agents|agent\s+chuyên)|13\s+(?:workflows|quy trình)|45\s+(?:skills|skill)/i, `${file} must not restore the legacy inventory`);
+        assert.doesNotMatch(content, /ln -s ~\/\.ag-kit\/\.agents \.agent(?:\s|$)/, `${file} must not restore the legacy symlink setup`);
+    }
+
+    const claude = await read("CLAUDE.md");
+    assert.doesNotMatch(claude, /generate:agents|check:agents|test:toolkit|validate_kit\.py/, "CLAUDE.md must not instruct removed v1 validation steps");
+    assert.match(claude, /check:docs/);
+
+    for (const file of ["README.md", "README-VI.md"]) {
+        assert.match(await read(file), /ag-kit rollback/);
     }
 });
 
