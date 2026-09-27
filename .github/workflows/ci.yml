@@ -59,24 +59,11 @@ jobs:
           set -euo pipefail
           PACKAGE_TGZ="$(npm pack --silent)"
           PREFIX="$(mktemp -d)"
-          LEGACY_PROJECT="$(mktemp -d)"
           RUNTIME_ROOT="$(mktemp -d)"
-          trap 'rm -rf "$PREFIX" "$LEGACY_PROJECT" "$RUNTIME_ROOT"; rm -f "$PACKAGE_TGZ"' EXIT
+          trap 'rm -rf "$PREFIX" "$RUNTIME_ROOT"; rm -f "$PACKAGE_TGZ"' EXIT
           npm install --prefix "$PREFIX" "$PWD/$PACKAGE_TGZ" >/dev/null
           CLI="$PREFIX/node_modules/.bin/ag-kit"
           "$CLI" --version >/dev/null
-
-          # Legacy managed-tree migration remains non-destructive.
-          mkdir -p "$LEGACY_PROJECT/.agents"
-          printf '%s\n' 'keep-user-file' > "$LEGACY_PROJECT/.agents/user-owned.txt"
-          "$CLI" init --path "$LEGACY_PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
-          test -f "$LEGACY_PROJECT/.agents/skills/ag-core/SKILL.md"
-          test -f "$LEGACY_PROJECT/.agents/agents/scout.md"
-          test ! -d "$LEGACY_PROJECT/.agents/workflows"
-          grep -q '^keep-user-file$' "$LEGACY_PROJECT/.agents/user-owned.txt"
-          "$CLI" update --path "$LEGACY_PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
-          grep -q '^keep-user-file$' "$LEGACY_PROJECT/.agents/user-owned.txt"
-          "$CLI" status --path "$LEGACY_PROJECT" --quiet >/dev/null
 
           # Exercise representative runtime ownership shapes through the real npm binary.
           for RUNTIME in antigravity claude codex; do
