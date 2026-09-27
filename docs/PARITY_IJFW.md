@@ -18,6 +18,7 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 | Deep convergence | dependency waves | **done** — DEEP convergence requires an explicit wave table |
 | Local-first memory | human-readable canonical store | **done** — Markdown canonical entries + receipts |
 | Warm memory index | rebuildable ranked search | **done** — optional SQLite/FTS5, Markdown fail-open |
+| Semantic cold retrieval | optional local vector retrieval behind canonical memory | **done, opt-in** — project-local Transformers.js provider install, explicit model-download approval, rebuildable vector index, no raw memory stored in the index |
 | Memory evolution | candidate → durable / supersede / prune | **done** — repeated cross-session references promote candidates; dream archives/deduplicates |
 | Temporal facts | valid-at-time recall | **done** — `validFrom` / `validTo` filtering and supersession metadata |
 | Cross-project brain | one brain across projects/tools | **done** — explicit opt-in registry + strictly read-only cross-project Markdown search |
@@ -50,6 +51,7 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 - **No primary runtime.** Rich host-native surfaces stay behind adapter boundaries instead of defining the product architecture.
 - **No capability-by-badge.** Detection, lifecycle manifests, adapter contracts, and doctor checks distinguish installed/live, staged/standing-by, and untouched states.
 - **No raw-prompt telemetry from prompt quality checks.** The checker returns only bounded structural metadata, signals, and clarification questions.
+- **No implicit semantic-provider or model download.** The CLI stays lean; project-local provider install and model download require separate explicit network approvals.
 - **No paid-provider benchmark in the default release gate.** Core benchmark evidence is deterministic and local; provider/model experiments must stay explicit, cost-capped, and non-blocking unless a future release contract deliberately changes that policy.
 
 ## Remaining convergence work
@@ -57,9 +59,8 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 These are strengthening areas, not reasons to inflate the resident core:
 
 1. wire prompt-quality interception automatically only for runtimes whose user-prompt hook/event contract is current, project-safe, and independently tested;
-2. optionally add a local semantic/cold retrieval provider behind Markdown + FTS without making it canonical or mandatory;
-3. optionally extend deterministic benchmark receipts into an explicit cost-capped multi-arm provider benchmark without turning provider spend into a default requirement;
-4. keep runtime schemas current and promote bridge targets only when their native contracts justify it;
-5. add more adapter-specific artifact builders only when a host has a real package/plugin artifact worth building, rather than manufacturing parity.
+2. optionally extend deterministic benchmark receipts into an explicit cost-capped multi-arm provider benchmark without turning provider spend into a default requirement;
+3. keep runtime schemas current and promote bridge targets only when their native contracts justify it;
+4. add more adapter-specific artifact builders only when a host has a real package/plugin artifact worth building, rather than manufacturing parity.
 
 “100% like IJFW” here means matching useful feature classes and multi-runtime operational discipline while preserving AG Kit's own implementation, names, privacy posture, and capability-aware adapter model. It does **not** mean copying IJFW source or forcing vendor-specific behavior onto runtimes that cannot independently support it.

@@ -1,11 +1,15 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
+import { spawnSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 import { appendReceipt } from "./v2-engine.js";
 import { ensureDir, readJson, stateRoot, writeJson } from "./project-state.js";
 
 const DEFAULT_MODEL = "onnx-community/all-MiniLM-L6-v2-ONNX";
 const MODEL_PACKAGE = "@huggingface/transformers";
+const PROVIDER_VERSION = "3.8.1";
 const INDEX_SCHEMA = 1;
 const BATCH_SIZE = 16;
 const MAX_ENTRY_CHARS = 12000;
@@ -14,6 +18,9 @@ const MAX_RESULTS = 50;
 const enabledWord = (value) => ["1", "true", "yes", "on"].includes(String(value || "").toLowerCase());
 const semanticDir = (root) => path.join(stateRoot(root), "memory", "semantic");
 const indexFile = (root) => path.join(semanticDir(root), "index.json");
+const settingsFile = (root) => path.join(semanticDir(root), "settings.json");
+const providerDir = (root) => path.join(semanticDir(root), "provider");
+const providerPackageFile = (root) => path.join(providerDir(root), "node_modules", "@huggingface", "transformers", "package.json");
 const entriesDir = (root) => path.join(stateRoot(root), "memory", "entries");
 const modelCacheDir = (root) => path.join(semanticDir(root), "model-cache");
 const digest = (value) => crypto.createHash("sha256").update(value).digest("hex");
@@ -25,6 +32,55 @@ export function semanticConfig(env = process.env, overrides = {}) {
     allowDownload: overrides.allowDownload ?? enabledWord(env.AG_KIT_VECTOR_ALLOW_DOWNLOAD),
     model: overrides.model || env.AG_KIT_VECTOR_MODEL || DEFAULT_MODEL,
   };
+}
+
+const storedSettings = (root) => readJson(settingsFile(root), {});
+const configForRoot = (root, env = process.env, overrides = {}) => {
+  const saved = storedSettings(root);
+  return semanticConfig(env, { ...saved, ...overrides });
+};
+
+export function setSemanticEnabled({ root = process.cwd(), enabled, model = "" } = {}) {
+  const current = storedSettings(root);
+  const next = { ...current, enabled: Boolean(enabled) };
+  if (model) next.model = String(model);
+  ensureDir(semanticDir(root));
+  writeJson(settingsFile(root), next);
+  appendReceipt(root, "memory-semantic", { action: enabled ? "enable" : "disable", status: "ready", model: next.model || DEFAULT_MODEL });
+  return { enabled: next.enabled, model: next.model || DEFAULT_MODEL, settings: path.relative(root, settingsFile(root)).split(path.sep).join("/") };
+}
+
+export function semanticProviderStatus(root = process.cwd()) {
+  const pkg = readJson(providerPackageFile(root), null);
+  return {
+    installed: Boolean(pkg?.version),
+    package: MODEL_PACKAGE,
+    version: pkg?.version || null,
+    expectedVersion: PROVIDER_VERSION,
+    path: path.relative(root, providerDir(root)).split(path.sep).join("/"),
+  };
+}
+
+export function installSemanticProvider({ root = process.cwd(), allowNetwork = false, version = PROVIDER_VERSION, runner = spawnSync } = {}) {
+  if (!allowNetwork) {
+    return { installed: false, reason: "network-not-approved", package: MODEL_PACKAGE, version, hint: "Re-run with `ag-kit memory semantic setup --allow-network`." };
+  }
+  const target = providerDir(root);
+  ensureDir(target);
+  const manifest = path.join(target, "package.json");
+  if (!fs.existsSync(manifest)) writeJson(manifest, { name: "ag-kit-semantic-provider", private: true, version: "0.0.0" });
+  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+  const args = ["install", "--prefix", target, "--package-lock=false", "--save-exact", "--fund=false", "--audit=false", `${MODEL_PACKAGE}@${version}`];
+  const result = runner(npm, args, { encoding: "utf8", timeout: 180000, shell: false });
+  if (result?.error || result?.status !== 0) {
+    const error = String(result?.error?.message || result?.stderr || "provider install failed").trim().slice(0, 1200);
+    appendReceipt(root, "memory-semantic", { action: "setup", status: "failed", package: MODEL_PACKAGE, version, error });
+    return { installed: false, reason: "install-failed", package: MODEL_PACKAGE, version, error };
+  }
+  setSemanticEnabled({ root, enabled: true });
+  const provider = semanticProviderStatus(root);
+  appendReceipt(root, "memory-semantic", { action: "setup", status: provider.installed ? "ready" : "failed", package: MODEL_PACKAGE, version: provider.version || version });
+  return { ...provider, enabled: true };
 }
 
 const normalizeVector = (values) => {
@@ -67,13 +123,28 @@ const tensorRows = (output, expected) => {
   return normalized.every(Boolean) ? normalized : null;
 };
 
-export async function loadTransformerEmbedder({ root = process.cwd(), config = semanticConfig(), importer = (specifier) => import(specifier) } = {}) {
+const importTransformerPackage = async (root, importer = null) => {
+  if (importer) return importer(MODEL_PACKAGE);
+  try {
+    return await import(MODEL_PACKAGE);
+  } catch (primaryError) {
+    try {
+      const require = createRequire(path.join(providerDir(root), "package.json"));
+      const resolved = require.resolve(MODEL_PACKAGE);
+      return await import(pathToFileURL(resolved).href);
+    } catch {
+      throw primaryError;
+    }
+  }
+};
+
+export async function loadTransformerEmbedder({ root = process.cwd(), config = configForRoot(root), importer = null } = {}) {
   if (!config.enabled) return { available: false, reason: "disabled", model: config.model, allowDownload: config.allowDownload };
   let transformers;
   try {
-    transformers = await importer(MODEL_PACKAGE);
+    transformers = await importTransformerPackage(root, importer);
   } catch {
-    return { available: false, reason: "dependency-missing", dependency: MODEL_PACKAGE, model: config.model, allowDownload: config.allowDownload };
+    return { available: false, reason: "dependency-missing", dependency: MODEL_PACKAGE, model: config.model, allowDownload: config.allowDownload, provider: semanticProviderStatus(root), hint: "Run `ag-kit memory semantic setup --allow-network`." };
   }
 
   let extractor;
@@ -89,6 +160,8 @@ export async function loadTransformerEmbedder({ root = process.cwd(), config = s
       dependency: MODEL_PACKAGE,
       model: config.model,
       allowDownload: config.allowDownload,
+      provider: semanticProviderStatus(root),
+      hint: config.allowDownload ? null : "Re-run rebuild/recall with --allow-download to explicitly permit the model download.",
       error: String(error?.message || error).slice(0, 240),
     };
   }
@@ -121,25 +194,29 @@ const providerFor = async ({ root, config, provider, importer }) => {
   return loadTransformerEmbedder({ root, config, importer });
 };
 
-export async function semanticStatus(root = process.cwd(), { env = process.env, importer = (specifier) => import(specifier), overrides = {} } = {}) {
-  const config = semanticConfig(env, overrides);
+export async function semanticStatus(root = process.cwd(), { env = process.env, importer = null, overrides = {} } = {}) {
+  const config = configForRoot(root, env, overrides);
   const index = readJson(indexFile(root), null);
-  if (!config.enabled) return { enabled: false, available: false, reason: "disabled", model: config.model, index: index ? { entries: Object.keys(index.entries || {}).length, model: index.model, generatedAt: index.generatedAt } : null };
-  let dependencyAvailable = true;
-  try { await importer(MODEL_PACKAGE); } catch { dependencyAvailable = false; }
+  const provider = semanticProviderStatus(root);
+  if (!config.enabled) return { enabled: false, available: false, reason: "disabled", model: config.model, provider, index: index ? { entries: Object.keys(index.entries || {}).length, model: index.model, generatedAt: index.generatedAt } : null };
+  let dependencyAvailable = false;
+  try { await importTransformerPackage(root, importer); dependencyAvailable = true; } catch {}
   return {
     enabled: true,
     available: dependencyAvailable,
     reason: dependencyAvailable ? (indexFresh(root, index, config.model) ? "ready" : "index-missing-or-stale") : "dependency-missing",
     dependency: MODEL_PACKAGE,
+    provider,
+    hint: dependencyAvailable ? null : "Run `ag-kit memory semantic setup --allow-network`.",
     allowDownload: config.allowDownload,
     model: config.model,
     index: index ? { entries: Object.keys(index.entries || {}).length, model: index.model, generatedAt: index.generatedAt, fresh: indexFresh(root, index, config.model) } : null,
   };
 }
 
-export async function rebuildSemanticIndex({ root = process.cwd(), env = process.env, importer = (specifier) => import(specifier), overrides = {}, provider = null } = {}) {
-  const config = semanticConfig(env, { ...overrides, enabled: overrides.enabled ?? true });
+export async function rebuildSemanticIndex({ root = process.cwd(), env = process.env, importer = null, overrides = {}, provider = null } = {}) {
+  const config = configForRoot(root, env, overrides);
+  if (!config.enabled) return { available: false, reason: "disabled", model: config.model, hint: "Run `ag-kit memory semantic on` first." };
   const active = await providerFor({ root, config, provider, importer });
   if (!active.available) {
     appendReceipt(root, "memory-semantic", { action: "rebuild", status: "unavailable", reason: active.reason, model: active.model || config.model, allowDownload: Boolean(config.allowDownload) });
@@ -188,10 +265,11 @@ const dot = (left, right) => {
   return score;
 };
 
-export async function semanticRecall({ root = process.cwd(), query = "", limit = 5, env = process.env, importer = (specifier) => import(specifier), overrides = {}, provider = null } = {}) {
+export async function semanticRecall({ root = process.cwd(), query = "", limit = 5, env = process.env, importer = null, overrides = {}, provider = null } = {}) {
   const text = String(query || "").trim();
   if (!text) throw new Error("semantic recall query is required");
-  const config = semanticConfig(env, { ...overrides, enabled: overrides.enabled ?? true });
+  const config = configForRoot(root, env, overrides);
+  if (!config.enabled) return { available: false, reason: "disabled", model: config.model, hint: "Run `ag-kit memory semantic on` first.", results: [] };
   const active = await providerFor({ root, config, provider, importer });
   if (!active.available) {
     appendReceipt(root, "memory-semantic", { action: "recall", status: "unavailable", reason: active.reason, model: active.model || config.model, queryChars: text.length, allowDownload: Boolean(config.allowDownload) });
@@ -228,3 +306,4 @@ export async function semanticRecall({ root = process.cwd(), query = "", limit =
 
 export const SEMANTIC_MODEL_PACKAGE = MODEL_PACKAGE;
 export const SEMANTIC_DEFAULT_MODEL = DEFAULT_MODEL;
+export const SEMANTIC_PROVIDER_VERSION = PROVIDER_VERSION;

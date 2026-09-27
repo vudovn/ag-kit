@@ -58,9 +58,13 @@ ag-kit memory dream
 ag-kit memory reindex
 ag-kit memory status
 
-ag-kit memory semantic status
+# Optional semantic cold tier: both network steps are explicit.
 ag-kit memory semantic on
-ag-kit memory semantic rebuild
+ag-kit memory semantic setup --allow-network
+ag-kit memory semantic rebuild --allow-download
+ag-kit memory semantic recall "database concurrency"
+ag-kit memory semantic status
+ag-kit memory semantic off
 
 ag-kit brain register .
 ag-kit brain list
@@ -68,7 +72,7 @@ ag-kit brain search "deployment convention"
 ag-kit brain unregister .
 ```
 
-Markdown is canonical. SQLite/FTS5 and the local semantic tier are optional, rebuildable acceleration layers. Semantic retrieval is off by default and does not make its index canonical. Cross-project search only sees explicitly registered projects, does not crawl `$HOME`, and is disabled by `AG_KIT_MINIMAL=1` or `AG_KIT_NO_CROSS_PROJECT=1`.
+Markdown is canonical. SQLite/FTS5 and the local semantic tier are optional, rebuildable acceleration layers. Semantic retrieval is off by default. `semantic setup --allow-network` installs the pinned Transformers.js provider only into `.ag-kit/memory/semantic/provider/`; it does not download a model. Model download requires a separate `--allow-download`, and the model cache remains project-local. Cross-project search only sees explicitly registered projects, does not crawl `$HOME`, and is disabled by `AG_KIT_MINIMAL=1` or `AG_KIT_NO_CROSS_PROJECT=1`.
 
 ## Flow and teams
 
@@ -153,6 +157,7 @@ The MCP surface intentionally stays small and runtime-neutral: project/shared me
 |---:|---|
 | `0` | Success or no changes required |
 | `1` | Unknown command or validation/filesystem/configuration/preflight/runtime/audit failure |
+| `2` | Optional capability unavailable or explicit setup/network approval required |
 | `130` | Interrupted by the user |
 
 ## License
