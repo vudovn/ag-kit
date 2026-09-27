@@ -1,14 +1,16 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { appendReceipt, auditRoster, probeRoster } from "./v2-engine.js";
 import { ensureDir, resolveSafeProjectRoot, stateRoot } from "./project-state.js";
 import { chunkText, dedupeFindings } from "./audit-chunker.js";
+import { traceEnv, traceFields } from "./trace-context.js";
 
 const MAX_AUDIT_BYTES = 512 * 1024;
 const CHUNK_CHARS = 32000;
 const CHUNK_OVERLAP = 2400;
+const MAX_REVIEW_OUTPUT_BYTES = 2 * 1024 * 1024;
 const RETRY_ON_TIMEOUT = new Set(["gemini", "qwen"]);
 const truncate = (value, max = 12000) => String(value || "").slice(0, max);
 
@@ -75,6 +77,7 @@ const similarity = (a, b) => {
     let shared = 0; for (const word of left) if (right.has(word)) shared += 1;
     return shared / (left.size + right.size - shared);
 };
+
 export function clusterFindings(results) {
     const clusters = [];
     for (const result of results) for (const finding of result.findings || []) {
@@ -92,26 +95,94 @@ export function clusterFindings(results) {
     }));
 }
 
-const timedOut = (result) => result?.error?.code === "ETIMEDOUT" || result?.signal === "SIGTERM";
-const runReviewerChunk = ({ reviewer, prompt, cwd, timeoutMs }) => {
-    const runOnce = () => spawnSync(reviewer.command, reviewer.run(prompt), { cwd, encoding: "utf8", timeout: Number(timeoutMs), shell: false, env: process.env, maxBuffer: 2 * 1024 * 1024 });
+const runChild = ({ reviewer, prompt, cwd, timeoutMs, root }) => new Promise((resolve) => {
+    let stdout = "";
+    let stderr = "";
+    let outputBytes = 0;
+    let timedOut = false;
+    let overflow = false;
+    let spawnError = null;
+    let settled = false;
+    const child = spawn(reviewer.command, reviewer.run(prompt), {
+        cwd,
+        shell: false,
+        env: traceEnv(root),
+        stdio: ["ignore", "pipe", "pipe"],
+        windowsHide: true,
+    });
+    const finish = (status, signal) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve({ status, signal, stdout, stderr, timedOut, overflow, error: spawnError });
+    };
+    const append = (kind, chunk) => {
+        const text = chunk.toString("utf8");
+        outputBytes += Buffer.byteLength(text);
+        if (outputBytes > MAX_REVIEW_OUTPUT_BYTES) {
+            overflow = true;
+            child.kill("SIGTERM");
+            return;
+        }
+        if (kind === "stdout") stdout += text;
+        else stderr += text;
+    };
+    child.stdout?.on("data", (chunk) => append("stdout", chunk));
+    child.stderr?.on("data", (chunk) => append("stderr", chunk));
+    child.once("error", (error) => { spawnError = error; finish(null, null); });
+    child.once("close", (status, signal) => finish(status, signal));
+    const timer = setTimeout(() => {
+        timedOut = true;
+        child.kill("SIGTERM");
+    }, Math.max(1000, Number(timeoutMs) || 120000));
+});
+
+const runReviewerChunk = async ({ reviewer, prompt, cwd, timeoutMs, root }) => {
     let attempts = 1;
-    let result = runOnce();
-    if (timedOut(result) && RETRY_ON_TIMEOUT.has(reviewer.id)) { attempts += 1; result = runOnce(); }
+    let result = await runChild({ reviewer, prompt, cwd, timeoutMs, root });
+    if (result.timedOut && RETRY_ON_TIMEOUT.has(reviewer.id)) {
+        attempts += 1;
+        result = await runChild({ reviewer, prompt, cwd, timeoutMs, root });
+    }
     const output = unwrap(reviewer.id, result.stdout);
     return {
-        ok: !result.error && result.status === 0,
+        ok: !result.error && !result.timedOut && !result.overflow && result.status === 0,
         exitCode: result.status,
         signal: result.signal || null,
         attempts,
-        timedOut: timedOut(result),
+        timedOut: result.timedOut,
+        overflow: result.overflow,
         output: truncate(output, 12000),
         findings: parseReviewerFindings(output),
-        error: truncate(result.error?.message || result.stderr || "", 1200),
+        error: truncate(result.error?.message || (result.overflow ? "reviewer output exceeded limit" : result.stderr) || "", 1200),
     };
 };
 
-export function runConsensusAudit({ root = process.cwd(), target = ".", reviewers = 3, excludeLineage = process.env.AG_KIT_CALLING_LINEAGE || "", timeoutMs = 120000 } = {}) {
+const runReviewer = async ({ reviewer, snapshot, chunks, cwd, timeoutMs, root }) => {
+    const started = Date.now();
+    const chunkResults = [];
+    for (const chunk of chunks) {
+        chunkResults.push({
+            index: chunk.index,
+            start: chunk.start,
+            end: chunk.end,
+            ...await runReviewerChunk({ reviewer, prompt: promptFor(snapshot, chunk, chunks.length), cwd, timeoutMs, root }),
+        });
+    }
+    const findings = dedupeFindings(chunkResults.filter((item) => item.ok).flatMap((item) => item.findings));
+    return {
+        reviewer: reviewer.id,
+        lineage: reviewer.lineage,
+        ok: chunkResults.length > 0 && chunkResults.every((item) => item.ok),
+        durationMs: Date.now() - started,
+        chunkCount: chunkResults.length,
+        successfulChunks: chunkResults.filter((item) => item.ok).length,
+        findings,
+        chunks: chunkResults.map(({ findings: _findings, ...item }) => item),
+    };
+};
+
+export async function runConsensusAudit({ root = process.cwd(), target = ".", reviewers = 3, excludeLineage = process.env.AG_KIT_CALLING_LINEAGE || "", timeoutMs = 120000 } = {}) {
     const snapshot = snapshotAuditTarget({ root, target });
     const chunks = chunkText(snapshot.content, { maxChars: CHUNK_CHARS, overlapChars: CHUNK_OVERLAP });
     const probes = probeRoster();
@@ -123,38 +194,28 @@ export function runConsensusAudit({ root = process.cwd(), target = ".", reviewer
         selected.push(byId.get(probe.id)); attemptedLineages.add(probe.lineage);
         if (selected.length >= Math.max(1, Math.min(3, Number(reviewers)))) break;
     }
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-audit-v3-"));
+
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-audit-v4-"));
     const startedAll = Date.now();
     try {
-        const results = selected.map((reviewer) => {
-            const started = Date.now();
-            const chunkResults = chunks.map((chunk) => ({
-                index: chunk.index,
-                start: chunk.start,
-                end: chunk.end,
-                ...runReviewerChunk({ reviewer, prompt: promptFor(snapshot, chunk, chunks.length), cwd: temp, timeoutMs }),
-            }));
-            const findings = dedupeFindings(chunkResults.filter((item) => item.ok).flatMap((item) => item.findings));
-            return {
-                reviewer: reviewer.id,
-                lineage: reviewer.lineage,
-                ok: chunkResults.length > 0 && chunkResults.every((item) => item.ok),
-                durationMs: Date.now() - started,
-                chunkCount: chunkResults.length,
-                successfulChunks: chunkResults.filter((item) => item.ok).length,
-                findings,
-                chunks: chunkResults.map(({ findings: _findings, ...item }) => item),
-            };
-        });
+        const results = await Promise.all(selected.map((reviewer) => runReviewer({ reviewer, snapshot, chunks, cwd: temp, timeoutMs, root })));
         const successful = results.filter((item) => item.ok);
         const successfulLineages = [...new Set(successful.map((item) => item.lineage))];
         const findings = clusterFindings(successful);
-        const counts = { consensus: findings.filter((item) => item.status === "consensus").length, contested: findings.filter((item) => item.status === "contested").length, blocking: findings.filter((item) => item.severity === "blocking").length, important: findings.filter((item) => item.severity === "important").length, optional: findings.filter((item) => item.severity === "optional").length };
+        const counts = {
+            consensus: findings.filter((item) => item.status === "consensus").length,
+            contested: findings.filter((item) => item.status === "contested").length,
+            blocking: findings.filter((item) => item.severity === "blocking").length,
+            important: findings.filter((item) => item.severity === "important").length,
+            optional: findings.filter((item) => item.severity === "optional").length,
+        };
         const status = snapshot.truncated ? "degraded" : successfulLineages.length >= 2 ? "complete" : successfulLineages.length ? "degraded" : "unavailable";
-        const auditDir = path.join(stateRoot(root), "audits"); ensureDir(auditDir);
+        const auditDir = path.join(stateRoot(root), "audits");
+        ensureDir(auditDir);
         const reportPath = path.join(auditDir, `${Date.now()}-cross-audit.json`);
         const report = {
-            schema: 3,
+            schema: 4,
+            ...traceFields(root),
             status,
             target: snapshot.label,
             snapshotKind: snapshot.kind,
@@ -172,7 +233,23 @@ export function runConsensusAudit({ root = process.cwd(), target = ".", reviewer
             results,
         };
         fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
-        appendReceipt(root, "cross-audit", { action: "run-consensus", status, target: snapshot.label, reviewers: successful.map((item) => item.reviewer), attemptedReviewers: results.map((item) => item.reviewer), lineages: status === "complete" ? successfulLineages : [], successfulLineages, attemptedLineages: [...attemptedLineages], truncated: snapshot.truncated, chunkCount: chunks.length, durationMs: report.durationMs, findingCounts: counts, report: path.relative(root, reportPath) });
+        appendReceipt(root, "cross-audit", {
+            action: "run-consensus",
+            status,
+            target: snapshot.label,
+            reviewers: successful.map((item) => item.reviewer),
+            attemptedReviewers: results.map((item) => item.reviewer),
+            lineages: status === "complete" ? successfulLineages : [],
+            successfulLineages,
+            attemptedLineages: [...attemptedLineages],
+            truncated: snapshot.truncated,
+            chunkCount: chunks.length,
+            durationMs: report.durationMs,
+            findingCounts: counts,
+            report: path.relative(root, reportPath),
+        });
         return { ...report, report: path.relative(root, reportPath) };
-    } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+    } finally {
+        fs.rmSync(temp, { recursive: true, force: true });
+    }
 }
