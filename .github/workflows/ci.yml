@@ -50,13 +50,15 @@ jobs:
           PACKAGE_TGZ="$(npm pack --silent)"
           PREFIX="$(mktemp -d)"
           PROJECT="$(mktemp -d)"
-          trap 'rm -rf "$PREFIX" "$PROJECT"; rm -f "$PACKAGE_TGZ"' EXIT
+          RUNTIME_PROJECT="$(mktemp -d)"
+          trap 'rm -rf "$PREFIX" "$PROJECT" "$RUNTIME_PROJECT"; rm -f "$PACKAGE_TGZ"' EXIT
 
           npm install --prefix "$PREFIX" "$PWD/$PACKAGE_TGZ" >/dev/null
           CLI="$PREFIX/node_modules/.bin/ag-kit"
 
           "$CLI" --version >/dev/null
 
+          # Legacy managed-tree lifecycle: preserve a user-owned file through init/update.
           mkdir -p "$PROJECT/.agents"
           printf '%s\n' 'keep-user-file' > "$PROJECT/.agents/user-owned.txt"
 
@@ -69,6 +71,23 @@ jobs:
           "$CLI" update --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
           grep -q '^keep-user-file$' "$PROJECT/.agents/user-owned.txt"
           "$CLI" status --path "$PROJECT" --quiet >/dev/null
+
+          # V2 runtime lifecycle: backup/ownership, doctor, uninstall, and memory preservation.
+          mkdir -p "$RUNTIME_PROJECT/.agents"
+          printf '%s\n' 'restore-after-runtime-uninstall' > "$RUNTIME_PROJECT/.agents/user-owned.txt"
+          "$CLI" memory init --path "$RUNTIME_PROJECT" >/dev/null
+          test -d "$RUNTIME_PROJECT/.ag-kit/memory"
+
+          "$CLI" runtime install antigravity --path "$RUNTIME_PROJECT" --branch "$AG_KIT_SMOKE_REF" > "$RUNTIME_PROJECT/runtime-install.json"
+          test -f "$RUNTIME_PROJECT/.ag-kit/runtime-installs/antigravity.json"
+          "$CLI" runtime doctor antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-doctor.json"
+          grep -q '"state": "live"' "$RUNTIME_PROJECT/runtime-doctor.json"
+
+          "$CLI" runtime uninstall antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-uninstall.json"
+          grep -q '^restore-after-runtime-uninstall$' "$RUNTIME_PROJECT/.agents/user-owned.txt"
+          test -d "$RUNTIME_PROJECT/.ag-kit/memory"
+          "$CLI" runtime doctor antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-after-uninstall.json"
+          grep -q '"state": "untouched"' "$RUNTIME_PROJECT/runtime-after-uninstall.json"
       - run: npm audit --omit=dev --audit-level=high
 
   web:
