@@ -1,11 +1,18 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const MARKER_LABEL = "CORE";
 const NO_MCP_TARGETS = new Set(["aider", "pi"]);
 const ensureDir = (dir) => fs.mkdirSync(dir, { recursive: true });
-const stateRoot = (root) => path.join(path.resolve(root), ".ag-kit");
+const safeProjectRoot = (root) => {
+  const resolved = path.resolve(root);
+  if (resolved === path.parse(resolved).root) throw new Error("filesystem root cannot be used as an AG Kit project");
+  if (resolved === path.resolve(os.homedir())) throw new Error("user home cannot be used as an AG Kit project");
+  return resolved;
+};
+const stateRoot = (root) => path.join(safeProjectRoot(root), ".ag-kit");
 const manifestsRoot = (root) => path.join(stateRoot(root), "runtime-installs");
 const manifestFile = (root, runtime) => path.join(manifestsRoot(root), `${runtime}.json`);
 const timestamp = () => new Date().toISOString().replace(/[:.]/g, "-");
@@ -110,7 +117,7 @@ const runtimeSpecs = (runtime) => {
 };
 
 export function prepareRuntimeInstall({ root = process.cwd(), runtime }) {
-  const projectRoot = path.resolve(root);
+  const projectRoot = safeProjectRoot(root);
   const id = `${runtime}-${timestamp()}`;
   const backupRoot = path.join(stateRoot(projectRoot), "install-backups", id);
   const entries = runtimeSpecs(runtime).map(({ relativePath, strategy }) => {
@@ -160,7 +167,7 @@ const readManifest = (root, runtime) => {
 };
 
 export function doctorRuntime({ root = process.cwd(), runtime }) {
-  const projectRoot = path.resolve(root);
+  const projectRoot = safeProjectRoot(root);
   const manifest = readManifest(projectRoot, runtime);
   if (!manifest) return { runtime, status: "untouched", checks: [], mcp: { status: "unknown" } };
   const checks = manifest.entries.map((entry) => {
@@ -188,7 +195,7 @@ export function doctorRuntimes({ root = process.cwd(), runtime = "" } = {}) {
 }
 
 export function uninstallRuntime({ root = process.cwd(), runtime }) {
-  const projectRoot = path.resolve(root);
+  const projectRoot = safeProjectRoot(root);
   const manifest = readManifest(projectRoot, runtime);
   if (!manifest) return { runtime, status: "untouched", results: [] };
   const results = [];
