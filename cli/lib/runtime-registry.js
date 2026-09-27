@@ -4,11 +4,23 @@ import { appendReceipt, initMemory, installRuntime } from "./v2-engine.js";
 import { resolveSafeProjectRoot } from "./project-state.js";
 
 export const RUNTIME_TARGETS = ["antigravity", "claude", "codex", "gemini", "qwen", "kimi", "cline", "cursor", "windsurf", "copilot", "opencode", "openclaw", "aider", "wayland", "hermes", "pi"];
-const LEGACY_INSTALLER_TARGETS = new Set(["antigravity", "claude", "codex", "gemini", "cursor", "windsurf", "copilot", "opencode"]);
+const LEGACY_INSTALLER_TARGETS = new Set(["antigravity", "claude", "codex", "gemini", "cursor", "windsurf", "copilot"]);
 const ensureDir=(dir)=>fs.mkdirSync(dir,{recursive:true});
 const copyDir=(src,dst)=>{if(!fs.existsSync(src))return;ensureDir(path.dirname(dst));fs.rmSync(dst,{recursive:true,force:true});fs.cpSync(src,dst,{recursive:true});};
 const managedBlock=(file,label,content)=>{ensureDir(path.dirname(file));const start=`<!-- AG-KIT:${label}:START -->`;const end=`<!-- AG-KIT:${label}:END -->`;const block=`${start}\n${content.trim()}\n${end}`;const previous=fs.existsSync(file)?fs.readFileSync(file,"utf8"):"";const escape=v=>v.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");const regex=new RegExp(`${escape(start)}[\\s\\S]*?${escape(end)}`,"m");fs.writeFileSync(file,regex.test(previous)?previous.replace(regex,block):`${previous.trim()}${previous.trim()?"\n\n":""}${block}\n`);};
 const write=(file,content)=>{ensureDir(path.dirname(file));fs.writeFileSync(file,content);};
+const stripAgentEnvelope=(content)=>String(content).replace(/^---[\s\S]*?---\s*/,"").replace(/^#\s+[^\n]+\n?/,"").trim();
+const openCodeAgent=(name, body)=>{
+  const descriptions={scout:"Explores code, docs, history, and runtime state without modifying files",architect:"Plans architecture, migrations, boundaries, and dependency ordering",builder:"Implements scoped work from an approved plan",reviewer:"Reviews changes for correctness, security, regressions, and missing verification"};
+  const readOnly=new Set(["scout","architect","reviewer"]);
+  const permissions=readOnly.has(name)?`\npermissions:\n  - action: edit\n    resource: "*"\n    effect: deny`:"";
+  return `---\ndescription: ${descriptions[name]||`AG Kit ${name} role`}\nmode: subagent${permissions}\n---\n\n${stripAgentEnvelope(body)}\n`;
+};
+const projectOpenCodeAgents=(shared,target)=>{
+  const source=path.join(shared,"agents");const destination=path.join(target,".opencode","agents");
+  ensureDir(destination);fs.rmSync(destination,{recursive:true,force:true});ensureDir(destination);
+  for(const name of ["scout","architect","builder","reviewer"]){const file=path.join(source,`${name}.md`);if(fs.existsSync(file))write(path.join(destination,`${name}.md`),openCodeAgent(name,fs.readFileSync(file,"utf8")));}
+};
 
 export function installRuntimeTarget({sourceRoot,targetRoot=process.cwd(),runtime}){
   if(!RUNTIME_TARGETS.includes(runtime))throw new Error(`unsupported runtime: ${runtime}`);
@@ -25,12 +37,14 @@ export function installRuntimeTarget({sourceRoot,targetRoot=process.cwd(),runtim
     copyDir(path.join(shared,"skills"),path.join(target,".kimi-code","skills"));copyDir(path.join(shared,"agents"),path.join(target,".kimi-code","agents"));managedBlock(path.join(target,"AGENTS.md"),"CORE",core);
   }else if(runtime==="cline"){
     copyDir(path.join(shared,"skills"),path.join(target,".cline","skills"));managedBlock(path.join(target,".cline","rules","ag-kit.md"),"CORE",core);
+  }else if(runtime==="opencode"){
+    copyDir(path.join(shared,"skills"),path.join(target,".opencode","skills"));projectOpenCodeAgents(shared,target);managedBlock(path.join(target,"AGENTS.md"),"CORE",core);
   }else if(runtime==="aider"){
     managedBlock(path.join(target,"CONVENTIONS.md"),"CORE",core);const config=path.join(target,".aider.conf.yml");if(!fs.existsSync(config))fs.writeFileSync(config,"read:\n  - CONVENTIONS.md\n");
   }else if(runtime==="openclaw"){
     managedBlock(path.join(target,"AGENTS.md"),"CORE",core);
   }else if(runtime==="pi"){
-    managedBlock(path.join(target,"AGENTS.md"),"CORE",core);
+    copyDir(path.join(shared,"skills"),path.join(target,".agents","skills"));managedBlock(path.join(target,"AGENTS.md"),"CORE",core);
   }else if(runtime==="wayland"){
     write(path.join(target,".ag-kit","integrations","wayland","README.md"),`# AG Kit → Wayland\n\nWayland Core is MCP-native. AG Kit does not mutate the user-global Wayland/plugin registry automatically. Add a stdio MCP server named \`ag-kit\` whose command is \`ag-kit\` and args are \`[\"mcp\",\"serve\"]\`, then verify it with the Wayland runtime doctor.\n`);
   }else if(runtime==="hermes"){
