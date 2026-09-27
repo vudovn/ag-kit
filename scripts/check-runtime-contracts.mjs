@@ -7,8 +7,15 @@ const root=process.cwd();
 const capabilities=JSON.parse(fs.readFileSync(path.join(root,'platform-capabilities.json'),'utf8'));
 const errors=[];
 let runtimeChecks=0;
+const read=(relative)=>fs.readFileSync(path.join(root,relative),'utf8');
+const exists=(relative)=>fs.existsSync(path.join(root,relative));
+const runtimeNames=Object.keys(capabilities.platforms||{});
 
-for(const [name,platform] of Object.entries(capabilities.platforms)){
+if(capabilities.sourceOfTruth!=='shared')errors.push(`sourceOfTruth must be shared, received ${JSON.stringify(capabilities.sourceOfTruth)}`);
+if('primaryRuntime' in capabilities||'primary_runtime' in capabilities)errors.push('platform capability contract must not declare a primary runtime');
+if(runtimeNames.length<2)errors.push('runtime matrix must contain multiple runtimes');
+
+for(const [name,platform] of Object.entries(capabilities.platforms||{})){
   const adapterPath=path.join(root,platform.adapter);
   if(!fs.existsSync(adapterPath)){errors.push(`${name}: missing adapter ${platform.adapter}`);continue;}
   const adapter=JSON.parse(fs.readFileSync(adapterPath,'utf8'));
@@ -24,6 +31,48 @@ for(const [name,platform] of Object.entries(capabilities.platforms)){
   }
 }
 
-if(Object.keys(capabilities.platforms).length<2)errors.push('runtime matrix must contain multiple runtimes');
+const rootPackage=JSON.parse(read('package.json'));
+const requiredGenericScripts=['check:runtimes','test:runtimes','build:runtimes','build:runtime-artifacts'];
+for(const script of requiredGenericScripts)if(!rootPackage.scripts?.[script])errors.push(`missing generic runtime script ${script}`);
+for(const script of Object.keys(rootPackage.scripts||{})){
+  const lowered=script.toLowerCase();
+  const runtime=runtimeNames.find((name)=>lowered.includes(name.toLowerCase()));
+  if(runtime)errors.push(`root package script ${script} is runtime-specific (${runtime}); route adapter work through the generic runtime runners`);
+}
+
+const repoInstructions=read('AGENTS.md');
+if(/^primary_runtime\s*:/im.test(repoInstructions))errors.push('AGENTS.md must not declare primary_runtime');
+if(/(?:treats?|uses?|makes?)\s+[^\n.]*\b(?:antigravity|claude|codex|gemini|qwen|kimi|cline|cursor|windsurf|copilot|opencode|openclaw|aider|wayland|hermes|pi)\b[^\n.]*\bas (?:its |the )?primary runtime\b/i.test(repoInstructions))errors.push('AGENTS.md must not make a runtime primary');
+
+const forbiddenLegacyFiles=[
+  '.agents/antigravity.json',
+  '.agents/hooks/antigravity-contract.schema.json',
+  '.agents/hooks/antigravity-doctor.mjs',
+  '.agents/hooks/antigravity-hooks.schema.json',
+  '.agents/hooks/build-plugin.mjs',
+  '.agents/hooks/tests/antigravity.test.mjs',
+  '.github/workflows/antigravity.yml',
+];
+for(const relative of forbiddenLegacyFiles)if(exists(relative))errors.push(`legacy runtime-centric file must stay removed: ${relative}`);
+
+const workflowDir=path.join(root,'.github','workflows');
+if(fs.existsSync(workflowDir)){
+  for(const filename of fs.readdirSync(workflowDir)){
+    const lowered=filename.toLowerCase();
+    const runtime=runtimeNames.find((name)=>lowered===`${name}.yml`||lowered===`${name}.yaml`||lowered.startsWith(`${name}-`)||lowered.startsWith(`${name}_`));
+    if(runtime)errors.push(`workflow ${filename} is runtime-specific (${runtime}); use a capability-tiered runtime workflow instead`);
+  }
+}
+
+const publicDocs=['README.md','README-VI.md','MIGRATION.md','PRODUCTION_CHECKLIST.md','.github/RELEASE_SETUP.md'];
+const obsoleteRuntimeCommand=/npm run (?:sync|check|test|build):antigravity[^\s`)]*/gi;
+for(const relative of publicDocs){
+  if(!exists(relative))continue;
+  const body=read(relative);
+  const matches=[...body.matchAll(obsoleteRuntimeCommand)].map((match)=>match[0]);
+  for(const command of matches)errors.push(`${relative}: obsolete runtime-specific root command ${command}`);
+  if(body.includes('Antigravity Compatibility'))errors.push(`${relative}: obsolete Antigravity Compatibility gate name; use Runtime Compatibility`);
+}
+
 if(errors.length){for(const error of errors)console.error(`runtime contract: ${error}`);process.exitCode=1;}
-else console.log(`Runtime contracts OK: ${Object.keys(capabilities.platforms).length} adapters, ${runtimeChecks} adapter-specific native check(s).`);
+else console.log(`Runtime contracts OK: ${runtimeNames.length} adapters, ${runtimeChecks} adapter-specific native check(s), runtime-neutral repository contract enforced.`);
