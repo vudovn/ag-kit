@@ -103,6 +103,8 @@ const runChild = ({ reviewer, prompt, cwd, timeoutMs, root }) => new Promise((re
     let overflow = false;
     let spawnError = null;
     let settled = false;
+    let timer = null;
+    let killTimer = null;
     const child = spawn(reviewer.command, reviewer.run(prompt), {
         cwd,
         shell: false,
@@ -113,15 +115,21 @@ const runChild = ({ reviewer, prompt, cwd, timeoutMs, root }) => new Promise((re
     const finish = (status, signal) => {
         if (settled) return;
         settled = true;
-        clearTimeout(timer);
+        if (timer) clearTimeout(timer);
+        if (killTimer) clearTimeout(killTimer);
         resolve({ status, signal, stdout, stderr, timedOut, overflow, error: spawnError });
+    };
+    const terminate = () => {
+        if (settled) return;
+        child.kill("SIGTERM");
+        if (!killTimer) killTimer = setTimeout(() => { if (!settled) child.kill("SIGKILL"); }, 300);
     };
     const append = (kind, chunk) => {
         const text = chunk.toString("utf8");
         outputBytes += Buffer.byteLength(text);
         if (outputBytes > MAX_REVIEW_OUTPUT_BYTES) {
             overflow = true;
-            child.kill("SIGTERM");
+            terminate();
             return;
         }
         if (kind === "stdout") stdout += text;
@@ -131,9 +139,9 @@ const runChild = ({ reviewer, prompt, cwd, timeoutMs, root }) => new Promise((re
     child.stderr?.on("data", (chunk) => append("stderr", chunk));
     child.once("error", (error) => { spawnError = error; finish(null, null); });
     child.once("close", (status, signal) => finish(status, signal));
-    const timer = setTimeout(() => {
+    timer = setTimeout(() => {
         timedOut = true;
-        child.kill("SIGTERM");
+        terminate();
     }, Math.max(1000, Number(timeoutMs) || 120000));
 });
 
@@ -154,7 +162,7 @@ const runReviewerChunk = async ({ reviewer, prompt, cwd, timeoutMs, root }) => {
         overflow: result.overflow,
         output: truncate(output, 12000),
         findings: parseReviewerFindings(output),
-        error: truncate(result.error?.message || (result.overflow ? "reviewer output exceeded limit" : result.stderr) || "", 1200),
+        error: truncate(result.error?.message || (result.timedOut ? "reviewer timed out" : result.overflow ? "reviewer output exceeded limit" : result.stderr) || "", 1200),
     };
 };
 
