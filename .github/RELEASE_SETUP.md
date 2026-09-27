@@ -8,13 +8,14 @@ Protect `main` and require pull requests. Require these checks before merge:
 
 - `V2 core validation`
 - `CLI tests and package validation`
+- `CLI Windows compatibility`
 - `Web lint, typecheck, build, and audit`
 - `Antigravity Compatibility`
 - `Dependency Review`
 
 Dismiss stale approvals after new commits. Block force pushes and branch deletion. Keep release PRs in Draft until the hands-on smoke tests in `PRODUCTION_CHECKLIST.md` are complete and recorded in the PR.
 
-The v2 core job also runs documentation-link integrity checks so public migration/security/readme links cannot silently drift to deleted repository paths.
+The v2 core job also runs documentation-link integrity checks so public migration/security/readme links cannot silently drift to deleted repository paths. The Linux CLI job packs the real npm artifact and runs branch-backed managed-tree plus Antigravity lifecycle smoke tests through the npm-created binary. The Windows CLI job runs the full CLI test suite and package dry-run so path, symlink/entrypoint, MCP, lifecycle, and package assumptions are exercised on Windows as well as Linux.
 
 ## npm Trusted Publishing
 
@@ -65,13 +66,12 @@ Before marking a release PR ready:
 
 ## Multi-runtime release evidence
 
-The runtime matrix is a capability claim, not a marketing list. Before release:
+The runtime matrix is a capability claim, not a marketing list. CI automatically smoke-tests the packed CLI against the current reviewed ref for legacy managed-tree init/update and for Antigravity install → doctor → uninstall, including user-file and memory preservation. Before release, still perform hands-on checks where runtime-owned UI or external configuration is involved:
 
 - run `ag-kit runtime detect` in at least one representative staging project;
-- smoke-test installation + doctor + uninstall for a first-class runtime;
-- verify user drift survives uninstall;
+- verify a first-class runtime is usable from its actual host application, not only from lifecycle state;
 - verify global-only targets are staged rather than silently modifying home configuration;
-- confirm package-source pinning uses the release tag;
+- after the release tag exists, confirm a default install without `--branch` resolves to the matching release tag;
 - record any platform-specific caveat in `platform-capabilities.json`/docs rather than pretending parity.
 
 ## GitHub security settings
@@ -96,6 +96,7 @@ The release operator must confirm:
 - `shared/` is canonical and the committed Antigravity projection passes the drift gate;
 - runtime adapters build from the same source being tagged;
 - npm `pack --dry-run` contains every required CLI module and no unexpected secret/private file;
+- Linux packaged lifecycle smoke and Windows CLI compatibility are green on the final release commit;
 - `CHANGELOG.md` `[Unreleased]` entries are moved into the dated release section;
 - `MIGRATION.md`, `SECURITY.md`, README files, and `PRODUCTION_CHECKLIST.md` match commands that actually ship;
 - release notes match `CHANGELOG.md`;
