@@ -43,7 +43,7 @@ Natural-language intent is first-class. CLI and slash commands are aliases, not 
 - Confirmed project conventions remain constraints until the current user overrides them; stale memory conflicts should be surfaced and corrected.
 - Runtime capability tiers define which native surfaces may be used; missing surfaces are not invented.
 
-## The four permanent agents
+## The 4 permanent agents
 
 | Agent | Responsibility |
 | --- | --- |
