@@ -33,7 +33,7 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 | Session handoff | compact continuity artifact | **done** — goal/state/decisions/changed files/evidence/risks/next action + archives |
 | Observability | local token/cost dashboard | **done** — bounded rotating JSONL ledger + localhost dashboard + measured-only methodology + trace rollups |
 | Native event ingestion | runtime hooks feed observability | **done by verified surface** — bounded metadata-only normalizer; adapters project automatic ingestion only where a stable hook/event contract is independently verified and tested |
-| Benchmark receipts | reproducible evidence instead of marketing claims | **done for deterministic local fixtures** — memory, routing, lifecycle, and compression benchmark receipts; optional provider/model arms remain separate |
+| Benchmark receipts | reproducible evidence instead of marketing claims | **done as blocking CI evidence** — deterministic memory, routing, lifecycle, and compression fixtures emit a head-addressed JSON receipt that CI uploads as an immutable artifact; provider/model arms remain optional and separate |
 | Personalization | learn repeated user preferences | **done** — verbatim evidence + two-session confirmation |
 | Privacy controls | disclosure log / forget / kill switch | **done** — opt-in injection, egress JSONL, purge-on-forget, `AG_KIT_PROFILE_KILL` |
 | Design contract | cross-agent `DESIGN.md` | **done** — 12 templates + nine-section validator |
@@ -50,6 +50,7 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 - **No primary runtime.** Rich host-native surfaces stay behind adapter boundaries instead of defining the product architecture.
 - **No capability-by-badge.** Detection, lifecycle manifests, adapter contracts, and doctor checks distinguish installed/live, staged/standing-by, and untouched states.
 - **No raw-prompt telemetry from prompt quality checks.** The checker returns only bounded structural metadata, signals, and clarification questions.
+- **No paid-provider benchmark in the default release gate.** Core benchmark evidence is deterministic and local; provider/model experiments must stay explicit, cost-capped, and non-blocking unless a future release contract deliberately changes that policy.
 
 ## Remaining convergence work
 
