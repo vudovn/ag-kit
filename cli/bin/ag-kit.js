@@ -2,7 +2,10 @@
 const command = process.argv[2];
 const v2Commands = new Set(["runtime", "memory", "team", "flow", "cross-audit", "observe", "dashboard", "personalize", "design", "route", "run", "preflight", "mcp"]);
 
-if (v2Commands.has(command)) {
+if (command === "brain") {
+    const { runBrainCli } = await import("../lib/brain-cli.js");
+    await runBrainCli(process.argv);
+} else if (v2Commands.has(command)) {
     const { runV2Cli } = await import("../lib/v2-cli.js");
     await runV2Cli(process.argv);
 } else {
