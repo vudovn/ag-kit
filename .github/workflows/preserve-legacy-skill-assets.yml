@@ -50,6 +50,7 @@ jobs:
             }
             return rows;
           };
+          const rewriteMarkdownLinks = (text) => text.replace(/\]\(([^)\n]*?)SKILL\.md(#[^)\n]*)?\)/g, (_match, prefix, anchor = '') => `](${prefix}REFERENCE.md${anchor})`);
 
           for (const entry of map.entries) {
             const legacyDir = path.join(legacy, '.agents', 'skills', entry.legacySkill);
@@ -64,16 +65,31 @@ jobs:
             fs.mkdirSync(destinationDir, { recursive: true });
             fs.cpSync(legacyDir, destinationDir, { recursive: true });
 
-            const copiedSkill = path.join(destinationDir, 'SKILL.md');
-            if (!fs.existsSync(copiedSkill)) throw new Error(`${entry.legacySkill}: missing copied SKILL.md`);
-            const raw = fs.readFileSync(copiedSkill, 'utf8');
-            fs.rmSync(copiedSkill);
-            const referenceFile = path.join(destinationDir, 'REFERENCE.md');
-            const preamble = `# Legacy knowledge: ${entry.legacySkill}\n\n> **Cold reference only.** Migrated from AG Kit v1 for knowledge preservation. Current v2 skill, flow, safety, runtime, and path contracts override any legacy activation/tool/agent/workflow instructions below. Supporting files are preserved only as on-demand reference assets; scripts are never auto-executed by the migration contract.\n\nSource: \`.agents/skills/${entry.legacySkill}/\` at \`${map.legacySourceRef.slice(0, 12)}\`.\n\n---\n\n`;
-            fs.writeFileSync(referenceFile, `${preamble}${stripFrontmatter(raw)}\n`);
+            const copiedSkillFiles = walk(destinationDir).filter((file) => path.basename(file).toLowerCase() === 'skill.md');
+            if (!copiedSkillFiles.length) throw new Error(`${entry.legacySkill}: missing copied SKILL.md`);
+
+            for (const skillFile of copiedSkillFiles) {
+              const relativeSource = portable(path.relative(destinationDir, skillFile));
+              const raw = fs.readFileSync(skillFile, 'utf8');
+              const referenceFile = path.join(path.dirname(skillFile), 'REFERENCE.md');
+              const isRoot = path.resolve(skillFile) === path.resolve(path.join(destinationDir, 'SKILL.md'));
+              const preamble = isRoot
+                ? `# Legacy knowledge: ${entry.legacySkill}\n\n> **Cold reference only.** Migrated from AG Kit v1 for knowledge preservation. Current v2 skill, flow, safety, runtime, and path contracts override any legacy activation/tool/agent/workflow instructions below. Supporting files are preserved only as on-demand reference assets; scripts are never auto-executed by the migration contract.\n\nSource: \`.agents/skills/${entry.legacySkill}/\` at \`${map.legacySourceRef.slice(0, 12)}\`.\n\n---\n\n`
+                : `# Nested legacy reference\n\n> **Cold reference only.** This file was named \`${relativeSource}\` in AG Kit v1. It is renamed to \`REFERENCE.md\` so it cannot be auto-discovered as a v2 skill. Current v2 contracts override legacy activation/tool/runtime instructions.\n\n---\n\n`;
+              fs.writeFileSync(referenceFile, `${preamble}${stripFrontmatter(raw)}\n`);
+              fs.rmSync(skillFile);
+            }
+
+            for (const markdownFile of walk(destinationDir).filter((file) => file.toLowerCase().endsWith('.md'))) {
+              const raw = fs.readFileSync(markdownFile, 'utf8');
+              const rewritten = rewriteMarkdownLinks(raw);
+              if (rewritten !== raw) fs.writeFileSync(markdownFile, rewritten);
+            }
 
             const assets = walk(destinationDir).map((file) => portable(path.relative(destinationDir, file))).sort();
-            if (assets.some((file) => /(^|\/)SKILL\.md$/i.test(file))) throw new Error(`${entry.legacySkill}: nested SKILL.md would become auto-discoverable`);
+            if (assets.some((file) => /(^|\/)SKILL\.md$/i.test(file))) throw new Error(`${entry.legacySkill}: SKILL.md survived cold-reference migration`);
+            const referenceFile = path.join(destinationDir, 'REFERENCE.md');
+            if (!fs.existsSync(referenceFile)) throw new Error(`${entry.legacySkill}: missing root REFERENCE.md`);
             entry.reference = portable(path.relative(current, referenceFile));
             entry.assetCount = assets.length;
             entry.assetBytes = walk(destinationDir).reduce((sum, file) => sum + fs.statSync(file).size, 0);
