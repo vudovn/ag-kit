@@ -1,1 +1,1 @@
-{"schema":1,"runtime":"kimi","tier":"first-class","rules":"AGENTS.md","skills":".kimi-code/skills","agents":".kimi-code/agents","hooks":null,"mcp":".kimi-code/mcp.json","supports":{"rules":true,"skills":true,"agents":true,"hooks":false,"mcp":true,"plugins":true}}
+{"schema":1,"runtime":"kimi","tier":"first-class","rules":"AGENTS.md","skills":".kimi-code/skills","agents":".kimi-code/agents","hooks":null,"mcp":".kimi-code/mcp.json","plugins":null,"supports":{"rules":true,"skills":true,"agents":true,"hooks":false,"mcp":true,"plugins":false}}
