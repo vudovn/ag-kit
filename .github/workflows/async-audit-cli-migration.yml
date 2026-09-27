@@ -1,0 +1,50 @@
+name: Async Audit CLI Migration
+
+on:
+  push:
+    branches: [feat/lean-multiruntime-v2]
+    paths:
+      - .github/workflows/async-audit-cli-migration.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/lean-multiruntime-v2
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Await async cross-audit action
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('cli/lib/v2-cli.js')
+          text = p.read_text()
+          old = 'program.command("cross-audit [target]").description("Run independent read-only reviewers and classify consensus/contested findings").option("-p, --path <dir>", "Project directory", process.cwd()).option("--probe", "Only probe available reviewer CLIs").option("--reviewers <n>", "Maximum independent lineages", "3").option("--exclude-lineage <name>", "Exclude the calling model lineage", process.env.AG_KIT_CALLING_LINEAGE || "").action((target = ".", options) => console.log(JSON.stringify(options.probe ? prepareAudit({ root: options.path, target }) : runConsensusAudit({ root: options.path, target, reviewers: options.reviewers, excludeLineage: options.excludeLineage }), null, 2)));'
+          new = 'program.command("cross-audit [target]").description("Run independent read-only reviewers and classify consensus/contested findings").option("-p, --path <dir>", "Project directory", process.cwd()).option("--probe", "Only probe available reviewer CLIs").option("--reviewers <n>", "Maximum independent lineages", "3").option("--exclude-lineage <name>", "Exclude the calling model lineage", process.env.AG_KIT_CALLING_LINEAGE || "").action(async (target = ".", options) => console.log(JSON.stringify(options.probe ? prepareAudit({ root: options.path, target }) : await runConsensusAudit({ root: options.path, target, reviewers: options.reviewers, excludeLineage: options.excludeLineage }), null, 2)));'
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'expected one cross-audit action, found {count}')
+          p.write_text(text.replace(old, new, 1))
+          PY
+      - name: Validate CLI tests
+        working-directory: cli
+        run: |
+          npm ci
+          npm test
+      - name: Commit migration
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cli/lib/v2-cli.js
+          git diff --cached --check
+          git commit -m "fix(audit): await bounded parallel reviewer run"
+          git push origin HEAD:feat/lean-multiruntime-v2
