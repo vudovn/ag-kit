@@ -22,6 +22,15 @@ jobs:
       - run: npm run check:v2
       - run: npm run check:docs
       - run: npm run test:v2
+      - name: Run deterministic v2 benchmark receipt
+        run: npm run benchmark:v2 -- --output dist/evidence/benchmark-v2.json
+      - name: Upload deterministic benchmark receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: ag-kit-v2-benchmark-${{ github.sha }}
+          path: dist/evidence/benchmark-v2.json
+          if-no-files-found: error
+          retention-days: 14
       - run: npm run check:runtimes
       - run: npm run test:runtimes
       - run: npm run build:runtimes
