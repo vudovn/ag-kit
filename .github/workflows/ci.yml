@@ -81,13 +81,13 @@ jobs:
           "$CLI" runtime install antigravity --path "$RUNTIME_PROJECT" --branch "$AG_KIT_SMOKE_REF" > "$RUNTIME_PROJECT/runtime-install.json"
           test -f "$RUNTIME_PROJECT/.ag-kit/runtime-installs/antigravity.json"
           "$CLI" runtime doctor antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-doctor.json"
-          grep -q '"state": "live"' "$RUNTIME_PROJECT/runtime-doctor.json"
+          grep -q '"status": "live"' "$RUNTIME_PROJECT/runtime-doctor.json"
 
           "$CLI" runtime uninstall antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-uninstall.json"
           grep -q '^restore-after-runtime-uninstall$' "$RUNTIME_PROJECT/.agents/user-owned.txt"
           test -d "$RUNTIME_PROJECT/.ag-kit/memory"
           "$CLI" runtime doctor antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-after-uninstall.json"
-          grep -q '"state": "untouched"' "$RUNTIME_PROJECT/runtime-after-uninstall.json"
+          grep -q '"status": "untouched"' "$RUNTIME_PROJECT/runtime-after-uninstall.json"
       - run: npm audit --omit=dev --audit-level=high
 
   web:
