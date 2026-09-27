@@ -14,5 +14,20 @@
         ]
       }
     ]
+  },
+  "observability": {
+    "enabled": true,
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agents/hooks/observe-tool-use.mjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
