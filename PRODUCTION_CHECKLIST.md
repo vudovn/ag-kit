@@ -68,7 +68,7 @@ Confirm:
 
 ## 4. Multi-runtime lifecycle smoke
 
-CI must install the real packed npm artifact and exercise multiple ownership/projection shapes. The representative set currently covers Antigravity, Claude, and Codex.
+CI must install the real packed npm artifact and exercise multiple ownership/projection shapes. The representative set currently covers Antigravity, Claude, Codex, and Qwen.
 
 For each representative runtime, verify:
 
@@ -85,6 +85,7 @@ Confirm:
 - [ ] doctor reports a meaningful state (`live`, `standing-by`, `degraded`, or `untouched`);
 - [ ] uninstall removes/restores only AG Kit-owned state;
 - [ ] user drift survives uninstall;
+- [ ] Qwen prompt-hook/MCP ownership survives user config before install and removes only AG Kit-owned entries on uninstall;
 - [ ] `.ag-kit/memory/` survives runtime uninstall;
 - [ ] filesystem root and user home are rejected as project targets;
 - [ ] user-global runtime configuration is never silently mutated.
