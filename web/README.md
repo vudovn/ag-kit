@@ -43,8 +43,11 @@ The web site must describe the same v2 architecture that the repository validate
 | Permanent agents | 4 (`scout`, `architect`, `builder`, `reviewer`) |
 | Development workflow | 1 gated spine with QUICK / STANDARD / DEEP modes |
 | Runtime targets | 16 across first-class / connected / bridge tiers |
+| Canonical source | `shared/` + capability-aware adapters under `runtimes/` |
 | Memory | local Markdown canonical store with optional rebuildable SQLite/FTS5 index |
-| Antigravity workflows directory | intentionally absent; v2 does not restore legacy slash-command workflow files |
+| Primary runtime | none |
+
+Generated host trees are adapter projections, not product identity or canonical source. Runtime-specific hooks/plugins may be documented as capabilities of that adapter, but public copy must not present one host as AG Kit itself.
 
 The CLI supports both explicit single-runtime installation and detected-runtime activation:
 
@@ -58,15 +61,16 @@ Legacy `ag-kit init/update/rollback/status` remains for safe managed-tree migrat
 
 ## Content integrity
 
-Repository CI runs documentation-link checks in addition to web lint/typecheck/build. When changing product counts, runtime support, Node requirements, or CLI commands, keep these sources aligned:
+Repository CI runs documentation-link and runtime-neutrality checks in addition to web lint/typecheck/build. When changing product counts, runtime support, Node requirements, or CLI commands, keep these sources aligned:
 
 - root `README.md` / `README-VI.md`;
+- `docs/ARCHITECTURE_V2.md` / `docs/RUNTIMES.md`;
 - `MIGRATION.md`, `SECURITY.md`, and `PRODUCTION_CHECKLIST.md`;
 - `cli/README.md`;
 - web i18n dictionaries and landing dictionaries;
 - this file.
 
-Do not reintroduce the historical 20-agent / 45–47-skill / 13-workflow inventory into current v2 documentation.
+Do not reintroduce the historical 20-agent / 45–47-skill / 13-workflow inventory or Antigravity-only product framing into current v2 documentation.
 
 ## Stack
 
@@ -80,6 +84,7 @@ Do not reintroduce the historical 20-agent / 45–47-skill / 13-workflow invento
 ## Links
 
 - [Repository documentation](../README.md)
+- [Runtime support](../docs/RUNTIMES.md)
 - [Migration guide](../MIGRATION.md)
 - [Security policy](../SECURITY.md)
 - [Production checklist](../PRODUCTION_CHECKLIST.md)
