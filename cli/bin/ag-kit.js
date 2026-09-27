@@ -14,6 +14,9 @@ if (helpRequested) {
 } else if (command === "prompt-check") {
     const { runPromptCli } = await import("../lib/prompt-cli.js");
     await runPromptCli(process.argv);
+} else if (command === "prompt-hook") {
+    const { runPromptHookCli } = await import("../lib/prompt-hook.js");
+    await runPromptHookCli(process.argv);
 } else if (command === "hook-ingest") {
     const { runHookIngestCli } = await import("../lib/hook-ingest.js");
     await runHookIngestCli(process.argv);
