@@ -11,7 +11,7 @@
   "platforms": {
     "antigravity": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/antigravity/adapter.json"},
     "claude": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/claude/adapter.json"},
-    "codex": {"tier":"first-class","rules":true,"skills":true,"agents":false,"hooks":false,"mcp":true,"plugins":true,"adapter":"runtimes/codex/adapter.json"},
+    "codex": {"tier":"first-class","rules":true,"skills":true,"agents":false,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/codex/adapter.json"},
     "gemini": {"tier":"first-class","rules":true,"skills":true,"agents":false,"hooks":true,"mcp":true,"plugins":true,"adapter":"runtimes/gemini/adapter.json"},
     "qwen": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":false,"mcp":true,"plugins":true,"adapter":"runtimes/qwen/adapter.json"},
     "kimi": {"tier":"first-class","rules":true,"skills":true,"agents":true,"hooks":false,"mcp":true,"plugins":true,"adapter":"runtimes/kimi/adapter.json"},
