@@ -5,11 +5,10 @@ const gates = [
     ["v2-architecture", ["run", "check:v2"]],
     ["documentation-links", ["run", "check:docs"]],
     ["v2-engine-tests", ["run", "test:v2"]],
-    ["antigravity-projection", ["run", "check:antigravity-projection"]],
-    ["antigravity-doctor", ["run", "check:antigravity"]],
-    ["antigravity-tests", ["run", "test:antigravity"]],
+    ["runtime-contracts", ["run", "check:runtimes"]],
+    ["runtime-adapter-tests", ["run", "test:runtimes"]],
     ["runtime-projections", ["run", "build:runtimes"]],
-    ["native-plugin-build", ["run", "build:antigravity-plugin"]],
+    ["runtime-artifacts", ["run", "build:runtime-artifacts"]],
     ["cli-tests", ["run", "test:cli"]],
 ];
 

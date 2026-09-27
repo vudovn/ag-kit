@@ -22,11 +22,10 @@ jobs:
       - run: npm run check:v2
       - run: npm run check:docs
       - run: npm run test:v2
-      - run: npm run check:antigravity-projection
+      - run: npm run check:runtimes
+      - run: npm run test:runtimes
       - run: npm run build:runtimes
-      - run: npm run check:antigravity
-      - run: npm run test:antigravity
-      - run: npm run build:antigravity-plugin
+      - run: npm run build:runtime-artifacts
 
   cli:
     name: CLI tests and package validation
@@ -52,37 +51,26 @@ jobs:
           PROJECT="$(mktemp -d)"
           RUNTIME_PROJECT="$(mktemp -d)"
           trap 'rm -rf "$PREFIX" "$PROJECT" "$RUNTIME_PROJECT"; rm -f "$PACKAGE_TGZ"' EXIT
-
           npm install --prefix "$PREFIX" "$PWD/$PACKAGE_TGZ" >/dev/null
           CLI="$PREFIX/node_modules/.bin/ag-kit"
-
           "$CLI" --version >/dev/null
-
-          # Legacy managed-tree lifecycle: preserve a user-owned file through init/update.
           mkdir -p "$PROJECT/.agents"
           printf '%s\n' 'keep-user-file' > "$PROJECT/.agents/user-owned.txt"
-
           "$CLI" init --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
           test -f "$PROJECT/.agents/skills/ag-core/SKILL.md"
           test -f "$PROJECT/.agents/agents/scout.md"
           test ! -d "$PROJECT/.agents/workflows"
           grep -q '^keep-user-file$' "$PROJECT/.agents/user-owned.txt"
-
           "$CLI" update --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
           grep -q '^keep-user-file$' "$PROJECT/.agents/user-owned.txt"
           "$CLI" status --path "$PROJECT" --quiet >/dev/null
-
-          # V2 runtime lifecycle: backup/ownership, doctor, uninstall, and memory preservation.
           mkdir -p "$RUNTIME_PROJECT/.agents"
           printf '%s\n' 'restore-after-runtime-uninstall' > "$RUNTIME_PROJECT/.agents/user-owned.txt"
           "$CLI" memory init --path "$RUNTIME_PROJECT" >/dev/null
-          test -d "$RUNTIME_PROJECT/.ag-kit/memory"
-
           "$CLI" runtime install antigravity --path "$RUNTIME_PROJECT" --branch "$AG_KIT_SMOKE_REF" > "$RUNTIME_PROJECT/runtime-install.json"
           test -f "$RUNTIME_PROJECT/.ag-kit/runtime-installs/antigravity.json"
           "$CLI" runtime doctor antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-doctor.json"
           grep -q '"status": "live"' "$RUNTIME_PROJECT/runtime-doctor.json"
-
           "$CLI" runtime uninstall antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-uninstall.json"
           grep -q '^restore-after-runtime-uninstall$' "$RUNTIME_PROJECT/.agents/user-owned.txt"
           test -d "$RUNTIME_PROJECT/.ag-kit/memory"
