@@ -11,6 +11,9 @@ if (helpRequested) {
 } else if (runtimeHelpRequested) {
     const { printRuntimeHelp } = await import("../lib/help.js");
     printRuntimeHelp();
+} else if (command === "hook-ingest") {
+    const { runHookIngestCli } = await import("../lib/hook-ingest.js");
+    await runHookIngestCli(process.argv);
 } else if (command === "brain") {
     const { runBrainCli } = await import("../lib/brain-cli.js");
     await runBrainCli(process.argv);
