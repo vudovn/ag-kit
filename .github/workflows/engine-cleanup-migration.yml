@@ -1,0 +1,67 @@
+name: Engine Cleanup Migration
+
+on:
+  push:
+    branches: [feat/lean-multiruntime-v2]
+    paths:
+      - .github/workflows/engine-cleanup-migration.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/lean-multiruntime-v2
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Remove superseded synchronous audit implementation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('cli/lib/v2-engine.js')
+          text = p.read_text()
+          exact = {
+            'import os from "node:os";\n': '',
+            'import { currentTraceId, traceEnv, traceFields } from "./trace-context.js";\n': 'import { traceFields } from "./trace-context.js";\n',
+            'const truncate = (value, max = 80000) => String(value || "").slice(0, max);\n': '',
+          }
+          for old, new in exact.items():
+            count = text.count(old)
+            if count != 1:
+              raise SystemExit(f'expected one exact cleanup anchor, found {count}: {old!r}')
+            text = text.replace(old, new, 1)
+
+          start_anchor = 'export function snapshotAuditTarget({ root = process.cwd(), target = "." }) {'
+          end_anchor = 'export function prepareAudit({ root = process.cwd(), target = "." }) {'
+          if text.count(start_anchor) != 1 or text.count(end_anchor) != 1:
+            raise SystemExit('legacy audit block anchors drifted')
+          start = text.index(start_anchor)
+          end = text.index(end_anchor)
+          if end <= start:
+            raise SystemExit('legacy audit block anchor order invalid')
+          text = text[:start] + text[end:]
+          p.write_text(text)
+          PY
+      - name: Validate CLI tests
+        working-directory: cli
+        run: |
+          npm ci
+          npm test
+      - name: Validate runtime contracts
+        run: npm run check:runtimes
+      - name: Commit cleanup
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cli/lib/v2-engine.js
+          git diff --cached --check
+          git commit -m "refactor(audit): remove superseded synchronous engine"
+          git push origin HEAD:feat/lean-multiruntime-v2
