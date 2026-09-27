@@ -2,7 +2,6 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { recallMemory } from "./v2-engine.js";
 import { readJson } from "./project-state.js";
 
 const homeRoot = () => path.resolve(process.env.AG_KIT_HOME || path.join(os.homedir(), ".ag-kit"));
@@ -13,6 +12,8 @@ const markerNames = [".git", "package.json", "pyproject.toml", "Cargo.toml", "go
 const safeDate = (value) => { const ms = Date.parse(value || ""); return Number.isFinite(ms) ? ms : null; };
 const projectId = (root) => crypto.createHash("sha256").update(root).digest("hex").slice(0, 16);
 const inside = (child, parent) => child === parent || child.startsWith(`${parent}${path.sep}`);
+const tokenize = (value) => [...new Set(String(value).toLowerCase().match(/[\p{L}\p{N}_-]+/gu) || [])];
+const stripFrontmatter = (value) => String(value).replace(/^---[\s\S]*?---\s*/, "").trim();
 
 const userHome = () => {
   try { return fs.realpathSync(os.homedir()); } catch { return path.resolve(os.homedir()); }
@@ -94,33 +95,63 @@ const validAt = (meta, atMs) => {
   return true;
 };
 
+const readOnlyProjectRecall = ({ root, query, limit, evolution, atMs }) => {
+  const entries = path.join(root, ".ag-kit", "memory", "entries");
+  if (!fs.existsSync(entries)) return [];
+  const terms = tokenize(query);
+  return fs.readdirSync(entries)
+    .filter((name) => name.endsWith(".md"))
+    .flatMap((name) => {
+      const id = path.basename(name, ".md");
+      const meta = evolution.entries?.[id];
+      if (!validAt(meta, atMs)) return [];
+      const absolute = path.join(entries, name);
+      let raw;
+      try { raw = fs.readFileSync(absolute, "utf8"); } catch { return []; }
+      const body = stripFrontmatter(raw);
+      const hay = body.toLowerCase();
+      let score = 0;
+      for (const term of terms) score += (hay.split(term).length - 1) * (term.length > 5 ? 2 : 1);
+      if (terms.length && score <= 0) return [];
+      const created = safeDate(meta?.createdAt) ?? atMs;
+      const recency = Math.exp(-Math.max(0, atMs - created) / 86400000 / 90);
+      const durable = meta?.status === "durable" ? 1.2 : 1;
+      return [{
+        id,
+        file: path.join(".ag-kit", "memory", "entries", name),
+        status: meta?.status || "legacy",
+        score: Math.max(1, score) * (1 + recency) * durable,
+        content: body.slice(0, 1200),
+      }];
+    })
+    .sort((a, b) => b.score - a.score || a.file.localeCompare(b.file))
+    .slice(0, Math.max(1, Number(limit) || 10));
+};
+
 export function searchAcrossProjects({ query = "", limit = 10, at = new Date().toISOString(), currentRoot = "" } = {}) {
   if (disabled()) return { disabled: true, reason: process.env.AG_KIT_MINIMAL === "1" ? "AG_KIT_MINIMAL" : "AG_KIT_NO_CROSS_PROJECT", results: [] };
   if (!String(query).trim()) return { disabled: false, results: [] };
   const registry = loadRegistry();
   const atMs = safeDate(at) ?? Date.now();
-  const current = currentRoot ? path.resolve(currentRoot) : "";
+  let current = "";
+  if (currentRoot) {
+    try { current = fs.realpathSync(path.resolve(currentRoot)); } catch { current = path.resolve(currentRoot); }
+  }
+  const requestedLimit = Math.max(1, Math.min(50, Number(limit) || 10));
   const results = [];
+  let searchedProjects = 0;
   for (const item of registry.projects.slice(0, 100)) {
     const checked = validateRegisteredProject(item.root, { allowOutsideHome: Boolean(item.allowOutsideHome) });
-    if (!checked.ok) continue;
-    if (current && checked.real === current) continue;
+    if (!checked.ok || (current && checked.real === current)) continue;
     const memoryRoot = path.join(checked.real, ".ag-kit", "memory");
     if (!fs.existsSync(memoryRoot)) continue;
+    searchedProjects += 1;
     const evolution = readJson(path.join(memoryRoot, "evolution.json"), { entries: {} }) || { entries: {} };
-    const local = recallMemory({ root: checked.real, query, limit: Math.max(10, Number(limit)) });
-    for (const hit of local) {
-      const id = path.basename(String(hit.file || ""), ".md");
-      const meta = evolution.entries?.[id];
-      if (!validAt(meta, atMs)) continue;
-      const created = safeDate(meta?.createdAt) ?? atMs;
-      const recency = Math.exp(-Math.max(0, atMs - created) / 86400000 / 90);
-      const durable = meta?.status === "durable" ? 1.2 : 1;
-      results.push({ project: checked.name, projectId: checked.id, id, file: path.relative(checked.real, hit.file || ""), status: meta?.status || "legacy", score: Number(hit.score || 1) * (1 + recency) * durable, content: hit.content });
-    }
+    const local = readOnlyProjectRecall({ root: checked.real, query, limit: requestedLimit, evolution, atMs });
+    for (const hit of local) results.push({ project: checked.name, projectId: checked.id, ...hit });
   }
-  results.sort((a, b) => b.score - a.score);
-  return { disabled: false, searchedProjects: registry.projects.length, results: results.slice(0, Math.max(1, Math.min(50, Number(limit) || 10))) };
+  results.sort((a, b) => b.score - a.score || a.project.localeCompare(b.project));
+  return { disabled: false, searchedProjects, registeredProjects: registry.projects.length, results: results.slice(0, requestedLimit) };
 }
 
 export function brainStatus() {
