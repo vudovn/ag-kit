@@ -208,6 +208,8 @@ Current repository gates include:
 
 `shared/` is canonical. Runtime folders are adapters, and runtime installs default to the repository release tag matching the CLI version rather than floating `main`.
 
+The current capability matrix exposes 16 runtime targets across first-class, connected, and bridge tiers.
+
 | Tier | Runtimes |
 | --- | --- |
 | First-class | Antigravity, Claude, Codex, Gemini, Qwen, Kimi, Cline |
