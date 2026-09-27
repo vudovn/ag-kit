@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { addEvolvingMemory, memoryEvolutionStatus, recallEvolvingMemory, referenceMemory, runMemoryDream } from "../lib/memory-evolution.js";
-import { decideFlow, flowStatus, recordFlowArtifact, setWaveTable, startFlow } from "../lib/workflow-session.js";
+import { completeWave, decideFlow, flowStatus, readyWaves, recordFlowArtifact, setWaveTable, startFlow } from "../lib/workflow-session.js";
 import { recordObservation, summarizeObservability } from "../lib/observability.js";
 import { forgetPreference, learnPreference, profileForInjection, profileStatus, setPersonalization } from "../lib/personalization.js";
 import { checkDesignContract, initDesignContract, listDesignTemplates } from "../lib/design-contract.js";
@@ -22,19 +22,43 @@ test("memory evolves from candidate to durable across references and sessions", 
     assert.equal(runMemoryDream({ root }).entries, 1);
 });
 
-test("flow cannot advance without an artifact and DEEP converge requires waves", (t) => {
+test("DEEP flow follows the shared contract and enforces dependency-aware waves", (t) => {
     const root = tempRoot(t);
-    startFlow({ root, goal: "Ship feature", mode: "deep" });
+    const session = startFlow({ root, goal: "Ship feature", mode: "deep" });
+    assert.deepEqual(session.phases, ["FRAME", "RECON", "SHAPE", "PLAN", "WAVES", "VERIFY", "CROSS_AUDIT", "SHIP"]);
+    assert.equal(flowStatus(root).currentPhase, "FRAME");
     assert.throws(() => decideFlow({ root, approve: true }), /artifact summary/);
-    recordFlowArtifact({ root, summary: "Three approaches compared; chose option B" });
+
+    for (const [phase, summary] of [
+        ["FRAME", "Goal, constraints, and acceptance criteria framed"],
+        ["RECON", "Repository and dependency reconnaissance complete"],
+        ["SHAPE", "Approach selected with tradeoffs"],
+        ["PLAN", "Implementation plan split into dependency waves"],
+    ]) {
+        assert.equal(flowStatus(root).currentPhase, phase);
+        recordFlowArtifact({ root, summary });
+        decideFlow({ root, approve: true });
+    }
+
+    assert.equal(flowStatus(root).currentPhase, "WAVES");
+    assert.throws(() => setWaveTable({ root, waves: [
+        { id: "a", tasks: ["A"], dependsOn: ["b"] },
+        { id: "b", tasks: ["B"], dependsOn: ["a"] },
+    ] }), /cycle/);
+
+    setWaveTable({ root, waves: [
+        { id: "foundation", mode: "parallel", tasks: ["A", "B"], dependsOn: [] },
+        { id: "integration", mode: "sequential", tasks: ["C"], dependsOn: ["foundation"] },
+    ] });
+    assert.deepEqual(readyWaves(root).map((wave) => wave.id), ["foundation"]);
+    assert.throws(() => completeWave({ root, id: "integration", summary: "too early" }), /blocked/);
+    completeWave({ root, id: "foundation", summary: "Foundation tasks verified" });
+    assert.deepEqual(readyWaves(root).map((wave) => wave.id), ["integration"]);
+    completeWave({ root, id: "integration", summary: "Integration verified" });
+
+    recordFlowArtifact({ root, summary: "All execution waves completed with evidence" });
     decideFlow({ root, approve: true });
-    recordFlowArtifact({ root, summary: "Implementation plan approved" });
-    decideFlow({ root, approve: true });
-    recordFlowArtifact({ root, summary: "Dependencies grouped into waves" });
-    assert.throws(() => decideFlow({ root, approve: true }), /wave table/);
-    setWaveTable({ root, waves: [{ id: "w1", mode: "parallel", tasks: ["A", "B"], dependsOn: [] }] });
-    decideFlow({ root, approve: true });
-    assert.equal(flowStatus(root).currentPhase, "EXECUTE");
+    assert.equal(flowStatus(root).currentPhase, "VERIFY");
 });
 
 test("observability records only explicit local metrics", (t) => {

@@ -10,7 +10,7 @@ import { doctorRuntimes, finalizeRuntimeInstall, prepareRuntimeInstall, restoreP
 import { serveMcp } from "./mcp-server.js";
 import { wireRuntimeMcp } from "./runtime-mcp.js";
 import { runCurrentPreflight } from "./preflight.js";
-import { decideFlow, flowStatus, recordFlowArtifact, setWaveTable, startFlow } from "./workflow-session.js";
+import { completeWave, decideFlow, flowStatus, readyWaves, recordFlowArtifact, setWaveTable, startFlow } from "./workflow-session.js";
 import { dashboardStatus, recordObservation, startDashboard, stopDashboard, summarizeObservability } from "./observability.js";
 import { routeTask, runSandboxedCommand } from "./efficiency.js";
 import { forgetPreference, learnPreference, listEgress, profileForInjection, profileStatus, setPersonalization } from "./personalization.js";
@@ -60,6 +60,8 @@ export const buildV2Program = () => {
     flow.command("status").option("-p, --path <dir>", "Project directory", process.cwd()).action((options) => console.log(JSON.stringify(flowStatus(options.path), null, 2)));
     flow.command("artifact <summary...>").option("-p, --path <dir>", "Project directory", process.cwd()).option("--file <path>", "Artifact path", "").action((summary, options) => console.log(JSON.stringify(recordFlowArtifact({ root: options.path, summary: joined(summary), artifactPath: options.file }), null, 2)));
     flow.command("waves <json>").option("-p, --path <dir>", "Project directory", process.cwd()).action((json, options) => console.log(JSON.stringify(setWaveTable({ root: options.path, waves: JSON.parse(json) }), null, 2)));
+    flow.command("ready").description("List execution waves whose dependencies are satisfied").option("-p, --path <dir>", "Project directory", process.cwd()).action((options) => console.log(JSON.stringify(readyWaves(options.path), null, 2)));
+    flow.command("wave-complete <id> <summary...>").description("Checkpoint a completed execution wave with evidence").option("-p, --path <dir>", "Project directory", process.cwd()).action((id, summary, options) => console.log(JSON.stringify(completeWave({ root: options.path, id, summary: joined(summary) }), null, 2)));
     flow.command("approve [note...]").option("-p, --path <dir>", "Project directory", process.cwd()).action((note, options) => console.log(JSON.stringify(decideFlow({ root: options.path, approve: true, note: joined(note) }), null, 2)));
     flow.command("reject [note...]").option("-p, --path <dir>", "Project directory", process.cwd()).action((note, options) => console.log(JSON.stringify(decideFlow({ root: options.path, approve: false, note: joined(note) }), null, 2)));
 
@@ -90,7 +92,7 @@ export const buildV2Program = () => {
     program.command("route <task...>").description("Choose a runtime-neutral role, effort tier, and flow depth").option("-p, --path <dir>", "Project directory", process.cwd()).action((task, options) => console.log(JSON.stringify(routeTask(joined(task), options.path), null, 2)));
     program.command("run <command> [args...]").description("Run a command without shell interpolation, keep full output on disk, and return a bounded summary").option("-p, --path <dir>", "Project directory", process.cwd()).option("--timeout <ms>", "Timeout in milliseconds", "120000").option("--max-lines <n>", "Maximum summary lines", "40").action((command, args = [], options) => { const result = runSandboxedCommand({ root: options.path, command, args, timeoutMs: Number(options.timeout), maxSummaryLines: Number(options.maxLines) }); console.log(result.summary); console.log(`\n[ag-kit] full output: ${result.log}`); if (!result.ok) process.exitCode = Number.isInteger(result.exitCode) ? result.exitCode : 1; });
 
-    program.command("preflight").description("Run AG Kit blocking release gates").option("-p, --path <dir>", "AG Kit repository directory", process.cwd()).action((options) => { const result = runCurrentPreflight(options.path); for (const item of result.results) console.log(`${item.ok ? "PASS" : "FAIL"} ${item.name} ${item.durationMs}ms`); if (!result.passed) process.exitCode = 1; });
+    program.command("preflight").description("Run project-aware blocking ship gates").option("-p, --path <dir>", "Project directory", process.cwd()).action((options) => { const result = runCurrentPreflight(options.path); console.log(`[ag-kit] preflight ${result.mode}/${result.status}`); for (const item of result.results) console.log(`${item.ok ? "PASS" : "FAIL"} ${item.name} ${item.durationMs}ms`); if (result.reason) console.log(`[ag-kit] ${result.reason}`); if (!result.passed) process.exitCode = 1; });
     const mcp = program.command("mcp").description("AG Kit MCP bridge"); mcp.command("serve").description("Serve the project-local AG Kit MCP over stdio").action(serveMcp);
     return program;
 };

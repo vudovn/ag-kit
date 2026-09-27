@@ -1,10 +1,14 @@
 {
-  "schema": 1,
+  "schema": 2,
   "name": "development",
   "modes": {
     "quick": ["FRAME", "PLAN", "EXECUTE", "VERIFY"],
     "standard": ["FRAME", "SHAPE", "PLAN", "EXECUTE", "VERIFY", "SHIP"],
     "deep": ["FRAME", "RECON", "SHAPE", "PLAN", "WAVES", "VERIFY", "CROSS_AUDIT", "SHIP"]
+  },
+  "requirements": {
+    "default": ["artifact"],
+    "WAVES": ["wave-table", "waves-complete"]
   },
   "rules": {
     "planBeforeMultiFileBuild": true,
