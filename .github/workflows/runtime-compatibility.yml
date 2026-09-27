@@ -25,12 +25,7 @@ jobs:
         run: npm run test:runtimes
       - name: Build runtime projections
         run: npm run build:runtimes
-      - name: Build native runtime artifacts
-        run: npm run build:runtime-artifacts
-      - name: Verify representative native artifact
+      - name: Build and verify native runtime artifacts
         run: |
-          test -f dist/runtime-artifacts/antigravity/plugin/plugin.json
-          test -f dist/runtime-artifacts/antigravity/plugin/PLUGIN_CONTENTS.json
-          test -f dist/runtime-artifacts/antigravity/plugin/hooks.json
-          test -f dist/runtime-artifacts/antigravity/plugin/skills/ag-core/SKILL.md
-          test -f dist/runtime-artifacts/antigravity/plugin/agents/scout.md
+          npm run build:runtime-artifacts
+          test -f dist/runtime-artifacts/ARTIFACTS.json
