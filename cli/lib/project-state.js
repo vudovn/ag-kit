@@ -1,7 +1,14 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
-export const stateRoot = (root = process.cwd()) => path.join(path.resolve(root), ".ag-kit");
+export const resolveSafeProjectRoot = (root = process.cwd()) => {
+    const resolved = path.resolve(root);
+    if (resolved === path.parse(resolved).root) throw new Error("filesystem root cannot be used as an AG Kit project");
+    if (resolved === path.resolve(os.homedir())) throw new Error("user home cannot be used as an AG Kit project");
+    return resolved;
+};
+export const stateRoot = (root = process.cwd()) => path.join(resolveSafeProjectRoot(root), ".ag-kit");
 export const ensureDir = (dir) => fs.mkdirSync(dir, { recursive: true });
 export const readJson = (file, fallback = null) => {
     try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return fallback; }
