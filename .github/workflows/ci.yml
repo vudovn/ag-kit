@@ -40,6 +40,35 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm pack --dry-run
+      - name: Smoke packaged CLI lifecycle
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          AG_KIT_SMOKE_REF: ${{ github.head_ref || github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_TGZ="$(npm pack --silent)"
+          PREFIX="$(mktemp -d)"
+          PROJECT="$(mktemp -d)"
+          trap 'rm -rf "$PREFIX" "$PROJECT"; rm -f "$PACKAGE_TGZ"' EXIT
+
+          npm install --prefix "$PREFIX" "$PWD/$PACKAGE_TGZ" >/dev/null
+          CLI="$PREFIX/node_modules/.bin/ag-kit"
+
+          "$CLI" --version >/dev/null
+
+          mkdir -p "$PROJECT/.agents"
+          printf '%s\n' 'keep-user-file' > "$PROJECT/.agents/user-owned.txt"
+
+          "$CLI" init --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
+          test -f "$PROJECT/.agents/skills/ag-core/SKILL.md"
+          test -f "$PROJECT/.agents/agents/scout.md"
+          test ! -d "$PROJECT/.agents/workflows"
+          grep -q '^keep-user-file$' "$PROJECT/.agents/user-owned.txt"
+
+          "$CLI" update --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
+          grep -q '^keep-user-file$' "$PROJECT/.agents/user-owned.txt"
+          "$CLI" status --path "$PROJECT" --quiet >/dev/null
       - run: npm audit --omit=dev --audit-level=high
 
   web:
