@@ -18,6 +18,7 @@ Run:
 
 ```bash
 npm run check:v2
+npm run check:docs
 npm run test:v2
 npm run check:antigravity-projection
 npm run build:runtimes
@@ -52,27 +53,32 @@ Confirm:
 - [ ] `lib/` contains every module referenced by the dispatcher (including help, context, brain, runtime discovery, and source pinning);
 - [ ] default runtime downloads resolve to `v<CLI_VERSION>` rather than floating `main`;
 - [ ] `--branch` remains an explicit source-ref override for development/testing;
+- [ ] MCP runtime status reports all lifecycle manifests, not only the last-written legacy `runtime.json` value;
 - [ ] production npm audit has no high/critical finding.
 
 ## 4. Runtime lifecycle smoke test
 
-In a disposable project, run:
+Before the release tag exists, explicitly point the smoke test at the release branch/ref so the test exercises the code under review rather than a previous published tag:
 
 ```bash
 ag-kit runtime detect
-ag-kit runtime install <one-installed-runtime>
+ag-kit runtime install <one-installed-runtime> --branch <release-branch-or-commit>
 ag-kit runtime doctor <one-installed-runtime>
 ag-kit runtime uninstall <one-installed-runtime>
 ```
 
+After the matching `v<CLI_VERSION>` tag exists, repeat installation **without** `--branch` and verify the default source resolves to the release tag.
+
 Confirm:
 
+- [ ] pre-tag smoke testing uses an explicit reviewed branch/commit override;
+- [ ] post-tag/default install resolves to `v<CLI_VERSION>`;
 - [ ] install creates an ownership/lifecycle manifest and pre-install backup when required;
 - [ ] doctor reports a meaningful state (`live`, `standing-by`, `degraded`, or `untouched`);
 - [ ] uninstall removes/restores only AG Kit-owned state;
 - [ ] user drift survives uninstall;
 - [ ] `.ag-kit/memory/` survives runtime uninstall;
-- [ ] filesystem root and user home are rejected as project targets;
+- [ ] filesystem root and user home are rejected as project targets across lifecycle, memory, team, direct install, and MCP status surfaces;
 - [ ] user-global runtime configuration is never silently mutated.
 
 ## 5. Memory and continuity
@@ -156,6 +162,7 @@ Confirm:
 Run:
 
 ```bash
+npm run check:docs
 npm --prefix web ci
 npm --prefix web run lint
 npm --prefix web run typecheck
@@ -167,8 +174,10 @@ Confirm:
 
 - [ ] docs describe **1 core / 18 skills / 4 permanent agents / 1 flow / 16 runtimes**;
 - [ ] EN/VI/ZH/JA install copy no longer claims the legacy 47-skill / 20-agent / 13-workflow inventory;
+- [ ] repository instruction files (`AGENTS.md`, `CLAUDE.md`) describe v2 rather than the legacy toolkit;
+- [ ] package-level docs (`cli/README.md`, `web/README.md`) describe commands/inventory that actually ship;
 - [ ] current docs require Node.js 22+;
-- [ ] `README.md`, `README-VI.md`, `MIGRATION.md`, `CHANGELOG.md`, `SECURITY.md`, and this checklist have no known broken top-level links;
+- [ ] public local Markdown links pass `check:docs`;
 - [ ] production dependency audit passes.
 
 ## 10. Release metadata
@@ -200,7 +209,7 @@ Before tagging:
 
 For the final release commit, require:
 
-- [ ] **CI** — v2/core, CLI/package, web build, and production audits;
+- [ ] **CI** — v2/core, docs links, CLI/package, web build, and production audits;
 - [ ] **Antigravity Compatibility** — projection/doctor/tests/plugin build;
 - [ ] **Dependency Review**.
 
