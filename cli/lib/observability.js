@@ -7,11 +7,13 @@ import { traceFields } from "./trace-context.js";
 const MAX_BYTES = 10 * 1024 * 1024;
 const MAX_ARCHIVES = 10;
 const MAX_LINE_BYTES = 8 * 1024;
+const METRIC_KEYS = ["inputTokens", "outputTokens", "cacheReadTokens", "savedTokens", "costUsd"];
 const observabilityDir = (root) => path.join(stateRoot(root), "observability");
 const eventsFile = (root) => path.join(observabilityDir(root), "events.jsonl");
 const dashboardStateFile = (root) => path.join(observabilityDir(root), "dashboard.json");
 const num = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
 const stamp = () => new Date().toISOString().replace(/[:.]/g, "-");
+const emptyMetrics = () => ({ events: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, savedTokens: 0, costUsd: 0 });
 
 const archives = (root) => {
   const dir = observabilityDir(root);
@@ -31,7 +33,19 @@ const boundedLine = (event) => {
   if (Buffer.byteLength(line) <= MAX_LINE_BYTES) return line;
   const compact = { ...event, metadata: { truncated: true, keys: Object.keys(event.metadata || {}) } };
   line = JSON.stringify(compact);
-  return Buffer.byteLength(line) <= MAX_LINE_BYTES ? line : JSON.stringify({ ts: event.ts, runtime: event.runtime, session: event.session, kind: event.kind, truncated: true });
+  return Buffer.byteLength(line) <= MAX_LINE_BYTES
+    ? line
+    : JSON.stringify({ ts: event.ts, traceId: event.traceId, runtime: event.runtime, session: event.session, kind: event.kind, truncated: true });
+};
+
+const addMetrics = (bucket, event) => {
+  bucket.events += 1;
+  for (const key of METRIC_KEYS) bucket[key] += num(event[key]);
+};
+
+const finalizeMetrics = (bucket) => {
+  bucket.costUsd = Number(num(bucket.costUsd).toFixed(6));
+  return bucket;
 };
 
 export function recordObservation({ root = process.cwd(), runtime = "unknown", session = "manual", kind = "turn", inputTokens = 0, outputTokens = 0, cacheReadTokens = 0, savedTokens = 0, costUsd = 0, metadata = {} }) {
@@ -45,31 +59,67 @@ export function recordObservation({ root = process.cwd(), runtime = "unknown", s
 
 export function summarizeObservability(root = process.cwd()) {
   const events = readJsonl(eventsFile(root));
-  const totals = { events: events.length, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, savedTokens: 0, costUsd: 0 };
+  const totals = emptyMetrics();
   const runtimes = {};
+  const traces = {};
+  let untracedEvents = 0;
+
   for (const event of events) {
-    const bucket = runtimes[event.runtime] ||= { events: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, savedTokens: 0, costUsd: 0 };
-    for (const key of ["inputTokens", "outputTokens", "cacheReadTokens", "savedTokens", "costUsd"]) {
-      const value = num(event[key]); totals[key] += value; bucket[key] += value;
+    addMetrics(totals, event);
+    const runtime = event.runtime || "unknown";
+    addMetrics(runtimes[runtime] ||= emptyMetrics(), event);
+
+    if (!event.traceId) {
+      untracedEvents += 1;
+      continue;
     }
-    bucket.events += 1;
+
+    const trace = traces[event.traceId] ||= {
+      ...emptyMetrics(),
+      firstTs: event.ts || null,
+      lastTs: event.ts || null,
+      runtimes: {},
+      kinds: {},
+    };
+    addMetrics(trace, event);
+    if (event.ts && (!trace.firstTs || event.ts < trace.firstTs)) trace.firstTs = event.ts;
+    if (event.ts && (!trace.lastTs || event.ts > trace.lastTs)) trace.lastTs = event.ts;
+    trace.runtimes[runtime] = (trace.runtimes[runtime] || 0) + 1;
+    const kind = event.kind || "unknown";
+    trace.kinds[kind] = (trace.kinds[kind] || 0) + 1;
   }
-  totals.costUsd = Number(totals.costUsd.toFixed(6));
-  for (const bucket of Object.values(runtimes)) bucket.costUsd = Number(bucket.costUsd.toFixed(6));
+
+  finalizeMetrics(totals);
+  for (const bucket of Object.values(runtimes)) finalizeMetrics(bucket);
+  for (const bucket of Object.values(traces)) finalizeMetrics(bucket);
+
+  const recentTraces = Object.entries(traces)
+    .map(([traceId, data]) => ({ traceId, ...data }))
+    .sort((a, b) => String(b.lastTs || "").localeCompare(String(a.lastTs || "")))
+    .slice(0, 50);
+
   return {
     totals,
     runtimes,
+    traces,
+    recentTraces,
+    untracedEvents,
     recent: events.slice(-50).reverse(),
     ledger: { live: path.relative(path.resolve(root), eventsFile(root)), liveBytes: fs.existsSync(eventsFile(root)) ? fs.statSync(eventsFile(root)).size : 0, archives: archives(root).length, maxLiveBytes: MAX_BYTES, maxArchives: MAX_ARCHIVES, maxLineBytes: MAX_LINE_BYTES },
-    methodology: { savedTokens: "Only explicitly supplied/measured saved tokens are counted. No synthetic no-AG-Kit multiplier is applied.", costUsd: "Recorded cost is accepted only as supplied by the runtime/user integration; AG Kit does not infer missing provider pricing." },
+    methodology: {
+      savedTokens: "Only explicitly supplied/measured saved tokens are counted. No synthetic no-AG-Kit multiplier is applied.",
+      costUsd: "Recorded cost is accepted only as supplied by the runtime/user integration; AG Kit does not infer missing provider pricing.",
+      traces: "Trace rollups group only events carrying an explicit or active-flow traceId; historical/unscoped events remain visible as untracedEvents.",
+    },
   };
 }
 
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 const dashboardHtml = (summary) => {
   const runtimeRows = Object.entries(summary.runtimes).map(([name, data]) => `<tr><td>${escapeHtml(name)}</td><td>${data.events}</td><td>${data.inputTokens}</td><td>${data.outputTokens}</td><td>${data.cacheReadTokens}</td><td>${data.savedTokens}</td><td>$${data.costUsd.toFixed(4)}</td></tr>`).join("");
-  const recentRows = summary.recent.slice(0, 25).map((event) => `<tr><td>${escapeHtml(event.ts)}</td><td>${escapeHtml(event.runtime)}</td><td>${escapeHtml(event.kind)}</td><td>${event.inputTokens || 0}</td><td>${event.outputTokens || 0}</td></tr>`).join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>AG Kit Dashboard</title><style>body{font:14px system-ui;margin:32px;max-width:1200px}h1{font-size:24px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.card{border:1px solid #bbb;border-radius:10px;padding:16px}.value{font-size:24px;font-weight:700}table{border-collapse:collapse;width:100%;margin:20px 0}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}th:first-child,td:first-child{text-align:left}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}.card{border-color:#444}th,td{border-color:#333}}</style></head><body><h1>AG Kit local observability</h1><p>Project-local telemetry only. Bound to 127.0.0.1; no modeled savings multiplier.</p><div class="cards"><div class="card"><div>Events</div><div class="value">${summary.totals.events}</div></div><div class="card"><div>Input tokens</div><div class="value">${summary.totals.inputTokens}</div></div><div class="card"><div>Output tokens</div><div class="value">${summary.totals.outputTokens}</div></div><div class="card"><div>Cache-read</div><div class="value">${summary.totals.cacheReadTokens}</div></div><div class="card"><div>Explicit saved</div><div class="value">${summary.totals.savedTokens}</div></div><div class="card"><div>Recorded cost</div><div class="value">$${summary.totals.costUsd.toFixed(4)}</div></div></div><h2>By runtime</h2><table><thead><tr><th>Runtime</th><th>Events</th><th>Input</th><th>Output</th><th>Cache</th><th>Saved</th><th>Cost</th></tr></thead><tbody>${runtimeRows}</tbody></table><h2>Recent events</h2><table><thead><tr><th>Time</th><th>Runtime</th><th>Kind</th><th>Input</th><th>Output</th></tr></thead><tbody>${recentRows}</tbody></table></body></html>`;
+  const traceRows = summary.recentTraces.slice(0, 20).map((trace) => `<tr><td>${escapeHtml(trace.traceId)}</td><td>${trace.events}</td><td>${escapeHtml(Object.keys(trace.runtimes).join(", "))}</td><td>${trace.inputTokens}</td><td>${trace.outputTokens}</td><td>$${trace.costUsd.toFixed(4)}</td></tr>`).join("");
+  const recentRows = summary.recent.slice(0, 25).map((event) => `<tr><td>${escapeHtml(event.ts)}</td><td>${escapeHtml(event.traceId || "—")}</td><td>${escapeHtml(event.runtime)}</td><td>${escapeHtml(event.kind)}</td><td>${event.inputTokens || 0}</td><td>${event.outputTokens || 0}</td></tr>`).join("");
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>AG Kit Dashboard</title><style>body{font:14px system-ui;margin:32px;max-width:1200px}h1{font-size:24px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.card{border:1px solid #bbb;border-radius:10px;padding:16px}.value{font-size:24px;font-weight:700}table{border-collapse:collapse;width:100%;margin:20px 0}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}th:first-child,td:first-child{text-align:left}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}.card{border-color:#444}th,td{border-color:#333}}</style></head><body><h1>AG Kit local observability</h1><p>Project-local telemetry only. Bound to 127.0.0.1; no modeled savings multiplier.</p><div class="cards"><div class="card"><div>Events</div><div class="value">${summary.totals.events}</div></div><div class="card"><div>Traced events</div><div class="value">${summary.totals.events - summary.untracedEvents}</div></div><div class="card"><div>Input tokens</div><div class="value">${summary.totals.inputTokens}</div></div><div class="card"><div>Output tokens</div><div class="value">${summary.totals.outputTokens}</div></div><div class="card"><div>Cache-read</div><div class="value">${summary.totals.cacheReadTokens}</div></div><div class="card"><div>Explicit saved</div><div class="value">${summary.totals.savedTokens}</div></div><div class="card"><div>Recorded cost</div><div class="value">$${summary.totals.costUsd.toFixed(4)}</div></div></div><h2>By runtime</h2><table><thead><tr><th>Runtime</th><th>Events</th><th>Input</th><th>Output</th><th>Cache</th><th>Saved</th><th>Cost</th></tr></thead><tbody>${runtimeRows}</tbody></table><h2>By trace</h2><table><thead><tr><th>Trace</th><th>Events</th><th>Runtimes</th><th>Input</th><th>Output</th><th>Cost</th></tr></thead><tbody>${traceRows}</tbody></table><h2>Recent events</h2><table><thead><tr><th>Time</th><th>Trace</th><th>Runtime</th><th>Kind</th><th>Input</th><th>Output</th></tr></thead><tbody>${recentRows}</tbody></table></body></html>`;
 };
 
 const isLoopback = (address = "") => address === "127.0.0.1" || address === "::1" || address === "::ffff:127.0.0.1";
