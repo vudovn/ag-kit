@@ -1,0 +1,61 @@
+name: Refresh V2 Polish Changelog
+
+on:
+  push:
+    branches:
+      - feat/lean-multiruntime-v2
+    paths:
+      - .github/workflows/refresh-v2-polish-changelog.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/lean-multiruntime-v2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Apply exact changelog polish update
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'CHANGELOG.md';
+          let text = fs.readFileSync(file, 'utf8');
+          const replacements = [
+            [
+              '- Rewrote README, CLI, parity, and migration documentation around the v2 architecture; web install copy in English, Vietnamese, Chinese, and Japanese now reflects the lean inventory and Node.js 22 requirement.\n',
+              '- Rewrote README, CLI, parity, migration, security, release, and runtime-instruction documentation around the v2 architecture; web install copy in English, Vietnamese, Chinese, and Japanese now reflects the lean inventory and Node.js 22 requirement.\n- Unified top-level and runtime CLI help so v2, context, auto-discovery, lifecycle, and legacy migration commands are discoverable from the published package.\n- Pinned both v2 runtime installs and legacy init/update downloads to the repository tag matching the CLI version by default; `--branch` remains an explicit development/ref override.\n- Added documentation-link integrity to local `ag-kit preflight` while keeping package dry-run/audits, web checks, and Dependency Review as full CI gates.\n'
+            ],
+            [
+              '- Rejected filesystem root and user home as AG Kit project-state/runtime lifecycle targets.\n- Contained context artifact output through realpath-aware ancestor checks to prevent symlink-parent escape.\n',
+              '- Rejected filesystem root and user home across project state, memory/team writers, direct runtime installation, lifecycle operations, and MCP runtime status.\n- Fixed MCP runtime status to report all lifecycle manifests for multi-runtime projects, with legacy single-runtime metadata only as a compatibility fallback.\n- Added repository documentation-link validation and release-safety assertions so stale runtime inventory, deleted local docs, and preflight/CI claim drift fail automated checks.\n- Contained context artifact output through realpath-aware ancestor checks to prevent symlink-parent escape.\n'
+            ],
+          ];
+          for (const [from, to] of replacements) {
+            const count = text.split(from).length - 1;
+            if (count !== 1) {
+              console.error(`Expected exactly one changelog match, found ${count}: ${from.slice(0, 90)}`);
+              process.exit(1);
+            }
+            text = text.replace(from, to);
+          }
+          fs.writeFileSync(file, text);
+          NODE
+      - name: Commit changelog
+        shell: bash
+        run: |
+          if git diff --quiet -- CHANGELOG.md; then
+            echo "No changelog update needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs: record v2 release hardening"
+          git push origin HEAD:feat/lean-multiruntime-v2
