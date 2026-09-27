@@ -17,6 +17,7 @@ export const mainHelp = () => lines([
   "",
   "Memory & continuity:",
   "  memory <subcommand>          Evolving local-first project memory",
+  "  memory semantic <command>    Optional local vector status/rebuild/recall (model download opt-in)",
   "  brain <subcommand>           Opt-in cross-project memory registry/search",
   "  handoff <subcommand>         Create/show compact continuation artifacts",
   "  compress <file>              Compact a project context artifact",
