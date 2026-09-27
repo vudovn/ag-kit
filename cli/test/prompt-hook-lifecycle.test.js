@@ -31,7 +31,12 @@ for (const { runtime, settings, event } of cases) {
     assert.equal(wired.promptQuality?.event, event);
     finalizeRuntimeInstall({ prepared, mcp: wired });
 
-    assert.equal(doctorRuntime({ root, runtime }).status, "live");
+    const doctor = doctorRuntime({ root, runtime });
+    const settingsCheck = doctor.checks.find((check) => check.path === settings);
+    assert.ok(settingsCheck, `${runtime}: lifecycle manifest must track prompt hook settings`);
+    assert.equal(settingsCheck.ok, true);
+    assert.equal(settingsCheck.state, "wired");
+
     const installed = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
     const command = `ag-kit prompt-hook ${runtime}`;
     assert.ok(installed.hooks[event].some((group) => group.hooks.some((hook) => hook.command === command)));
