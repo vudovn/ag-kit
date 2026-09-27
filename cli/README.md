@@ -21,13 +21,15 @@ npx @vudovn/ag-kit --help
 ag-kit runtime list
 ag-kit runtime detect
 ag-kit runtime install-present
-ag-kit runtime install antigravity
+ag-kit runtime install claude
 ag-kit runtime doctor
-ag-kit runtime doctor antigravity
-ag-kit runtime uninstall antigravity
+ag-kit runtime doctor claude
+ag-kit runtime uninstall claude
 ```
 
 AG Kit declares 16 runtime targets across first-class, connected, and bridge tiers. `install-present` downloads the source once and installs only detected targets. Project-scoped config is preferred; global-only integrations are staged rather than silently written into user-global registries.
+
+No runtime is the product's primary runtime. Runtime-specific hooks, plugins, and projection formats remain implementation details of their adapters.
 
 Runtime lifecycle uses pre-install backups, ownership manifests, drift-aware doctor checks, and surgical uninstall. Filesystem root and user home are rejected as v2 project targets.
 
@@ -98,7 +100,7 @@ ag-kit dashboard status
 ag-kit dashboard stop
 ```
 
-The ledger is bounded and rotating; the dashboard binds to localhost. AG Kit reports explicit/measured values rather than inventing a counterfactual savings multiplier. Antigravity can feed privacy-minimal tool events automatically via `PostToolUse`.
+The ledger is bounded and rotating; the dashboard binds to localhost. AG Kit reports explicit/measured values rather than inventing a counterfactual savings multiplier. Adapters may feed privacy-minimal host events automatically when the runtime exposes a verified hook surface.
 
 ## Personalization and design
 
