@@ -13,7 +13,7 @@ const definitions = {
   cline: { bins: [], markers: [".cline"] },
   cursor: { bins: ["cursor"], markers: [".cursor"] },
   windsurf: { bins: ["windsurf"], markers: [".windsurf", ".windsurfrules"] },
-  copilot: { bins: ["copilot", "gh"], markers: [".github/copilot-instructions.md", ".vscode/mcp.json"] },
+  copilot: { bins: ["copilot"], markers: [".github/copilot-instructions.md", ".vscode/mcp.json"] },
   opencode: { bins: ["opencode"], markers: ["opencode.json", ".opencode"] },
   openclaw: { bins: ["openclaw"], markers: [".openclaw"] },
   aider: { bins: ["aider"], markers: [".aider.conf.yml", "CONVENTIONS.md"] },
