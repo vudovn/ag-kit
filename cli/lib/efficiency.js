@@ -7,6 +7,8 @@ const receiptFile = (root) => path.join(stateRoot(root), "receipts", "efficiency
 const sandboxDir = (root) => path.join(stateRoot(root), "session-sandbox");
 const nowId = () => new Date().toISOString().replace(/[:.]/g, "-");
 const includesAny = (text, patterns) => patterns.some((pattern) => pattern.test(text));
+const PYTHON_ALIASES = new Set(["python", "python3", "python.exe", "python3.exe"]);
+const PYTHON_ENV_DIRS = [".venv", "venv", "env"];
 
 export function routeTask(task = "", root = process.cwd()) {
   const text = String(task).toLowerCase();
@@ -42,20 +44,64 @@ const summarizeLines = (text, maxLines) => {
   return { text: [...lines.slice(0, head), `... ${omitted} lines saved to sandbox log ...`, ...lines.slice(-tail)].join("\n"), totalLines: lines.length, omittedLines: omitted };
 };
 
+const usableFile = (file) => {
+  try {
+    if (!fs.statSync(file).isFile()) return false;
+    fs.accessSync(file, process.platform === "win32" ? fs.constants.F_OK : fs.constants.X_OK);
+    return true;
+  } catch { return false; }
+};
+
+export function resolveSandboxCommand({ root = process.cwd(), command }) {
+  const requestedCommand = String(command || "");
+  const projectRoot = path.resolve(root);
+  if (!PYTHON_ALIASES.has(requestedCommand.toLowerCase())) {
+    return { requestedCommand, resolvedCommand: requestedCommand, environment: null };
+  }
+
+  const executable = process.platform === "win32" ? path.join("Scripts", "python.exe") : path.join("bin", "python");
+  for (const envDir of PYTHON_ENV_DIRS) {
+    const candidate = path.join(projectRoot, envDir, executable);
+    if (!usableFile(candidate)) continue;
+    return {
+      requestedCommand,
+      resolvedCommand: candidate,
+      environment: { kind: "python-venv", path: envDir },
+    };
+  }
+
+  return { requestedCommand, resolvedCommand: requestedCommand, environment: null };
+}
+
 export function runSandboxedCommand({ root = process.cwd(), command, args = [], timeoutMs = 120000, maxSummaryLines = 40 }) {
   if (!command) throw new Error("command is required");
   const projectRoot = path.resolve(root);
   ensureDir(sandboxDir(projectRoot));
+  const resolved = resolveSandboxCommand({ root: projectRoot, command });
   const started = Date.now();
-  const result = spawnSync(command, args, { cwd: projectRoot, encoding: "utf8", shell: false, timeout: Number(timeoutMs), maxBuffer: 50 * 1024 * 1024, env: process.env });
+  const result = spawnSync(resolved.resolvedCommand, args, { cwd: projectRoot, encoding: "utf8", shell: false, timeout: Number(timeoutMs), maxBuffer: 50 * 1024 * 1024, env: process.env });
   const durationMs = Date.now() - started;
   const stdout = result.stdout || "";
   const stderr = result.stderr || "";
-  const full = `$ ${[command, ...args].join(" ")}\n\n[stdout]\n${stdout}\n[stderr]\n${stderr}`;
-  const log = path.join(sandboxDir(projectRoot), `${nowId()}-${slugify(path.basename(command))}.log`);
+  const resolutionLine = resolved.resolvedCommand === resolved.requestedCommand ? "" : `\n[resolved]\n${resolved.resolvedCommand}`;
+  const full = `$ ${[resolved.requestedCommand, ...args].join(" ")}${resolutionLine}\n\n[stdout]\n${stdout}\n[stderr]\n${stderr}`;
+  const log = path.join(sandboxDir(projectRoot), `${nowId()}-${slugify(path.basename(resolved.requestedCommand))}.log`);
   fs.writeFileSync(log, full);
   const summary = summarizeLines(full, Math.max(8, Number(maxSummaryLines)));
-  const receipt = { ts: new Date().toISOString(), type: "sandbox-command", command, args, exitCode: result.status, signal: result.signal || null, durationMs, log: path.relative(projectRoot, log), totalLines: summary.totalLines, omittedLines: summary.omittedLines };
+  const receipt = {
+    ts: new Date().toISOString(),
+    type: "sandbox-command",
+    command: resolved.requestedCommand,
+    resolvedCommand: resolved.resolvedCommand,
+    environment: resolved.environment,
+    args,
+    exitCode: result.status,
+    signal: result.signal || null,
+    durationMs,
+    log: path.relative(projectRoot, log),
+    totalLines: summary.totalLines,
+    omittedLines: summary.omittedLines,
+  };
   appendJsonl(receiptFile(projectRoot), receipt);
   return { ok: !result.error && result.status === 0, error: result.error?.message || null, ...receipt, summary: summary.text };
 }
