@@ -1,6 +1,6 @@
 # AG Kit v2 vs IJFW — Functional Parity Map
 
-This tracks feature-class and architectural convergence without copying IJFW source code. A row marked **done** means AG Kit has an independently implemented equivalent contract; it does not mean identical internals or identical global configuration behavior.
+This tracks feature-class and architectural convergence without copying IJFW source code. **Done** means AG Kit has an independently implemented and testable equivalent contract; it does not imply identical internals or identical configuration behavior.
 
 | Capability | IJFW pattern | AG Kit v2 |
 |---|---|---|
@@ -9,40 +9,50 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 | Shared portable source | shared rules/skills/lib | **done** — `shared/` + `packs/` |
 | Lean native projection | generated per-platform deployment | **done** — Antigravity is 18 skills / 4 agents / 0 legacy workflows |
 | Runtime tiers | honest capability matrix | **done** — 16 targets across first-class / connected / bridge tiers |
+| One-install discovery | detect tools already present | **done** — `runtime detect` + `runtime install-present`; no `gh == Copilot` false-positive |
+| Verified injection states | live / standing-by / untouched | **done** — lifecycle manifests + digest/marker/MCP doctor checks |
+| Safe uninstall | remove only framework-owned state | **done** — restores backups, strips owned blocks/MCP keys, preserves drift and memory |
 | Plan-before-build workflow | explicit phases and sign-off | **done** — QUICK/STANDARD/DEEP session engine; artifact required before approval |
-| Deep convergence | dependency waves | **done** — DEEP CONVERGE requires an explicit wave table |
+| Deep convergence | dependency waves | **done** — DEEP convergence requires an explicit wave table |
 | Local-first memory | human-readable canonical store | **done** — Markdown canonical entries + receipts |
 | Warm memory index | rebuildable ranked search | **done** — optional SQLite/FTS5, Markdown fail-open |
 | Memory evolution | candidate → durable / supersede / prune | **done** — repeated cross-session references promote candidates; dream archives/deduplicates |
 | Temporal facts | valid-at-time recall | **done** — `validFrom` / `validTo` filtering and supersession metadata |
-| Dream cycle | periodic consolidation | **done** — explicit `memory dream` lifecycle; scheduling remains host/runtime-owned |
+| Cross-project brain | one brain across projects/tools | **done** — explicit opt-in registry + strictly read-only cross-project Markdown search |
+| Dream cycle | periodic consolidation | **done** — explicit `memory dream`; scheduling remains host/runtime-owned |
 | Project team assembly | local specialist bench | **done** — stack-aware archetype generator under `.ag-kit/agents` |
 | Cross-model audit | multiple independent model families | **done** — read-only snapshot execution with calling-lineage exclusion |
-| Audit convergence | consensus vs contested | **done** — structured finding parser/clustering + schema-v2 receipts |
+| Audit convergence | consensus vs contested | **done** — structured finding parser/clustering + receipts |
 | Preflight | blocking ship gates | **done** — AG Kit-native architecture/runtime/CLI/Antigravity gates |
-| MCP bridge | one local brain for thin runtimes | **done** — MCP SDK v2 stdio server with deliberately small tool surface |
-| Observability | local token/cost dashboard | **done** — explicit JSONL ledger + localhost summary/dashboard |
+| MCP bridge | one local brain for thin runtimes | **done** — MCP SDK v2 stdio server; project and opt-in cross-project recall |
+| Smart routing | cheap reads / strong high-leverage work | **done** — runtime-neutral role + effort + flow routing, without vendor model lock-in |
+| Command sandbox | keep large output off-context | **done** — full output on disk, bounded summary in context, no shell interpolation |
+| Compression | shrink context artifacts | **done** — deterministic Markdown compaction with measured byte reduction; non-destructive by default |
+| Session handoff | compact continuity artifact | **done** — goal/state/decisions/changed files/evidence/risks/next action + archives |
+| Observability | local token/cost dashboard | **done** — bounded rotating JSONL ledger + localhost dashboard + measured-only methodology |
+| Native event ingestion | runtime hooks feed observability | **partial by verified surface** — Antigravity `PostToolUse` auto-ingestion is privacy-minimal/fail-open; other runtimes remain adapter-owned until stable contracts are verified |
 | Personalization | learn repeated user preferences | **done** — verbatim evidence + two-session confirmation |
-| Privacy controls | disclosure log / forget / kill switch | **done** — opt-in injection, egress JSONL, executable forget, `AG_KIT_PROFILE_KILL` |
+| Privacy controls | disclosure log / forget / kill switch | **done** — opt-in injection, egress JSONL, purge-on-forget, `AG_KIT_PROFILE_KILL` |
 | Design contract | cross-agent `DESIGN.md` | **done** — 12 templates + nine-section validator |
-| Runtime installer | per-runtime projection | **done** — 16 targets; project scope preferred; global-only integrations are staged, not silently mutated |
-| Native Antigravity | richer IDE-specific integration | **done / AG Kit strength** — native rules, skills, agents, safety hook, MCP and plugin build |
+| Native Antigravity | richer IDE-specific integration | **done / AG Kit strength** — native rules, skills, agents, safety + observability hooks, MCP and plugin build |
+| Security dependency gate | fail release on vulnerable prod deps | **done** — CI audit kept blocking; Next.js moved to the patched 16.3.3 security release |
 
 ## Intentional differences
 
-- **No silent user-global writes.** IJFW's one-shot installer mutates several home-directory registries. AG Kit prefers project-scoped adapters and stages explicit snippets when the runtime only exposes a global config.
-- **No fabricated token savings.** AG Kit's observability records explicit usage/cache/saved/cost values supplied by an integration; it does not infer savings without evidence.
+- **No silent user-global writes.** AG Kit prefers project-scoped adapters and stages explicit snippets when a runtime only exposes global configuration.
+- **No fabricated token savings.** Observability records measured/supplied values and reports byte reduction for compression; it does not invent a “without AG Kit” multiplier.
 - **No writable cross-audit mount.** External reviewers receive only a snapshot/diff in a temporary directory.
+- **No automatic home-directory memory crawl.** Cross-project memory is opt-in per project, realpath-contained, bounded, and can be disabled with `AG_KIT_MINIMAL` or `AG_KIT_NO_CROSS_PROJECT`.
 - **No duplicate canonical runtime trees.** Runtime-specific copies are generated projections; reusable behavior remains in `shared/`.
+- **No capability-by-badge.** Detection, lifecycle manifests and doctor checks distinguish installed/live, staged/standing-by and untouched states.
 
 ## Remaining convergence work
 
-These are not required for the current feature-class parity claim, but they are useful follow-ups where AG Kit can become stronger:
+These are optional strengthening areas, not reasons to inflate the resident core:
 
-1. verified live-injection doctor states (`live`, `standing-by`, `untouched`) for every runtime;
-2. v2 runtime uninstall that removes only AG Kit-owned projections while preserving memory by default;
-3. optional semantic/cold retrieval provider behind the Markdown + FTS tiers;
-4. automatic observability ingestion adapters for runtimes that expose stable usage events;
-5. more runtime-specific native projections only when their schemas are stable enough to verify in CI.
+1. add automatic observability adapters only for runtimes whose hook/event contracts can be verified and tested;
+2. optionally add a local semantic/cold retrieval provider behind Markdown + FTS without making it canonical or mandatory;
+3. expand benchmark/field-test coverage so memory, routing and context-reduction claims have reproducible project-level receipts;
+4. keep runtime schemas current and promote bridge targets only when their native contracts justify it.
 
-“100% like IJFW” in this project means matching useful feature classes and operational discipline while preserving AG Kit's own implementation, names, privacy posture, and stronger Antigravity integration. It does **not** mean copying IJFW source or reproducing unsupported/stale platform claims.
+“100% like IJFW” here means matching useful feature classes and operational discipline while preserving AG Kit's own implementation, names, privacy posture, and stronger Antigravity integration. It does **not** mean copying IJFW source or reproducing vendor-specific behavior that cannot be independently verified.
