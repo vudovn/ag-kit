@@ -11,6 +11,9 @@ if (helpRequested) {
 } else if (runtimeHelpRequested) {
     const { printRuntimeHelp } = await import("../lib/help.js");
     printRuntimeHelp();
+} else if (command === "prompt-check") {
+    const { runPromptCli } = await import("../lib/prompt-cli.js");
+    await runPromptCli(process.argv);
 } else if (command === "hook-ingest") {
     const { runHookIngestCli } = await import("../lib/hook-ingest.js");
     await runHookIngestCli(process.argv);
