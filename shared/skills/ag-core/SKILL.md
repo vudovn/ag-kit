@@ -16,3 +16,6 @@ Route each request to the smallest capability set.
 - Load packs only for relevant technology/domain knowledge.
 - Prefer inline work over agent spawn unless specialization or parallelism pays off.
 - Read `platform-capabilities.json` before using runtime-specific surfaces.
+
+## Deep references
+Deep references: `references/INDEX.md`. Load only the specific legacy reference needed; this skill remains authoritative.

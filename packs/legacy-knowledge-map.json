@@ -1,0 +1,384 @@
+{
+  "schema": 1,
+  "legacySourceRef": "549ba3dc2eb1d40fccb5b6d792eba4101c80cd69",
+  "legacySkillCount": 47,
+  "policy": "Preserve deep knowledge as cold references; current v2 contracts are normative.",
+  "entries": [
+    {
+      "legacySkill": "api-patterns",
+      "sourceBytes": 2600,
+      "source": ".agents/skills/api-patterns/SKILL.md",
+      "mode": "pack-reference",
+      "target": "backend",
+      "reference": "packs/backend/references/api-patterns.md"
+    },
+    {
+      "legacySkill": "app-builder",
+      "sourceBytes": 3449,
+      "source": ".agents/skills/app-builder/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-workflow",
+      "reference": "shared/skills/ag-workflow/references/app-builder.md"
+    },
+    {
+      "legacySkill": "architecture",
+      "sourceBytes": 1927,
+      "source": ".agents/skills/architecture/SKILL.md",
+      "mode": "pack-reference",
+      "target": "software",
+      "reference": "packs/software/references/architecture.md"
+    },
+    {
+      "legacySkill": "bash-linux",
+      "sourceBytes": 4317,
+      "source": ".agents/skills/bash-linux/SKILL.md",
+      "mode": "pack-reference",
+      "target": "devops",
+      "reference": "packs/devops/references/bash-linux.md"
+    },
+    {
+      "legacySkill": "batch-operations",
+      "sourceBytes": 3453,
+      "source": ".agents/skills/batch-operations/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-team",
+      "reference": "shared/skills/ag-team/references/batch-operations.md"
+    },
+    {
+      "legacySkill": "behavioral-modes",
+      "sourceBytes": 6093,
+      "source": ".agents/skills/behavioral-modes/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-core",
+      "reference": "shared/skills/ag-core/references/behavioral-modes.md"
+    },
+    {
+      "legacySkill": "brainstorming",
+      "sourceBytes": 5374,
+      "source": ".agents/skills/brainstorming/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-workflow",
+      "reference": "shared/skills/ag-workflow/references/brainstorming.md"
+    },
+    {
+      "legacySkill": "clean-code",
+      "sourceBytes": 6793,
+      "source": ".agents/skills/clean-code/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-review",
+      "reference": "shared/skills/ag-review/references/clean-code.md"
+    },
+    {
+      "legacySkill": "code-review-checklist",
+      "sourceBytes": 2716,
+      "source": ".agents/skills/code-review-checklist/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-review",
+      "reference": "shared/skills/ag-review/references/code-review-checklist.md"
+    },
+    {
+      "legacySkill": "code-review-graph",
+      "sourceBytes": 11122,
+      "source": ".agents/skills/code-review-graph/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-review",
+      "reference": "shared/skills/ag-review/references/code-review-graph.md"
+    },
+    {
+      "legacySkill": "context-compression",
+      "sourceBytes": 5034,
+      "source": ".agents/skills/context-compression/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-handoff",
+      "reference": "shared/skills/ag-handoff/references/context-compression.md"
+    },
+    {
+      "legacySkill": "coordinator-mode",
+      "sourceBytes": 7892,
+      "source": ".agents/skills/coordinator-mode/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-team",
+      "reference": "shared/skills/ag-team/references/coordinator-mode.md"
+    },
+    {
+      "legacySkill": "database-design",
+      "sourceBytes": 1698,
+      "source": ".agents/skills/database-design/SKILL.md",
+      "mode": "pack-reference",
+      "target": "database",
+      "reference": "packs/database/references/database-design.md"
+    },
+    {
+      "legacySkill": "deployment-procedures",
+      "sourceBytes": 5856,
+      "source": ".agents/skills/deployment-procedures/SKILL.md",
+      "mode": "pack-reference",
+      "target": "devops",
+      "reference": "packs/devops/references/deployment-procedures.md"
+    },
+    {
+      "legacySkill": "design-spec",
+      "sourceBytes": 7373,
+      "source": ".agents/skills/design-spec/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-design",
+      "reference": "shared/skills/ag-design/references/design-spec.md"
+    },
+    {
+      "legacySkill": "documentation-templates",
+      "sourceBytes": 3437,
+      "source": ".agents/skills/documentation-templates/SKILL.md",
+      "mode": "pack-reference",
+      "target": "content",
+      "reference": "packs/content/references/documentation-templates.md"
+    },
+    {
+      "legacySkill": "frontend-architecture",
+      "sourceBytes": 8021,
+      "source": ".agents/skills/frontend-architecture/SKILL.md",
+      "mode": "pack-reference",
+      "target": "web",
+      "reference": "packs/web/references/frontend-architecture.md"
+    },
+    {
+      "legacySkill": "frontend-design",
+      "sourceBytes": 88430,
+      "source": ".agents/skills/frontend-design/SKILL.md",
+      "mode": "pack-reference",
+      "target": "web",
+      "reference": "packs/web/references/frontend-design.md"
+    },
+    {
+      "legacySkill": "game-development",
+      "sourceBytes": 4827,
+      "source": ".agents/skills/game-development/SKILL.md",
+      "mode": "pack-reference",
+      "target": "game",
+      "reference": "packs/game/references/game-development.md"
+    },
+    {
+      "legacySkill": "geo-fundamentals",
+      "sourceBytes": 3590,
+      "source": ".agents/skills/geo-fundamentals/SKILL.md",
+      "mode": "pack-reference",
+      "target": "growth",
+      "reference": "packs/growth/references/geo-fundamentals.md"
+    },
+    {
+      "legacySkill": "i18n-localization",
+      "sourceBytes": 3258,
+      "source": ".agents/skills/i18n-localization/SKILL.md",
+      "mode": "pack-reference",
+      "target": "localization",
+      "reference": "packs/localization/references/i18n-localization.md"
+    },
+    {
+      "legacySkill": "intelligent-routing",
+      "sourceBytes": 10872,
+      "source": ".agents/skills/intelligent-routing/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-core",
+      "reference": "shared/skills/ag-core/references/intelligent-routing.md"
+    },
+    {
+      "legacySkill": "lint-and-validate",
+      "sourceBytes": 1870,
+      "source": ".agents/skills/lint-and-validate/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-verify",
+      "reference": "shared/skills/ag-verify/references/lint-and-validate.md"
+    },
+    {
+      "legacySkill": "mcp-builder",
+      "sourceBytes": 10637,
+      "source": ".agents/skills/mcp-builder/SKILL.md",
+      "mode": "pack-reference",
+      "target": "integration",
+      "reference": "packs/integration/references/mcp-builder.md"
+    },
+    {
+      "legacySkill": "memory-system",
+      "sourceBytes": 6357,
+      "source": ".agents/skills/memory-system/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-memory",
+      "reference": "shared/skills/ag-memory/references/memory-system.md"
+    },
+    {
+      "legacySkill": "mobile-design",
+      "sourceBytes": 15627,
+      "source": ".agents/skills/mobile-design/SKILL.md",
+      "mode": "pack-reference",
+      "target": "mobile",
+      "reference": "packs/mobile/references/mobile-design.md"
+    },
+    {
+      "legacySkill": "nextjs-react-expert",
+      "sourceBytes": 10500,
+      "source": ".agents/skills/nextjs-react-expert/SKILL.md",
+      "mode": "pack-reference",
+      "target": "web",
+      "reference": "packs/web/references/nextjs-react-expert.md"
+    },
+    {
+      "legacySkill": "nodejs-best-practices",
+      "sourceBytes": 8651,
+      "source": ".agents/skills/nodejs-best-practices/SKILL.md",
+      "mode": "pack-reference",
+      "target": "backend",
+      "reference": "packs/backend/references/nodejs-best-practices.md"
+    },
+    {
+      "legacySkill": "parallel-agents",
+      "sourceBytes": 6283,
+      "source": ".agents/skills/parallel-agents/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-team",
+      "reference": "shared/skills/ag-team/references/parallel-agents.md"
+    },
+    {
+      "legacySkill": "performance-profiling",
+      "sourceBytes": 3248,
+      "source": ".agents/skills/performance-profiling/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-performance",
+      "reference": "shared/skills/ag-performance/references/performance-profiling.md"
+    },
+    {
+      "legacySkill": "plan-writing",
+      "sourceBytes": 4158,
+      "source": ".agents/skills/plan-writing/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-workflow",
+      "reference": "shared/skills/ag-workflow/references/plan-writing.md"
+    },
+    {
+      "legacySkill": "powershell-windows",
+      "sourceBytes": 3652,
+      "source": ".agents/skills/powershell-windows/SKILL.md",
+      "mode": "pack-reference",
+      "target": "devops",
+      "reference": "packs/devops/references/powershell-windows.md"
+    },
+    {
+      "legacySkill": "python-patterns",
+      "sourceBytes": 9596,
+      "source": ".agents/skills/python-patterns/SKILL.md",
+      "mode": "pack-reference",
+      "target": "backend",
+      "reference": "packs/backend/references/python-patterns.md"
+    },
+    {
+      "legacySkill": "red-team-tactics",
+      "sourceBytes": 4552,
+      "source": ".agents/skills/red-team-tactics/SKILL.md",
+      "mode": "pack-reference",
+      "target": "security",
+      "reference": "packs/security/references/red-team-tactics.md"
+    },
+    {
+      "legacySkill": "rust-pro",
+      "sourceBytes": 7788,
+      "source": ".agents/skills/rust-pro/SKILL.md",
+      "mode": "pack-reference",
+      "target": "backend",
+      "reference": "packs/backend/references/rust-pro.md"
+    },
+    {
+      "legacySkill": "seo-fundamentals",
+      "sourceBytes": 2933,
+      "source": ".agents/skills/seo-fundamentals/SKILL.md",
+      "mode": "pack-reference",
+      "target": "growth",
+      "reference": "packs/growth/references/seo-fundamentals.md"
+    },
+    {
+      "legacySkill": "server-management",
+      "sourceBytes": 3878,
+      "source": ".agents/skills/server-management/SKILL.md",
+      "mode": "pack-reference",
+      "target": "devops",
+      "reference": "packs/devops/references/server-management.md"
+    },
+    {
+      "legacySkill": "simplify-code",
+      "sourceBytes": 4017,
+      "source": ".agents/skills/simplify-code/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-review",
+      "reference": "shared/skills/ag-review/references/simplify-code.md"
+    },
+    {
+      "legacySkill": "skillify",
+      "sourceBytes": 3178,
+      "source": ".agents/skills/skillify/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-skill",
+      "reference": "shared/skills/ag-skill/references/skillify.md"
+    },
+    {
+      "legacySkill": "systematic-debugging",
+      "sourceBytes": 2565,
+      "source": ".agents/skills/systematic-debugging/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-debug",
+      "reference": "shared/skills/ag-debug/references/systematic-debugging.md"
+    },
+    {
+      "legacySkill": "tailwind-patterns",
+      "sourceBytes": 6979,
+      "source": ".agents/skills/tailwind-patterns/SKILL.md",
+      "mode": "pack-reference",
+      "target": "web",
+      "reference": "packs/web/references/tailwind-patterns.md"
+    },
+    {
+      "legacySkill": "tdd-workflow",
+      "sourceBytes": 2960,
+      "source": ".agents/skills/tdd-workflow/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-test",
+      "reference": "shared/skills/ag-test/references/tdd-workflow.md"
+    },
+    {
+      "legacySkill": "testing-patterns",
+      "sourceBytes": 3628,
+      "source": ".agents/skills/testing-patterns/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-test",
+      "reference": "shared/skills/ag-test/references/testing-patterns.md"
+    },
+    {
+      "legacySkill": "verify-changes",
+      "sourceBytes": 3954,
+      "source": ".agents/skills/verify-changes/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-verify",
+      "reference": "shared/skills/ag-verify/references/verify-changes.md"
+    },
+    {
+      "legacySkill": "vulnerability-scanner",
+      "sourceBytes": 7726,
+      "source": ".agents/skills/vulnerability-scanner/SKILL.md",
+      "mode": "pack-reference",
+      "target": "security",
+      "reference": "packs/security/references/vulnerability-scanner.md"
+    },
+    {
+      "legacySkill": "web-design-guidelines",
+      "sourceBytes": 1962,
+      "source": ".agents/skills/web-design-guidelines/SKILL.md",
+      "mode": "pack-reference",
+      "target": "web",
+      "reference": "packs/web/references/web-design-guidelines.md"
+    },
+    {
+      "legacySkill": "webapp-testing",
+      "sourceBytes": 3965,
+      "source": ".agents/skills/webapp-testing/SKILL.md",
+      "mode": "skill-reference",
+      "target": "ag-test",
+      "reference": "shared/skills/ag-test/references/webapp-testing.md"
+    }
+  ]
+}

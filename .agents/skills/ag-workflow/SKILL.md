@@ -14,3 +14,6 @@ DEEP: FRAME -> RECON -> SHAPE -> PLAN -> WAVES -> VERIFY -> CROSS-AUDIT -> SHIP.
 Explicit planning, spec, brainstorm, or architecture intent is a gate: produce and confirm the plan artifact before implementation. Natural-language intent must activate this skill even when the runtime has no slash-command UI.
 
 Plans must be explicit before destructive or multi-file implementation. Wave execution labels work PARALLEL or SEQUENTIAL with a dependency reason.
+
+## Deep references
+Deep references: `references/INDEX.md`. Load only the specific legacy reference needed; this skill remains authoritative.

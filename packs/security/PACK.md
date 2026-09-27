@@ -1,4 +1,16 @@
 # Security Pack
-Load for security-sensitive work or explicit audits.
 
-Covers threat modeling, authentication, authorization, secret handling, dependency risk, injection classes, secure defaults, and defensive validation.
+Load for security-sensitive implementation, threat review, and defensive testing.
+
+Use project-local/framework documentation over generic guidance when they conflict. Keep this pack cold until the task actually needs it.
+
+## Triggers
+
+`security`, `vulnerability`, `threat`, `red-team`, `auth`, `secret`
+
+## Deep references
+
+These references preserve v1 knowledge but are **non-normative**. Load only the specific file needed; v2 contracts always win.
+
+- [red-team-tactics](references/red-team-tactics.md)
+- [vulnerability-scanner](references/vulnerability-scanner.md)

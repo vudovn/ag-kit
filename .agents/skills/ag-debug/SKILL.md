@@ -6,3 +6,6 @@ triggers: ["debug", "fix bug", "why is this failing", "root cause"]
 ---
 # AG Debug
 Reproduce, isolate, form a falsifiable hypothesis, patch the smallest root cause, and verify the original failure path plus adjacent regressions.
+
+## Deep references
+Deep references: `references/INDEX.md`. Load only the specific legacy reference needed; this skill remains authoritative.

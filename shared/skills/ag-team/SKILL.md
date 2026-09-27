@@ -6,3 +6,6 @@ triggers: ["set up a team", "team for this project", "specialist agents", "deleg
 ---
 # AG Team
 Generate a project-specific team only when the four permanent agents are insufficient. Derive roles from the actual domain, stack, risks, and artifacts; avoid generic agent zoos.
+
+## Deep references
+Deep references: `references/INDEX.md`. Load only the specific legacy reference needed; this skill remains authoritative.
