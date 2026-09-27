@@ -66,7 +66,7 @@ jobs:
           "$CLI" --version >/dev/null
 
           # Exercise representative runtime ownership shapes through the real npm binary.
-          for RUNTIME in antigravity claude codex; do
+          for RUNTIME in antigravity claude codex qwen; do
             PROJECT="$RUNTIME_ROOT/$RUNTIME"
             mkdir -p "$PROJECT"
             case "$RUNTIME" in
@@ -81,11 +81,45 @@ jobs:
               codex)
                 printf '%s\n' 'user-owned AGENTS instructions' > "$PROJECT/AGENTS.md"
                 ;;
+              qwen)
+                mkdir -p "$PROJECT/.qwen"
+                cat > "$PROJECT/.qwen/settings.json" <<'JSON'
+          {
+            "mcpServers": {
+              "user": { "command": "user-mcp", "args": [] }
+            },
+            "hooks": {
+              "UserPromptSubmit": [
+                {
+                  "matcher": "user",
+                  "hooks": [
+                    { "type": "command", "command": "user-hook" }
+                  ]
+                }
+              ]
+            }
+          }
+          JSON
+                ;;
             esac
 
             "$CLI" memory init --path "$PROJECT" >/dev/null
             "$CLI" runtime install "$RUNTIME" --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" > "$PROJECT/runtime-install.json"
             test -f "$PROJECT/.ag-kit/runtime-installs/$RUNTIME.json"
+
+            if [ "$RUNTIME" = qwen ]; then
+              node - "$PROJECT/.qwen/settings.json" <<'NODE'
+          const fs = require('fs');
+          const file = process.argv[2];
+          const settings = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (!settings.mcpServers?.user) throw new Error('user MCP missing after Qwen install');
+          if (!settings.mcpServers?.['ag-kit']) throw new Error('AG Kit MCP missing after Qwen install');
+          const hooks = JSON.stringify(settings.hooks || {});
+          if (!hooks.includes('user-hook')) throw new Error('user Qwen hook missing after install');
+          if (!hooks.includes('ag-kit prompt-hook qwen')) throw new Error('AG Kit Qwen prompt hook missing after install');
+          NODE
+            fi
+
             "$CLI" runtime doctor "$RUNTIME" --path "$PROJECT" > "$PROJECT/runtime-doctor.json"
             grep -q '"status": "live"' "$PROJECT/runtime-doctor.json"
             "$CLI" runtime uninstall "$RUNTIME" --path "$PROJECT" > "$PROJECT/runtime-uninstall.json"
@@ -97,6 +131,18 @@ jobs:
               antigravity) grep -q '^restore-after-runtime-uninstall$' "$PROJECT/.agents/user-owned.txt" ;;
               claude) grep -q '^restore-after-runtime-uninstall$' "$PROJECT/.claude/user-owned.txt" ;;
               codex) grep -q '^user-owned AGENTS instructions$' "$PROJECT/AGENTS.md" ;;
+              qwen)
+                node - "$PROJECT/.qwen/settings.json" <<'NODE'
+          const fs = require('fs');
+          const file = process.argv[2];
+          const settings = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (!settings.mcpServers?.user) throw new Error('user MCP missing after Qwen uninstall');
+          if (settings.mcpServers?.['ag-kit']) throw new Error('AG Kit MCP survived Qwen uninstall');
+          const hooks = JSON.stringify(settings.hooks || {});
+          if (!hooks.includes('user-hook')) throw new Error('user Qwen hook missing after uninstall');
+          if (hooks.includes('ag-kit prompt-hook qwen')) throw new Error('AG Kit Qwen prompt hook survived uninstall');
+          NODE
+                ;;
             esac
           done
       - run: npm audit --omit=dev --audit-level=high
