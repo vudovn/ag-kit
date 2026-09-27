@@ -20,6 +20,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with: {node-version: 22}
       - run: npm run check:v2
+      - run: npm run check:docs
       - run: npm run test:v2
       - run: npm run check:antigravity-projection
       - run: npm run build:runtimes
