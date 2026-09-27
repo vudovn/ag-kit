@@ -17,18 +17,18 @@ const tempProject = () => fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-bench-")
 const benchmarkMemory = () => {
   const root = tempProject();
   try {
-    addEvolvingMemory({ root, text: "Runtime adapters must never silently mutate user-global configuration.", title: "Runtime safety", kind: "decision", session: "bench", durable: true });
-    addEvolvingMemory({ root, text: "Markdown is the canonical memory store; indexes must remain rebuildable.", title: "Memory source of truth", kind: "architecture", session: "bench", durable: true });
-    addEvolvingMemory({ root, text: "Cross-audit reviewers receive read-only snapshots without a writable repository mount.", title: "Audit isolation", kind: "security", session: "bench", durable: true });
+    const runtimeSafety = addEvolvingMemory({ root, text: "Runtime adapters must never silently mutate user-global configuration.", title: "Runtime safety", kind: "decision", session: "bench", durable: true });
+    const memoryTruth = addEvolvingMemory({ root, text: "Markdown is the canonical memory store; indexes must remain rebuildable.", title: "Memory source of truth", kind: "architecture", session: "bench", durable: true });
+    const auditIsolation = addEvolvingMemory({ root, text: "Cross-audit reviewers receive read-only snapshots without a writable repository mount.", title: "Audit isolation", kind: "security", session: "bench", durable: true });
     const cases = [
-      ["user-global configuration", "Runtime safety"],
-      ["canonical memory store", "Memory source of truth"],
-      ["read-only snapshots", "Audit isolation"],
+      ["user-global configuration", runtimeSafety.id],
+      ["canonical memory store", memoryTruth.id],
+      ["read-only snapshots", auditIsolation.id],
     ];
-    const results = cases.map(([query, expectedTitle]) => {
+    const results = cases.map(([query, expectedId]) => {
       const recalled = recallEvolvingMemory({ root, query, limit: 3, session: "benchmark" });
-      const hit = recalled.some((item) => String(item.title || item.preview || "").includes(expectedTitle) || String(item.text || "").includes(expectedTitle));
-      return { query, expectedTitle, hit, count: recalled.length };
+      const hit = recalled.some((item) => item.id === expectedId);
+      return { query, expectedId, hit, count: recalled.length, resultIds: recalled.map((item) => item.id) };
     });
     const hits = results.filter((item) => item.hit).length;
     return { name: "memory-recall", passed: hits === results.length, score: hits / results.length, cases: results };
