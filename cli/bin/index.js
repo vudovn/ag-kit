@@ -17,12 +17,12 @@ import {
     restoreBackup,
     snapshotTree,
 } from "../lib/managed-tree.js";
+import { runtimeSourceSpec } from "../lib/source-spec.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const pkg = await fse.readJson(path.join(__dirname, "..", "package.json"));
 
-const REPO = "github:vudovn/ag-kit";
 const AGENT_FOLDER = ".agents";
 const TEMP_FOLDER = ".temp_ag_kit";
 
@@ -96,7 +96,7 @@ const readIncomingVersion = async (tempDir) => {
 
 const downloadToolkit = async ({ tempDir, branch, spinner }) => {
     await cleanup(tempDir);
-    const repoSource = branch ? `${REPO}#${branch}` : REPO;
+    const repoSource = runtimeSourceSpec(branch);
     if (spinner) spinner.text = `Downloading ${repoSource}...`;
     await downloadTemplate(repoSource, { dir: tempDir, force: true });
 
