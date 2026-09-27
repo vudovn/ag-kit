@@ -48,6 +48,8 @@ cli/                     # memory, MCP, flow, audit, lifecycle, context tools
 
 `shared/` is the source of truth. Runtime trees are projections/adapters, not independent forks.
 
+Lean does not mean discarded knowledge. The v1 baseline of **47 skills** is fully mapped in [`packs/legacy-knowledge-map.json`](packs/legacy-knowledge-map.json); deep guidance and supporting assets are preserved as cold references under `shared/skills/*/references/` and `packs/*/references/`, while current v2 contracts remain authoritative. `check:v2` fails if a mapped reference or asset disappears or if a legacy `SKILL.md` becomes discoverable again.
+
 ## Runtime coverage
 
 | Tier | Runtimes |

@@ -42,6 +42,8 @@ cli/                     # memory, MCP, flow, audit, lifecycle, context tools
 
 `shared/` là source of truth. Runtime tree chỉ là projection/adapter, không phải fork độc lập.
 
+Lean không có nghĩa là xóa tri thức. Baseline **47 skill** của v1 được map đầy đủ trong [`packs/legacy-knowledge-map.json`](packs/legacy-knowledge-map.json); deep guidance và supporting assets được giữ dưới dạng cold reference trong `shared/skills/*/references/` và `packs/*/references/`, còn contract v2 hiện tại vẫn là authoritative. `check:v2` sẽ fail nếu mapped reference/asset bị mất hoặc một legacy `SKILL.md` trở lại trạng thái có thể auto-discover.
+
 ## Runtime coverage
 
 | Tier | Runtime |
