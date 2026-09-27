@@ -3,6 +3,7 @@ import { appendReceipt } from "./v2-engine.js";
 
 const gates = [
     ["v2-architecture", ["run", "check:v2"]],
+    ["documentation-links", ["run", "check:docs"]],
     ["v2-engine-tests", ["run", "test:v2"]],
     ["antigravity-projection", ["run", "check:antigravity-projection"]],
     ["antigravity-doctor", ["run", "check:antigravity"]],
