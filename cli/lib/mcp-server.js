@@ -7,6 +7,7 @@ import { initTeam, memoryStatus, probeRoster } from "./v2-engine.js";
 import { addEvolvingMemory, memoryEvolutionStatus, recallEvolvingMemory } from "./memory-evolution.js";
 import { brainStatus, searchAcrossProjects } from "./memory-registry.js";
 import { doctorRuntimes } from "./runtime-lifecycle.js";
+import { checkPromptQuality, PROMPT_QUALITY_MAX_CHARS } from "./prompt-quality.js";
 
 const projectRoot = () => path.resolve(process.env.AG_KIT_PROJECT || process.cwd());
 const text = (value) => ({ content: [{ type: "text", text: typeof value === "string" ? value : JSON.stringify(value, null, 2) }] });
@@ -32,6 +33,7 @@ export function runtimeStatusForMcp(root = projectRoot()) {
 
 export const createMcpServer = () => {
     const server = new McpServer({ name: "ag-kit", version: "2.0.0" });
+    server.registerTool("ag_prompt_check", { description: "Deterministically check whether a task has enough concrete context to act without guessing. Returns signals/questions only; raw prompt text is never persisted by this tool.", inputSchema: z.object({ prompt: z.string().min(1).max(PROMPT_QUALITY_MAX_CHARS), force: z.boolean().default(false) }), annotations: readOnly }, async ({ prompt, force }) => text(checkPromptQuality(prompt, { force })));
     server.registerTool("ag_memory_recall", { description: "Recall relevant project memory with temporal validity and recency-aware ranking.", inputSchema: z.object({ query: z.string().min(1), limit: z.number().int().min(1).max(20).default(5), session: z.string().default("mcp"), at: z.string().default(() => new Date().toISOString()) }), annotations: readOnly }, async ({ query, limit, session, at }) => text(recallEvolvingMemory({ root: projectRoot(), query, limit, session, at })));
     server.registerTool("ag_memory_search_all", { description: "Search memory across projects the user explicitly registered with AG Kit. Never scans the home directory automatically.", inputSchema: z.object({ query: z.string().min(1), limit: z.number().int().min(1).max(50).default(10), at: z.string().default(() => new Date().toISOString()), excludeCurrent: z.boolean().default(false) }), annotations: readOnly }, async ({ query, limit, at, excludeCurrent }) => text(searchAcrossProjects({ query, limit, at, currentRoot: excludeCurrent ? projectRoot() : "" })));
     server.registerTool("ag_memory_status", { description: "Inspect local canonical memory, warm index, and evolution state.", inputSchema: z.object({}), annotations: readOnly }, async () => text({ ...memoryStatus(projectRoot()), evolution: memoryEvolutionStatus(projectRoot()) }));
