@@ -7,12 +7,12 @@ import { detectRuntimes } from "./runtime-detect.js";
 import { installRuntimeTarget } from "./runtime-registry.js";
 import { finalizeRuntimeInstall, prepareRuntimeInstall, restorePreparedInstall } from "./runtime-lifecycle.js";
 import { wireRuntimeMcp } from "./runtime-mcp.js";
+import { runtimeSourceSpec } from "./source-spec.js";
 
-const REPO = "github:vudovn/ag-kit";
 const withSource = async (branch, fn) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-source-"));
   try {
-    await downloadTemplate(branch ? `${REPO}#${branch}` : REPO, { dir, force: true });
+    await downloadTemplate(runtimeSourceSpec(branch), { dir, force: true });
     return await fn(dir);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
@@ -46,7 +46,7 @@ export const buildRuntimeAutoProgram = () => {
 
   runtime.command("install-present")
     .option("-p, --path <dir>", "Project directory", process.cwd())
-    .option("-b, --branch <name>", "AG Kit source branch")
+    .option("-b, --branch <name>", "Explicit AG Kit source branch/ref override")
     .option("--no-home", "Do not use user-home runtime markers")
     .option("--force", "Reinstall runtimes already managed by AG Kit", false)
     .action(async (options) => {
