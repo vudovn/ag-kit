@@ -1,1 +1,1 @@
-{"schema":1,"runtime":"claude","tier":"first-class","rules":"CLAUDE.md","skills":".claude/skills","agents":".claude/agents","hooks":".claude/settings.json","mcp":".mcp.json","supports":{"rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true}}
+{"schema":1,"runtime":"claude","tier":"first-class","rules":"CLAUDE.md","skills":".claude/skills","agents":".claude/agents","hooks":".claude/settings.json","mcp":".mcp.json","plugins":null,"supports":{"rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":false}}
