@@ -1,74 +1,90 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/vudovn/ag-kit/main/web/public/images/logo.png" width="128" height="128" alt="AGKIT">
+  <img src="https://raw.githubusercontent.com/vudovn/ag-kit/main/web/public/images/logo.png" width="128" height="128" alt="AG Kit">
 </p>
 
-<h1 align="center">AG Kit - Web Application</h1>
+<h1 align="center">AG Kit Web</h1>
 
 <p align="center">
-    Next.js documentation and dashboard portal for AG Kit — AI Agent templates with Skills, Agents, and Workflows.
+  Next.js documentation and product portal for the AG Kit v2 lean multi-runtime operating layer.
 </p>
 
 ---
 
-## ⚡ Quick Start (Local Development)
+## Local development
 
-The `web/` directory contains the official online documentation site and interactive dashboard portal built using Next.js 16 and React 19.
+The `web/` package uses Next.js 16, React 19, Tailwind CSS v4, and MDX.
 
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+```bash
+npm ci
+npm run dev
+```
 
-2. **Run local development server**:
-   ```bash
-   npm run dev
-   ```
+Open <http://localhost:3000> for local development.
 
-3. **Open browser**:
-   Navigate to [http://localhost:3000](http://localhost:3000) to view the documentation portal locally.
+Production checks:
 
----
+```bash
+npm run lint
+npm run typecheck
+npm run build
+npm audit --omit=dev --audit-level=high
+```
 
-## 🏗️ Architecture & Stack
+`next build --webpack` is intentional for the current MDX configuration.
 
-*   **Framework:** [Next.js 16 (App Router)](https://nextjs.org/)
-*   **Library:** [React 19](https://react.dev/)
-*   **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
-*   **MDX:** [@next/mdx](https://github.com/vercel/next.js/tree/canary/packages/next-mdx) for seamless markdown integration
-*   **Components:** Built with [@base-ui/react](https://base-ui.com/) and Lucide React icons
+## Product model shown by the docs
 
----
+The web site must describe the same v2 architecture that the repository validates:
 
-## 📦 What gets installed by the CLI
+| Surface | Current v2 contract |
+| --- | --- |
+| Resident core | 1 tiny always-on core |
+| Skills | 18 top-level hot-loaded behavior skills |
+| Permanent agents | 4 (`scout`, `architect`, `builder`, `reviewer`) |
+| Development workflow | 1 gated spine with QUICK / STANDARD / DEEP modes |
+| Runtime targets | 16 across first-class / connected / bridge tiers |
+| Memory | local Markdown canonical store with optional rebuildable SQLite/FTS5 index |
+| Antigravity workflows directory | intentionally absent; v2 does not restore legacy slash-command workflow files |
 
-When downstream developers run `npx @vudovn/ag-kit init`, they install a `.agents/` folder at their project root:
+The CLI supports both explicit single-runtime installation and detected-runtime activation:
 
-| Directory | Count | Description |
-| :--- | :--- | :--- |
-| **`agent/`** | 20 | Specialist AI agent configurations (Frontend, Backend, Security, PM, QA, etc.) |
-| **`skills/`** | 45 | Domain-specific context modules with conditional loading rules |
-| **`workflows/`** | 13 | Pre-configured interactive slash commands |
+```bash
+ag-kit runtime detect
+ag-kit runtime install-present
+ag-kit runtime doctor
+```
 
----
+Legacy `ag-kit init/update/rollback/status` remains for safe managed-tree migration compatibility, not as the canonical v2 runtime architecture.
 
-## 📚 Online Documentation
+## Content integrity
 
-*   **[Official Documentation Portal](https://ag-kit.unikorn.vn/docs)**
-*   **[GitHub Repository](https://github.com/vudovn/ag-kit)**
+Repository CI runs documentation-link checks in addition to web lint/typecheck/build. When changing product counts, runtime support, Node requirements, or CLI commands, keep these sources aligned:
 
----
+- root `README.md` / `README-VI.md`;
+- `MIGRATION.md`, `SECURITY.md`, and `PRODUCTION_CHECKLIST.md`;
+- `cli/README.md`;
+- web i18n dictionaries and landing dictionaries;
+- this file.
 
-## ☕ Support the Project
+Do not reintroduce the historical 20-agent / 45–47-skill / 13-workflow inventory into current v2 documentation.
 
-If AG Kit has made your AI programming sessions more productive, consider supporting the project:
+## Stack
 
-<a href="https://buymeacoffee.com/vudovn" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
+- [Next.js 16](https://nextjs.org/) (App Router)
+- [React 19](https://react.dev/)
+- [Tailwind CSS v4](https://tailwindcss.com/)
+- [@next/mdx](https://github.com/vercel/next.js/tree/canary/packages/next-mdx)
+- [Base UI](https://base-ui.com/)
+- Lucide React icons
 
-**Vietnamese Bank (MBBank QR):**<br/>
-<img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Donate QR" width="140" style="border-radius: 8px; margin-top: 10px;" />
+## Links
 
----
+- [Repository documentation](../README.md)
+- [Migration guide](../MIGRATION.md)
+- [Security policy](../SECURITY.md)
+- [Production checklist](../PRODUCTION_CHECKLIST.md)
+- [Official documentation portal](https://ag-kit.unikorn.vn/docs)
 
-## 📄 License
+## License
 
-Released under the [MIT License](LICENSE) © [Vudovn](https://github.com/vudovn).
+Released under the [MIT License](../LICENSE) © [Vudovn](https://github.com/vudovn).
