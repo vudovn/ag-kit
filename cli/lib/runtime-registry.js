@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { appendReceipt, initMemory, installRuntime } from "./v2-engine.js";
+import { resolveSafeProjectRoot } from "./project-state.js";
 
 export const RUNTIME_TARGETS = ["antigravity", "claude", "codex", "gemini", "qwen", "kimi", "cline", "cursor", "windsurf", "copilot", "opencode", "openclaw", "aider", "wayland", "hermes", "pi"];
 const LEGACY_INSTALLER_TARGETS = new Set(["antigravity", "claude", "codex", "gemini", "cursor", "windsurf", "copilot", "opencode"]);
@@ -11,8 +12,9 @@ const write=(file,content)=>{ensureDir(path.dirname(file));fs.writeFileSync(file
 
 export function installRuntimeTarget({sourceRoot,targetRoot=process.cwd(),runtime}){
   if(!RUNTIME_TARGETS.includes(runtime))throw new Error(`unsupported runtime: ${runtime}`);
-  if(LEGACY_INSTALLER_TARGETS.has(runtime))return installRuntime({sourceRoot,targetRoot,runtime});
-  const source=path.resolve(sourceRoot);const target=path.resolve(targetRoot);const shared=path.join(source,"shared");
+  const target=resolveSafeProjectRoot(targetRoot);
+  if(LEGACY_INSTALLER_TARGETS.has(runtime))return installRuntime({sourceRoot,targetRoot:target,runtime});
+  const source=path.resolve(sourceRoot);const shared=path.join(source,"shared");
   if(!fs.existsSync(shared))throw new Error(`shared source not found at ${shared}`);
   const core=fs.readFileSync(path.join(shared,"core","CORE.md"),"utf8");
   copyDir(path.join(shared,"core"),path.join(target,".ag-kit","core"));copyDir(path.join(shared,"flows"),path.join(target,".ag-kit","flows"));copyDir(path.join(source,"packs"),path.join(target,".ag-kit","packs"));
