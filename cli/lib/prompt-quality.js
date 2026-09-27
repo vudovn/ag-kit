@@ -1,9 +1,15 @@
 const MAX_PROMPT_CHARS = 16 * 1024;
 const ACTIONS = new Set(["fix", "refactor", "improve", "clean", "cleanup", "optimize", "update", "review", "check", "test", "debug", "analyze", "handle", "tidy"]);
 const VAGUE_OBJECTS = new Set(["it", "this", "that", "these", "those", "thing", "things", "stuff", "issue", "problem", "bug", "code", "file", "files", "everything"]);
+const ARTICLES = new Set(["a", "an", "the"]);
 
 const words = (text) => String(text || "").trim().match(/[A-Za-z0-9_./:#@-]+/g) || [];
 const normalize = (text) => String(text || "").trim();
+const actionObject = (tokens) => {
+  let index = 1;
+  while (ARTICLES.has(String(tokens[index] || "").toLowerCase())) index += 1;
+  return String(tokens[index] || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+};
 
 const hasExplicitTarget = (text, tokens) => {
   if (/https?:\/\/\S+/i.test(text)) return true;
@@ -13,8 +19,8 @@ const hasExplicitTarget = (text, tokens) => {
   if (/\b[A-Za-z_$][\w$]*\([^)]*\)/.test(text)) return true;
 
   const first = (tokens[0] || "").toLowerCase();
-  if (ACTIONS.has(first) && tokens.length >= 2) {
-    const object = tokens[1].toLowerCase().replace(/[^a-z0-9_-]/g, "");
+  if (ACTIONS.has(first)) {
+    const object = actionObject(tokens);
     if (object && !VAGUE_OBJECTS.has(object)) return true;
   }
   return false;
@@ -47,10 +53,10 @@ export function checkPromptQuality(input, { force = false } = {}) {
   const signals = [];
   const hasTarget = hasExplicitTarget(text, tokens);
   const first = (tokens[0] || "").toLowerCase();
-  const second = (tokens[1] || "").toLowerCase().replace(/[^a-z0-9_-]/g, "");
+  const object = actionObject(tokens);
 
   if (!hasTarget) signals.push("missing-target");
-  if (ACTIONS.has(first) && (tokens.length === 1 || VAGUE_OBJECTS.has(second))) signals.push("bare-action");
+  if (ACTIONS.has(first) && (!object || VAGUE_OBJECTS.has(object))) signals.push("bare-action");
   if (/^(?:this|that|it|these|those)\b/i.test(text) || /^(?:the\s+)?(?:issue|problem|bug)\b/i.test(text)) signals.push("unbound-reference");
   if (/\b(?:make\s+(?:it|this|that)\s+)?(?:better|cleaner|nicer|proper|correct|production[- ]ready)|\bfix\s+(?:it|this|that)\s+(?:properly|right)\b/i.test(lower)) signals.push("vague-outcome");
   if (/\b(?:everything|stuff|things|all\s+(?:the\s+)?(?:files|tests|code|issues))\b/i.test(lower)) signals.push("broad-scope");
