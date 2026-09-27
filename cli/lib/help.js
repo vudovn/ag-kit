@@ -8,6 +8,7 @@ export const mainHelp = () => lines([
   "`npm install -g @vudovn/ag-kit` installs the CLI only; project files change only after a runtime install or legacy `init`.",
   "",
   "Core workflow:",
+  "  prompt-check <prompt...>      Check whether a task is concrete enough to act without guessing",
   "  route <task...>              Classify role, effort, and flow depth",
   "  flow <subcommand>            Start/status/approve gated project flows",
   "  team                         Generate project-specific specialists",
