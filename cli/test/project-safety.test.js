@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { stateRoot } from "../lib/project-state.js";
 import { initMemory, initTeam, installRuntime } from "../lib/v2-engine.js";
+import { installRuntimeTarget } from "../lib/runtime-registry.js";
 import { prepareRuntimeInstall } from "../lib/runtime-lifecycle.js";
 
 const filesystemRoot = path.parse(process.cwd()).root;
@@ -29,4 +30,8 @@ test("runtime lifecycle refuses filesystem root and user home", () => {
 
 test("direct v2 runtime install refuses filesystem root and user home before reading source projections", () => {
   assertUnsafeRootsRejected((targetRoot) => installRuntime({ sourceRoot: process.cwd(), targetRoot, runtime: "claude" }));
+});
+
+test("every runtime adapter install rejects unsafe roots even without lifecycle wrapper", () => {
+  assertUnsafeRootsRejected((targetRoot) => installRuntimeTarget({ sourceRoot: process.cwd(), targetRoot, runtime: "qwen" }));
 });
