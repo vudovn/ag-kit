@@ -1,9 +1,17 @@
 #!/usr/bin/env node
 const command = process.argv[2];
 const runtimeSubcommand = command === "runtime" ? process.argv[3] : "";
+const helpRequested = [undefined, "help", "-h", "--help"].includes(command);
+const runtimeHelpRequested = command === "runtime" && [undefined, "help", "-h", "--help"].includes(runtimeSubcommand);
 const v2Commands = new Set(["runtime", "memory", "team", "flow", "cross-audit", "observe", "dashboard", "personalize", "design", "route", "run", "preflight", "mcp"]);
 
-if (command === "brain") {
+if (helpRequested) {
+    const { printMainHelp } = await import("../lib/help.js");
+    printMainHelp();
+} else if (runtimeHelpRequested) {
+    const { printRuntimeHelp } = await import("../lib/help.js");
+    printRuntimeHelp();
+} else if (command === "brain") {
     const { runBrainCli } = await import("../lib/brain-cli.js");
     await runBrainCli(process.argv);
 } else if (["compress", "handoff"].includes(command)) {
