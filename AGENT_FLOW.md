@@ -64,8 +64,6 @@ Use when the change is narrow, reversible, and well understood.
 FRAME → PLAN → EXECUTE → VERIFY
 ```
 
-Typical examples: a small bug fix, one-file refactor, copy change, or deterministic config edit.
-
 ### STANDARD
 
 Default mode for normal feature work.
@@ -109,7 +107,7 @@ Skills are not permanently resident.
 1. The core classifies the request.
 2. The runtime loads only relevant `shared/skills/<name>/SKILL.md` contracts.
 3. Domain reference material is pulled from `packs/` only when needed.
-4. Runtime-specific adapters translate the shared behavior without creating new canonical copies.
+4. Runtime-specific adapters translate shared behavior without creating a new canonical copy.
 
 The architecture budget currently targets one resident skill and no more than 22 top-level skills; the committed v2 surface contains 18.
 
@@ -195,14 +193,15 @@ Local preflight gates include:
 - v2 architecture budget;
 - documentation-link integrity;
 - v2 engine tests;
-- Antigravity projection drift check;
+- runtime contract + committed projection drift checks;
+- runtime adapter regression tests;
 - runtime projection build;
-- Antigravity doctor;
-- Antigravity regression tests;
-- native plugin build;
+- native runtime artifact build;
 - CLI tests.
 
-Full GitHub CI additionally enforces CLI package dry-run and production audit, web lint/typecheck/build/audit, and Dependency Review.
+Those gates are invoked through runtime-neutral root commands. Adapter-specific doctor/hook/plugin checks are discovered through the generic runtime runners rather than promoted to product-wide gates.
+
+Full GitHub CI additionally enforces CLI package dry-run and production audit, representative multi-runtime lifecycle smoke, Windows compatibility, web lint/typecheck/build/audit, and Dependency Review.
 
 ## Runtime boundary
 
@@ -218,6 +217,8 @@ The current capability matrix exposes 16 runtime targets across first-class, con
 
 A runtime gets only the surfaces AG Kit has actually verified. Missing native agents/hooks/plugins are not simulated in the capability matrix. Project-scoped activation is preferred; global-only integrations are staged for explicit activation rather than silently mutating home configuration.
 
+No runtime is primary. Runtime-specific richness belongs behind `runtimes/<runtime>/`.
+
 ## Runtime lifecycle
 
 ```text
@@ -225,7 +226,7 @@ detect
   ↓
 prepare backup + ownership manifest
   ↓
-install projection + verified MCP wiring
+install projection + verified MCP wiring/staging
   ↓
 doctor: live / standing-by / degraded / untouched
   ↓
@@ -234,28 +235,24 @@ uninstall only AG Kit-owned state
 
 User drift and project memory are preserved. Filesystem root and the user's home directory are rejected as project targets.
 
-## Antigravity projection
+## Adapter projections
 
-Antigravity receives a generated `.agents/` projection containing:
+Different hosts receive different projections according to verified capabilities:
 
-- 18 skills;
-- 4 permanent agents;
-- zero legacy workflow files;
-- one always-on core rule;
-- native `PreToolUse` safety hook;
-- privacy-minimal `PostToolUse` observability hook;
-- project MCP config;
-- plugin packaging support.
+- Antigravity: `.agents/` with rules, skills, agents, hooks, MCP, and plugin metadata.
+- Claude: `.claude/` skills/agents plus managed `CLAUDE.md` and project MCP.
+- Codex: managed `AGENTS.md`, shared skills, and `.codex-plugin/` MCP/plugin projection.
+- Gemini/Qwen/Kimi/Cline and lower tiers receive only the native/portable surfaces declared in `platform-capabilities.json`.
 
-The projection must match `shared/` exactly. CI rejects drift.
+Generated host trees are outputs. Shared behavior must not be authored separately inside them.
 
 ## Safety boundary
 
 1. Runtime permissions and workspace trust remain enabled.
-2. AG Kit safety hooks supplement runtime controls; they do not replace sandboxing or human approval.
-3. High-confidence destructive command patterns are denied at the tool boundary.
-4. Hook entrypoints resolve real paths so symlink/Windows path differences cannot silently skip decision output.
-5. Cross-audit is read-only and runs outside the writable source tree.
-6. Project-global or user-global configuration is not silently overwritten when a project-scoped adapter is sufficient.
-7. Context artifacts cannot escape the project through symlinked parent paths.
-8. Release-quality work requires executable verification, not inspection-only claims.
+2. AG Kit adapter hooks supplement runtime controls; they do not replace sandboxing or human approval.
+3. High-confidence destructive command patterns may be denied at a verified host tool boundary.
+4. Cross-audit is read-only and runs outside the writable source tree.
+5. Project-global or user-global configuration is not silently overwritten when a project-scoped adapter is sufficient.
+6. Context artifacts cannot escape the project through symlinked parent paths.
+7. Release-quality work requires executable verification, not inspection-only claims.
+8. Product-wide CI uses runtime-neutral gates; host-specific checks remain adapter evidence.
