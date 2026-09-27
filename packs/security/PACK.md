@@ -10,7 +10,7 @@ Use project-local/framework documentation over generic guidance when they confli
 
 ## Deep references
 
-These references preserve v1 knowledge but are **non-normative**. Load only the specific file needed; v2 contracts always win.
+These references preserve v1 knowledge and supporting assets but are **non-normative**. Load only the specific reference needed; v2 contracts always win.
 
-- [red-team-tactics](references/red-team-tactics.md)
-- [vulnerability-scanner](references/vulnerability-scanner.md)
+- [red-team-tactics](references/red-team-tactics/REFERENCE.md)
+- [vulnerability-scanner](references/vulnerability-scanner/REFERENCE.md)

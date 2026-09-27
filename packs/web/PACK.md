@@ -10,10 +10,10 @@ Use project-local/framework documentation over generic guidance when they confli
 
 ## Deep references
 
-These references preserve v1 knowledge but are **non-normative**. Load only the specific file needed; v2 contracts always win.
+These references preserve v1 knowledge and supporting assets but are **non-normative**. Load only the specific reference needed; v2 contracts always win.
 
-- [frontend-architecture](references/frontend-architecture.md)
-- [frontend-design](references/frontend-design.md)
-- [nextjs-react-expert](references/nextjs-react-expert.md)
-- [tailwind-patterns](references/tailwind-patterns.md)
-- [web-design-guidelines](references/web-design-guidelines.md)
+- [frontend-architecture](references/frontend-architecture/REFERENCE.md)
+- [frontend-design](references/frontend-design/REFERENCE.md)
+- [nextjs-react-expert](references/nextjs-react-expert/REFERENCE.md)
+- [tailwind-patterns](references/tailwind-patterns/REFERENCE.md)
+- [web-design-guidelines](references/web-design-guidelines/REFERENCE.md)

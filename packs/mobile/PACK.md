@@ -10,6 +10,6 @@ Use project-local/framework documentation over generic guidance when they confli
 
 ## Deep references
 
-These references preserve v1 knowledge but are **non-normative**. Load only the specific file needed; v2 contracts always win.
+These references preserve v1 knowledge and supporting assets but are **non-normative**. Load only the specific reference needed; v2 contracts always win.
 
-- [mobile-design](references/mobile-design.md)
+- [mobile-design](references/mobile-design/REFERENCE.md)
