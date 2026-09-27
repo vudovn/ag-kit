@@ -6,11 +6,11 @@ A green CI run is necessary but not sufficient: release metadata, migration guid
 
 ## 1. Branch and PR state
 
-- [ ] Release work is on a reviewable branch; do not publish from an unreviewed working tree.
+- [ ] Release work is on a reviewable branch.
 - [ ] PR base is the intended release branch (`main` unless intentionally changed).
 - [ ] PR description matches the actual architecture and supported runtime matrix.
 - [ ] No temporary migration/workflow files remain under `.github/workflows/`.
-- [ ] No unresolved review thread or known release-blocking issue is being hidden by a documentation-only workaround.
+- [ ] No unresolved release-blocking review is hidden by a docs-only workaround.
 
 ## 2. Architecture invariants
 
@@ -20,8 +20,10 @@ Run:
 npm run check:v2
 npm run check:docs
 npm run test:v2
-npm run check:antigravity-projection
+npm run check:runtimes
+npm run test:runtimes
 npm run build:runtimes
+npm run build:runtime-artifacts
 ```
 
 Confirm:
@@ -30,7 +32,9 @@ Confirm:
 - [ ] 18 top-level hot-loaded skills stay within the configured budget;
 - [ ] four permanent agents remain `scout`, `architect`, `builder`, `reviewer`;
 - [ ] one development flow engine remains canonical;
-- [ ] `.agents/` is a generated/native Antigravity projection, not a second source of truth;
+- [ ] `shared/` remains canonical and runtime projections do not become source-of-truth forks;
+- [ ] no runtime is declared primary in repository contracts or public docs;
+- [ ] root package scripts and GitHub workflow gates remain runtime-neutral;
 - [ ] legacy `.agents/workflows/` is absent;
 - [ ] `platform-capabilities.json` and runtime adapters do not drift.
 
@@ -45,54 +49,47 @@ npm --prefix cli pack --dry-run
 npm --prefix cli audit --omit=dev --audit-level=high
 ```
 
-CI additionally installs the **real packed tarball** through npm's binary layout and runs branch-backed lifecycle smoke tests. The release candidate is not considered portable unless the separate `CLI Windows compatibility` job also passes the full CLI tests and package dry-run on Windows.
-
 Confirm:
 
-- [ ] `ag-kit --help` explains that global npm installation installs the CLI only and exposes v2, context, runtime, and legacy lifecycle commands;
-- [ ] `ag-kit runtime --help` includes `detect`, `install-present`, `install`, `doctor`, and `uninstall`;
+- [ ] `ag-kit --help` explains that global npm installation installs the CLI only;
+- [ ] `ag-kit runtime --help` exposes discovery, install, doctor, and uninstall commands;
 - [ ] npm-style symlink execution works for both the public dispatcher and legacy lifecycle entrypoint;
-- [ ] `lib/` contains every module referenced by the dispatcher (including help, context, brain, runtime discovery, and source pinning);
 - [ ] machine-readable project-relative paths use stable `/` separators across Linux and Windows;
 - [ ] default runtime downloads resolve to `v<CLI_VERSION>` rather than floating `main`;
 - [ ] `--branch` remains an explicit source-ref override for development/testing;
-- [ ] MCP runtime status reports all lifecycle manifests, not only the last-written legacy `runtime.json` value;
+- [ ] MCP runtime status reports all lifecycle manifests in multi-runtime projects;
 - [ ] production npm audit has no high/critical finding.
 
-## 4. Runtime lifecycle smoke test
+## 4. Multi-runtime lifecycle smoke
 
-For same-repository PRs and `main`, CI automatically packs the CLI and executes two disposable-project smoke paths against the reviewed branch/ref:
+CI must exercise the real packed npm artifact against more than one runtime family. The representative smoke set should include at least:
 
-1. legacy managed-tree `init → update → status`, starting with a user-owned `.agents` file and verifying it survives;
-2. Antigravity runtime `install → doctor(live) → uninstall → doctor(untouched)`, verifying ownership manifests, restoration of pre-existing user state, and preservation of `.ag-kit/memory/`.
+- one host with a rich native projection;
+- one different first-class host with its own config/instruction shape;
+- one plugin/instruction-style host where lifecycle ownership differs.
 
-Before the release tag exists, manual smoke tests must still use an explicit reviewed branch/ref when you need to test a host application or runtime behavior not represented by lifecycle state:
+For each representative runtime, verify:
 
 ```bash
-ag-kit runtime detect
-ag-kit runtime install <one-installed-runtime> --branch <release-branch-or-commit>
-ag-kit runtime doctor <one-installed-runtime>
-ag-kit runtime uninstall <one-installed-runtime>
+ag-kit runtime install <runtime> --branch <reviewed-ref>
+ag-kit runtime doctor <runtime>
+ag-kit runtime uninstall <runtime>
+ag-kit runtime doctor <runtime>
 ```
-
-After the matching `v<CLI_VERSION>` tag exists, repeat installation **without** `--branch` and verify the default source resolves to the release tag.
 
 Confirm:
 
-- [ ] CI packaged lifecycle smoke is green on the final release commit;
-- [ ] pre-tag manual smoke testing uses an explicit reviewed branch/commit override;
-- [ ] post-tag/default install resolves to `v<CLI_VERSION>`;
-- [ ] install creates an ownership/lifecycle manifest and pre-install backup when required;
-- [ ] doctor reports a meaningful status (`live`, `standing-by`, `degraded`, or `untouched`);
+- [ ] install creates an ownership/lifecycle manifest and backup when required;
+- [ ] doctor reports a meaningful state (`live`, `standing-by`, `degraded`, or `untouched`);
 - [ ] uninstall removes/restores only AG Kit-owned state;
 - [ ] user drift survives uninstall;
 - [ ] `.ag-kit/memory/` survives runtime uninstall;
-- [ ] filesystem root and user home are rejected as project targets across lifecycle, memory, team, direct install, and MCP status surfaces;
+- [ ] filesystem root and user home are rejected as project targets;
 - [ ] user-global runtime configuration is never silently mutated.
 
-## 5. Memory and continuity
+After the matching `v<CLI_VERSION>` tag exists, repeat a default install without `--branch` and verify the source resolves to the release tag.
 
-In a disposable project, run:
+## 5. Memory and continuity
 
 ```bash
 ag-kit memory init
@@ -102,73 +99,43 @@ ag-kit handoff quick "Release smoke test paused" --next "Resume verification"
 ag-kit handoff show
 ```
 
-Confirm:
-
-- [ ] Markdown remains the canonical memory store;
-- [ ] recall works without requiring SQLite;
-- [ ] optional index state can be rebuilt from Markdown;
-- [ ] handoff is written under `.ag-kit/` and old handoffs archive safely;
-- [ ] continue/resume activation loads handoff + relevant durable memory before project mutation;
-- [ ] cross-project memory only searches explicitly registered projects and never crawls `$HOME` automatically.
+Confirm Markdown remains canonical, optional indexes are rebuildable, handoffs archive safely, resume intent reads current continuity state before mutation, and cross-project search never crawls `$HOME` automatically.
 
 ## 6. Context economy and command sandbox
-
-Run a bounded-output smoke test through:
 
 ```bash
 ag-kit run node -e "for(let i=0;i<100;i++) console.log(i)"
 ```
 
-Confirm:
+Confirm full output is stored on disk while returned context stays bounded, shell interpolation is not used by default, project virtualenv preference is safe, explicit interpreter paths are preserved, and context artifact writes cannot escape the project through symlink parents.
 
-- [ ] full output is stored on disk while returned context remains bounded;
-- [ ] command execution does not use shell interpolation by default;
-- [ ] bare `python` / `python3` prefers `.venv`, then `venv`, then `env` when a usable project interpreter exists;
-- [ ] explicit interpreter paths are never silently replaced;
-- [ ] `ag-kit compress <file>` writes a separate compact file by default;
-- [ ] `compress --write` creates a backup and cannot escape the project through symlink parents.
+## 7. Runtime adapter validation
 
-## 7. Antigravity-native validation
-
-Run:
+Root validation is runtime-neutral. Adapter-specific evidence belongs inside the matching `runtimes/<runtime>/` implementation and is invoked through the generic runners:
 
 ```bash
-npm run check:antigravity
-npm run test:antigravity
-npm run build:antigravity-plugin
+npm run check:runtimes
+npm run test:runtimes
+npm run build:runtimes
+npm run build:runtime-artifacts
 ```
 
-Confirm:
+For adapters that expose native hooks/plugins, additionally confirm their own checks cover payload shape, deterministic artifact output, privacy boundaries, and failure behavior.
 
-- [ ] native projection contains 18 skills and four permanent agents;
-- [ ] `PreToolUse` safety hook emits valid decision JSON for ordinary and denied payloads;
-- [ ] safety hook direct-run detection works through symlinked paths;
-- [ ] `PostToolUse` observability always returns `{}` and never blocks the agent loop;
-- [ ] plugin output is deterministic;
-- [ ] no secret, home-directory configuration, prompt body, command arguments, or file contents are captured by observability telemetry.
-
-Mock destructive payload test only — never execute the destructive command:
+For the Antigravity adapter specifically, destructive-command testing must use mocked stdin only — never execute the destructive command:
 
 ```bash
 printf '%s' '{"toolCall":{"name":"run_command","args":{"CommandLine":"rm -rf /"}}}' \
   | node .agents/hooks/validate-tool-call.mjs
 ```
 
+This is adapter evidence, not a repository-wide primary-runtime gate.
+
 ## 8. Cross-audit and privacy
 
-Confirm:
-
-- [ ] external reviewer CLIs receive read-only snapshot/diff material, not a writable project mount;
-- [ ] calling-model lineage exclusion works when requested;
-- [ ] consensus and contested findings remain distinguishable;
-- [ ] personalization injection defaults off;
-- [ ] `AG_KIT_PROFILE_KILL=1` overrides stored profile settings;
-- [ ] `personalize forget` removes both the inference and related egress rows;
-- [ ] no fabricated token-savings multiplier is reported.
+Confirm external reviewer CLIs receive read-only snapshot/diff material, lineage exclusion works when requested, consensus and contested findings remain distinguishable, personalization injection defaults off, kill switches override stored settings, forget semantics remove related egress state, and no fabricated token-savings multiplier is reported.
 
 ## 9. Web/docs quality gate
-
-Run:
 
 ```bash
 npm run check:docs
@@ -179,50 +146,40 @@ npm --prefix web run build
 npm --prefix web audit --omit=dev --audit-level=high
 ```
 
-Confirm:
-
-- [ ] docs describe **1 core / 18 skills / 4 permanent agents / 1 flow / 16 runtimes**;
-- [ ] EN/VI/ZH/JA install copy no longer claims the legacy 47-skill / 20-agent / 13-workflow inventory;
-- [ ] repository instruction files (`AGENTS.md`, `CLAUDE.md`) describe v2 rather than the legacy toolkit;
-- [ ] package-level docs (`cli/README.md`, `web/README.md`) describe commands/inventory that actually ship;
-- [ ] current docs require Node.js 22+;
-- [ ] public local Markdown links pass `check:docs`;
-- [ ] production dependency audit passes.
+Confirm docs describe **1 core / 18 skills / 4 permanent agents / 1 flow / 16 runtimes**, repository instruction files describe v2, package-level docs match shipped commands, Node.js 22+ remains the requirement, local Markdown links pass, and public copy does not present one runtime as the product identity.
 
 ## 10. Release metadata
 
 Only when the code is actually ready to release:
 
 - [ ] choose the calendar version (`YYYY.M.D`);
-- [ ] move the `CHANGELOG.md` `[Unreleased]` entries into that dated release section;
+- [ ] move `[Unreleased]` changelog entries into that dated release section;
 - [ ] update root, CLI, web, lockfile, and committed runtime/version metadata consistently;
 - [ ] ensure `cli/package.json` version equals the intended Git tag without the leading `v`;
 - [ ] run the full CI matrix again after the version bump;
 - [ ] create tag `v<version>` only from the reviewed release commit.
 
-Do **not** bump the version early just to make a branch look release-ready; the version should identify the artifact that will actually be tagged and published.
+Do not bump the version early just to make a branch appear release-ready.
 
 ## 11. Publish and rollback readiness
-
-The npm publish workflow verifies the Git tag against `cli/package.json` and uses Trusted Publishing.
 
 Before tagging:
 
 - [ ] `ag-kit update --dry-run` still produces a non-destructive migration plan for legacy managed trees;
-- [ ] `ag-kit rollback` can restore a pre-update `.agents` backup;
+- [ ] `ag-kit rollback` can restore a pre-update managed-tree backup;
 - [ ] runtime uninstall behavior is documented separately from legacy tree rollback;
-- [ ] `MIGRATION.md` reflects the commands that actually ship in the package;
+- [ ] `MIGRATION.md` reflects commands that actually ship;
 - [ ] the PR can remain Draft until maintainers intentionally choose review/merge timing.
 
 ## Required GitHub gates
 
 For the final release commit, require:
 
-- [ ] **CI / V2 core validation** — architecture, docs links, projections, Antigravity checks;
-- [ ] **CI / CLI tests and package validation** — Linux tests, package dry-run/audit, packaged lifecycle smoke;
-- [ ] **CI / CLI Windows compatibility** — full CLI tests and package dry-run on Windows;
+- [ ] **CI / V2 core validation**;
+- [ ] **CI / CLI tests and package validation**;
+- [ ] **CI / CLI Windows compatibility**;
 - [ ] **CI / Web lint, typecheck, build, and audit**;
-- [ ] **Antigravity Compatibility** — projection/doctor/tests/plugin build;
+- [ ] **Runtime Compatibility / Runtime contracts**;
 - [ ] **Dependency Review**.
 
-External preview/deployment integrations are operational concerns and should not be used to weaken or bypass these repository gates.
+External preview/deployment integrations are operational concerns and must not weaken or bypass repository gates.
