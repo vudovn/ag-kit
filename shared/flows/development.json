@@ -1,5 +1,5 @@
 {
-  "schema": 2,
+  "schema": 3,
   "name": "development",
   "modes": {
     "quick": ["FRAME", "PLAN", "EXECUTE", "VERIFY"],
@@ -8,12 +8,15 @@
   },
   "requirements": {
     "default": ["artifact"],
-    "WAVES": ["wave-table", "waves-complete"]
+    "WAVES": ["wave-table", "waves-complete"],
+    "VERIFY": ["preflight-passed"],
+    "CROSS_AUDIT": ["cross-audit-2-lineages"]
   },
   "rules": {
     "planBeforeMultiFileBuild": true,
     "explicitWaveDependencies": true,
     "verifyBeforeShip": true,
-    "crossAuditInDeepMode": true
+    "crossAuditInDeepMode": true,
+    "freshEvidencePerPhase": true
   }
 }

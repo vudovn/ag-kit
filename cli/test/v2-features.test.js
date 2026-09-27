@@ -4,13 +4,19 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { addEvolvingMemory, memoryEvolutionStatus, recallEvolvingMemory, referenceMemory, runMemoryDream } from "../lib/memory-evolution.js";
-import { completeWave, decideFlow, flowStatus, readyWaves, recordFlowArtifact, setWaveTable, startFlow } from "../lib/workflow-session.js";
+import { completeWave, decideFlow, flowEvidenceStatus, flowStatus, readyWaves, recordFlowArtifact, setWaveTable, startFlow } from "../lib/workflow-session.js";
 import { recordObservation, summarizeObservability } from "../lib/observability.js";
 import { forgetPreference, learnPreference, profileForInjection, profileStatus, setPersonalization } from "../lib/personalization.js";
 import { checkDesignContract, initDesignContract, listDesignTemplates } from "../lib/design-contract.js";
 import { clusterFindings, parseReviewerFindings } from "../lib/audit-consensus.js";
 
 const tempRoot = (t) => { const root = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-features-")); t.after(() => fs.rmSync(root, { recursive: true, force: true })); return root; };
+const appendReceipt = (root, type, receipt) => {
+    const dir = path.join(root, ".ag-kit", "receipts");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(path.join(dir, `${type}.jsonl`), `${JSON.stringify(receipt)}\n`);
+};
+const futureTs = () => new Date(Date.now() + 1000).toISOString();
 
 test("memory evolves from candidate to durable across references and sessions", (t) => {
     const root = tempRoot(t);
@@ -22,12 +28,12 @@ test("memory evolves from candidate to durable across references and sessions", 
     assert.equal(runMemoryDream({ root }).entries, 1);
 });
 
-test("DEEP flow follows the shared contract and enforces dependency-aware waves", (t) => {
+test("DEEP flow requires fresh mechanical evidence at verification boundaries", (t) => {
     const root = tempRoot(t);
     const session = startFlow({ root, goal: "Ship feature", mode: "deep" });
     assert.deepEqual(session.phases, ["FRAME", "RECON", "SHAPE", "PLAN", "WAVES", "VERIFY", "CROSS_AUDIT", "SHIP"]);
     assert.equal(flowStatus(root).currentPhase, "FRAME");
-    assert.throws(() => decideFlow({ root, approve: true }), /artifact summary/);
+    assert.throws(() => decideFlow({ root, approve: true }), /artifact/);
 
     for (const [phase, summary] of [
         ["FRAME", "Goal, constraints, and acceptance criteria framed"],
@@ -55,10 +61,38 @@ test("DEEP flow follows the shared contract and enforces dependency-aware waves"
     completeWave({ root, id: "foundation", summary: "Foundation tasks verified" });
     assert.deepEqual(readyWaves(root).map((wave) => wave.id), ["integration"]);
     completeWave({ root, id: "integration", summary: "Integration verified" });
-
     recordFlowArtifact({ root, summary: "All execution waves completed with evidence" });
     decideFlow({ root, approve: true });
+
     assert.equal(flowStatus(root).currentPhase, "VERIFY");
+    recordFlowArtifact({ root, summary: "Project checks reviewed" });
+    assert.equal(flowEvidenceStatus(root).status, "blocked");
+    assert.throws(() => decideFlow({ root, approve: true }), /preflight-passed/);
+    appendReceipt(root, "preflight", { ts: futureTs(), action: "run", status: "passed", passed: true, results: [{ name: "test", ok: true }] });
+    assert.equal(flowEvidenceStatus(root).status, "ready");
+    decideFlow({ root, approve: true });
+
+    assert.equal(flowStatus(root).currentPhase, "CROSS_AUDIT");
+    recordFlowArtifact({ root, summary: "Independent reviewers completed" });
+    appendReceipt(root, "cross-audit", { ts: futureTs(), action: "run-consensus", lineages: ["openai"] });
+    assert.throws(() => decideFlow({ root, approve: true }), /cross-audit-2-lineages/);
+    appendReceipt(root, "cross-audit", { ts: futureTs(), action: "run-consensus", lineages: ["openai", "google"], reviewers: ["codex", "gemini"] });
+    decideFlow({ root, approve: true });
+    assert.equal(flowStatus(root).currentPhase, "SHIP");
+});
+
+test("stale verification receipts cannot satisfy a later VERIFY phase", (t) => {
+    const root = tempRoot(t);
+    appendReceipt(root, "preflight", { ts: new Date(Date.now() - 60000).toISOString(), status: "passed", passed: true });
+    startFlow({ root, goal: "Small fix", mode: "quick" });
+    for (const phase of ["FRAME", "PLAN", "EXECUTE"]) {
+        assert.equal(flowStatus(root).currentPhase, phase);
+        recordFlowArtifact({ root, summary: `${phase} complete` });
+        decideFlow({ root, approve: true });
+    }
+    recordFlowArtifact({ root, summary: "Checks reviewed" });
+    assert.equal(flowEvidenceStatus(root).status, "blocked");
+    assert.throws(() => decideFlow({ root, approve: true }), /preflight-passed/);
 });
 
 test("observability records only explicit local metrics", (t) => {
