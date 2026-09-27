@@ -6,6 +6,9 @@ const v2Commands = new Set(["runtime", "memory", "team", "flow", "cross-audit", 
 if (command === "brain") {
     const { runBrainCli } = await import("../lib/brain-cli.js");
     await runBrainCli(process.argv);
+} else if (["compress", "handoff"].includes(command)) {
+    const { runContextCli } = await import("../lib/context-cli.js");
+    await runContextCli(process.argv);
 } else if (command === "runtime" && ["detect", "install-present"].includes(runtimeSubcommand)) {
     const { runRuntimeAutoCli } = await import("../lib/runtime-auto-cli.js");
     await runRuntimeAutoCli(process.argv);
