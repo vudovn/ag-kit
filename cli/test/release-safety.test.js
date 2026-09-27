@@ -84,6 +84,17 @@ test("local preflight includes documentation integrity without claiming full CI"
     assert.match(flow, /Full GitHub CI additionally enforces/);
 });
 
+test("release CI keeps packaged lifecycle smoke and Windows compatibility blocking", async () => {
+    const ci = await read(".github/workflows/ci.yml");
+    const releaseSetup = await read(".github/RELEASE_SETUP.md");
+    const checklist = await read("PRODUCTION_CHECKLIST.md");
+    assert.match(ci, /name: Smoke packaged CLI lifecycle/);
+    assert.match(ci, /name: CLI Windows compatibility/);
+    assert.match(ci, /runs-on: windows-latest/);
+    assert.match(releaseSetup, /`CLI Windows compatibility`/);
+    assert.match(checklist, /CI \/ CLI Windows compatibility/);
+});
+
 test("published CLI package includes its runtime library", async () => {
     const cliPackage = await readJson("cli/package.json");
     assert.ok(cliPackage.files.includes("bin"));
