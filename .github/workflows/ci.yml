@@ -30,7 +30,7 @@ jobs:
   cli:
     name: CLI tests and package validation
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     defaults: {run: {working-directory: cli}}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -48,34 +48,59 @@ jobs:
           set -euo pipefail
           PACKAGE_TGZ="$(npm pack --silent)"
           PREFIX="$(mktemp -d)"
-          PROJECT="$(mktemp -d)"
-          RUNTIME_PROJECT="$(mktemp -d)"
-          trap 'rm -rf "$PREFIX" "$PROJECT" "$RUNTIME_PROJECT"; rm -f "$PACKAGE_TGZ"' EXIT
+          LEGACY_PROJECT="$(mktemp -d)"
+          RUNTIME_ROOT="$(mktemp -d)"
+          trap 'rm -rf "$PREFIX" "$LEGACY_PROJECT" "$RUNTIME_ROOT"; rm -f "$PACKAGE_TGZ"' EXIT
           npm install --prefix "$PREFIX" "$PWD/$PACKAGE_TGZ" >/dev/null
           CLI="$PREFIX/node_modules/.bin/ag-kit"
           "$CLI" --version >/dev/null
-          mkdir -p "$PROJECT/.agents"
-          printf '%s\n' 'keep-user-file' > "$PROJECT/.agents/user-owned.txt"
-          "$CLI" init --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
-          test -f "$PROJECT/.agents/skills/ag-core/SKILL.md"
-          test -f "$PROJECT/.agents/agents/scout.md"
-          test ! -d "$PROJECT/.agents/workflows"
-          grep -q '^keep-user-file$' "$PROJECT/.agents/user-owned.txt"
-          "$CLI" update --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
-          grep -q '^keep-user-file$' "$PROJECT/.agents/user-owned.txt"
-          "$CLI" status --path "$PROJECT" --quiet >/dev/null
-          mkdir -p "$RUNTIME_PROJECT/.agents"
-          printf '%s\n' 'restore-after-runtime-uninstall' > "$RUNTIME_PROJECT/.agents/user-owned.txt"
-          "$CLI" memory init --path "$RUNTIME_PROJECT" >/dev/null
-          "$CLI" runtime install antigravity --path "$RUNTIME_PROJECT" --branch "$AG_KIT_SMOKE_REF" > "$RUNTIME_PROJECT/runtime-install.json"
-          test -f "$RUNTIME_PROJECT/.ag-kit/runtime-installs/antigravity.json"
-          "$CLI" runtime doctor antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-doctor.json"
-          grep -q '"status": "live"' "$RUNTIME_PROJECT/runtime-doctor.json"
-          "$CLI" runtime uninstall antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-uninstall.json"
-          grep -q '^restore-after-runtime-uninstall$' "$RUNTIME_PROJECT/.agents/user-owned.txt"
-          test -d "$RUNTIME_PROJECT/.ag-kit/memory"
-          "$CLI" runtime doctor antigravity --path "$RUNTIME_PROJECT" > "$RUNTIME_PROJECT/runtime-after-uninstall.json"
-          grep -q '"status": "untouched"' "$RUNTIME_PROJECT/runtime-after-uninstall.json"
+
+          # Legacy managed-tree migration remains non-destructive.
+          mkdir -p "$LEGACY_PROJECT/.agents"
+          printf '%s\n' 'keep-user-file' > "$LEGACY_PROJECT/.agents/user-owned.txt"
+          "$CLI" init --path "$LEGACY_PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
+          test -f "$LEGACY_PROJECT/.agents/skills/ag-core/SKILL.md"
+          test -f "$LEGACY_PROJECT/.agents/agents/scout.md"
+          test ! -d "$LEGACY_PROJECT/.agents/workflows"
+          grep -q '^keep-user-file$' "$LEGACY_PROJECT/.agents/user-owned.txt"
+          "$CLI" update --path "$LEGACY_PROJECT" --branch "$AG_KIT_SMOKE_REF" --quiet --force
+          grep -q '^keep-user-file$' "$LEGACY_PROJECT/.agents/user-owned.txt"
+          "$CLI" status --path "$LEGACY_PROJECT" --quiet >/dev/null
+
+          # Exercise representative runtime ownership shapes through the real npm binary.
+          for RUNTIME in antigravity claude codex; do
+            PROJECT="$RUNTIME_ROOT/$RUNTIME"
+            mkdir -p "$PROJECT"
+            case "$RUNTIME" in
+              antigravity)
+                mkdir -p "$PROJECT/.agents"
+                printf '%s\n' 'restore-after-runtime-uninstall' > "$PROJECT/.agents/user-owned.txt"
+                ;;
+              claude)
+                mkdir -p "$PROJECT/.claude"
+                printf '%s\n' 'restore-after-runtime-uninstall' > "$PROJECT/.claude/user-owned.txt"
+                ;;
+              codex)
+                printf '%s\n' 'user-owned AGENTS instructions' > "$PROJECT/AGENTS.md"
+                ;;
+            esac
+
+            "$CLI" memory init --path "$PROJECT" >/dev/null
+            "$CLI" runtime install "$RUNTIME" --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" > "$PROJECT/runtime-install.json"
+            test -f "$PROJECT/.ag-kit/runtime-installs/$RUNTIME.json"
+            "$CLI" runtime doctor "$RUNTIME" --path "$PROJECT" > "$PROJECT/runtime-doctor.json"
+            grep -q '"status": "live"' "$PROJECT/runtime-doctor.json"
+            "$CLI" runtime uninstall "$RUNTIME" --path "$PROJECT" > "$PROJECT/runtime-uninstall.json"
+            test -d "$PROJECT/.ag-kit/memory"
+            "$CLI" runtime doctor "$RUNTIME" --path "$PROJECT" > "$PROJECT/runtime-after-uninstall.json"
+            grep -q '"status": "untouched"' "$PROJECT/runtime-after-uninstall.json"
+
+            case "$RUNTIME" in
+              antigravity) grep -q '^restore-after-runtime-uninstall$' "$PROJECT/.agents/user-owned.txt" ;;
+              claude) grep -q '^restore-after-runtime-uninstall$' "$PROJECT/.claude/user-owned.txt" ;;
+              codex) grep -q '^user-owned AGENTS instructions$' "$PROJECT/AGENTS.md" ;;
+            esac
+          done
       - run: npm audit --omit=dev --audit-level=high
 
   cli-windows:
