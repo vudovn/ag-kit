@@ -16,9 +16,9 @@ import { routeTask, runSandboxedCommand } from "./efficiency.js";
 import { forgetPreference, learnPreference, listEgress, profileForInjection, profileStatus, setPersonalization } from "./personalization.js";
 import { checkDesignContract, initDesignContract, listDesignTemplates } from "./design-contract.js";
 import { runConsensusAudit } from "./audit-consensus.js";
+import { runtimeSourceSpec } from "./source-spec.js";
 
-const REPO = "github:vudovn/ag-kit";
-const withSource = async (branch, fn) => { const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-source-")); try { await downloadTemplate(branch ? `${REPO}#${branch}` : REPO, { dir, force: true }); return await fn(dir); } finally { fs.rmSync(dir, { recursive: true, force: true }); } };
+const withSource = async (branch, fn) => { const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-source-")); try { await downloadTemplate(runtimeSourceSpec(branch), { dir, force: true }); return await fn(dir); } finally { fs.rmSync(dir, { recursive: true, force: true }); } };
 const joined = (value) => Array.isArray(value) ? value.join(" ") : String(value || "");
 const boolWord = (value) => ["on", "true", "1", "yes"].includes(String(value).toLowerCase());
 
@@ -27,7 +27,7 @@ export const buildV2Program = () => {
 
     const runtime = program.command("runtime").description("Inspect, install, verify, or safely remove runtime adapters");
     runtime.command("list").action(() => console.log(RUNTIME_TARGETS.join("\n")));
-    runtime.command("install <runtime>").option("-p, --path <dir>", "Project directory", process.cwd()).option("-b, --branch <name>", "AG Kit source branch").action(async (name, options) => {
+    runtime.command("install <runtime>").option("-p, --path <dir>", "Project directory", process.cwd()).option("-b, --branch <name>", "Explicit AG Kit source branch/ref override").action(async (name, options) => {
         const prepared = prepareRuntimeInstall({ root: options.path, runtime: name });
         try {
             const installed = await withSource(options.branch, (sourceRoot) => installRuntimeTarget({ sourceRoot, targetRoot: options.path, runtime: name }));
