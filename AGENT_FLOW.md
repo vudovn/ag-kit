@@ -188,9 +188,9 @@ Reviewer CLIs do not receive a writable mount of the source project. AG Kit pref
 
 ## Preflight flow
 
-`ag-kit preflight` runs blocking repository gates before a release-quality result is accepted.
+`ag-kit preflight` runs the local blocking gates that can be executed from the repository checkout before a release-quality result is accepted.
 
-Current repository gates include:
+Local preflight gates include:
 
 - v2 architecture budget;
 - documentation-link integrity;
@@ -200,9 +200,9 @@ Current repository gates include:
 - Antigravity doctor;
 - Antigravity regression tests;
 - native plugin build;
-- CLI package/tests/audit;
-- web lint/typecheck/build/audit;
-- Dependency Review.
+- CLI tests.
+
+Full GitHub CI additionally enforces CLI package dry-run and production audit, web lint/typecheck/build/audit, and Dependency Review.
 
 ## Runtime boundary
 
