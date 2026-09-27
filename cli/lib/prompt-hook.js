@@ -1,7 +1,8 @@
 import { checkPromptQuality } from "./prompt-quality.js";
 
 const MAX_STDIN_BYTES = 256 * 1024;
-const SUPPORTED = new Set(["claude", "gemini", "qwen"]);
+export const PROMPT_HOOK_RUNTIMES = Object.freeze(["claude", "gemini", "qwen"]);
+const SUPPORTED = new Set(PROMPT_HOOK_RUNTIMES);
 
 const additionalContext = (result) => [
   "<ag-kit-prompt-quality>",
@@ -67,7 +68,7 @@ const readBoundedStdin = async (stream = process.stdin) => {
 
 export async function runPromptHookCli(argv = process.argv) {
   const runtime = String(argv[3] || "").toLowerCase();
-  if (!SUPPORTED.has(runtime)) throw new Error("usage: ag-kit prompt-hook <claude|gemini|qwen>");
+  if (!SUPPORTED.has(runtime)) throw new Error(`usage: ag-kit prompt-hook <${PROMPT_HOOK_RUNTIMES.join("|")}>`);
   try {
     const raw = await readBoundedStdin();
     const payload = raw.trim() ? JSON.parse(raw) : {};
