@@ -1,1 +1,1 @@
-{"schema":1,"runtime":"qwen","tier":"first-class","rules":"QWEN.md","skills":".qwen/skills","agents":".qwen/agents","hooks":null,"mcp":".qwen/settings.json","supports":{"rules":true,"skills":true,"agents":true,"hooks":false,"mcp":true,"plugins":true}}
+{"schema":1,"runtime":"qwen","tier":"first-class","rules":"QWEN.md","skills":".qwen/skills","agents":".qwen/agents","hooks":".qwen/settings.json","mcp":".qwen/settings.json","supports":{"rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true}}
