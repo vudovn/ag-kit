@@ -1,0 +1,237 @@
+name: Migrate Legacy Knowledge
+
+on:
+  push:
+    branches:
+      - feat/lean-multiruntime-v2
+    paths:
+      - .github/workflows/migrate-legacy-knowledge.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/lean-multiruntime-v2
+          path: current
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          path: legacy
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Migrate 47 legacy skills into cold references
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const cp = require('child_process');
+
+          const cwd = process.cwd();
+          const current = path.join(cwd, 'current');
+          const legacy = path.join(cwd, 'legacy');
+          const legacyRoot = path.join(legacy, '.agents', 'skills');
+          const sourceCommit = cp.execFileSync('git', ['-C', legacy, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+
+          const destinations = {
+            'api-patterns': ['pack', 'backend'],
+            'app-builder': ['skill', 'ag-workflow'],
+            'architecture': ['pack', 'software'],
+            'bash-linux': ['pack', 'devops'],
+            'batch-operations': ['skill', 'ag-team'],
+            'behavioral-modes': ['skill', 'ag-core'],
+            'brainstorming': ['skill', 'ag-workflow'],
+            'clean-code': ['skill', 'ag-review'],
+            'code-review-checklist': ['skill', 'ag-review'],
+            'code-review-graph': ['skill', 'ag-review'],
+            'context-compression': ['skill', 'ag-handoff'],
+            'coordinator-mode': ['skill', 'ag-team'],
+            'database-design': ['pack', 'database'],
+            'deployment-procedures': ['pack', 'devops'],
+            'design-spec': ['skill', 'ag-design'],
+            'documentation-templates': ['pack', 'content'],
+            'frontend-architecture': ['pack', 'web'],
+            'frontend-design': ['pack', 'web'],
+            'game-development': ['pack', 'game'],
+            'geo-fundamentals': ['pack', 'growth'],
+            'i18n-localization': ['pack', 'localization'],
+            'intelligent-routing': ['skill', 'ag-core'],
+            'lint-and-validate': ['skill', 'ag-verify'],
+            'mcp-builder': ['pack', 'integration'],
+            'memory-system': ['skill', 'ag-memory'],
+            'mobile-design': ['pack', 'mobile'],
+            'nextjs-react-expert': ['pack', 'web'],
+            'nodejs-best-practices': ['pack', 'backend'],
+            'parallel-agents': ['skill', 'ag-team'],
+            'performance-profiling': ['skill', 'ag-performance'],
+            'plan-writing': ['skill', 'ag-workflow'],
+            'powershell-windows': ['pack', 'devops'],
+            'python-patterns': ['pack', 'backend'],
+            'red-team-tactics': ['pack', 'security'],
+            'rust-pro': ['pack', 'backend'],
+            'seo-fundamentals': ['pack', 'growth'],
+            'server-management': ['pack', 'devops'],
+            'simplify-code': ['skill', 'ag-review'],
+            'skillify': ['skill', 'ag-skill'],
+            'systematic-debugging': ['skill', 'ag-debug'],
+            'tailwind-patterns': ['pack', 'web'],
+            'tdd-workflow': ['skill', 'ag-test'],
+            'testing-patterns': ['skill', 'ag-test'],
+            'verify-changes': ['skill', 'ag-verify'],
+            'vulnerability-scanner': ['pack', 'security'],
+            'web-design-guidelines': ['pack', 'web'],
+            'webapp-testing': ['skill', 'ag-test'],
+          };
+
+          const packMeta = {
+            backend: ['Backend Pack', 'services, APIs, jobs, and server-side application work', ['api', 'backend', 'server', 'service', 'node', 'nodejs', 'python', 'rust', 'queue', 'cache']],
+            content: ['Content Pack', 'documentation, technical writing, templates, and content-system work', ['docs', 'documentation', 'readme', 'writing', 'content', 'template']],
+            database: ['Database Pack', 'schema, data-modeling, SQL, migrations, and persistence work', ['database', 'sql', 'schema', 'postgres', 'mysql', 'prisma', 'drizzle', 'migration']],
+            devops: ['DevOps Pack', 'deployment, servers, shells, CI/CD, and operational automation', ['deploy', 'deployment', 'server', 'linux', 'powershell', 'windows', 'ci', 'cd', 'ops']],
+            game: ['Game Pack', 'game architecture, gameplay systems, engines, and game QA', ['game', 'unity', 'unreal', 'godot', 'gameplay']],
+            mobile: ['Mobile Pack', 'mobile product, UX, platform, and application work', ['mobile', 'ios', 'android', 'flutter', 'react-native']],
+            security: ['Security Pack', 'security-sensitive implementation, threat review, and defensive testing', ['security', 'vulnerability', 'threat', 'red-team', 'auth', 'secret']],
+            web: ['Web Pack', 'browser applications, sites, frontend architecture, UI systems, and web testing', ['web', 'frontend', 'react', 'next', 'nextjs', 'tailwind', 'css', 'html', 'browser', 'accessibility']],
+            growth: ['Search & Growth Pack', 'SEO, GEO, discoverability, citation, and search-facing content work', ['seo', 'geo', 'search', 'ranking', 'citation', 'discoverability']],
+            localization: ['Localization Pack', 'internationalization, localization, locale, and translation work', ['i18n', 'l10n', 'localization', 'locale', 'translation']],
+            integration: ['Integration Pack', 'MCP, protocol, tool-server, and external integration work', ['mcp', 'protocol', 'integration', 'tool-server']],
+            software: ['Software Architecture Pack', 'general software architecture, module boundaries, and dependency design', ['architecture', 'module', 'boundary', 'dependency', 'design']],
+          };
+
+          const discovered = fs.readdirSync(legacyRoot, { withFileTypes: true })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => entry.name)
+            .sort();
+          const mapped = Object.keys(destinations).sort();
+          if (JSON.stringify(discovered) !== JSON.stringify(mapped)) {
+            const missing = discovered.filter((name) => !destinations[name]);
+            const stale = mapped.filter((name) => !discovered.includes(name));
+            throw new Error(`legacy map mismatch: missing=${missing.join(',')} stale=${stale.join(',')}`);
+          }
+          if (discovered.length !== 47) throw new Error(`expected 47 legacy skills, found ${discovered.length}`);
+
+          const stripFrontmatter = (text) => text.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '').trim();
+          const ensure = (dir) => fs.mkdirSync(dir, { recursive: true });
+          const portable = (value) => value.split(path.sep).join('/');
+          const entries = [];
+          const refsBySkill = new Map();
+          const refsByPack = new Map();
+
+          for (const name of discovered) {
+            const source = path.join(legacyRoot, name, 'SKILL.md');
+            const raw = fs.readFileSync(source, 'utf8');
+            const [kind, target] = destinations[name];
+            let destination;
+            if (kind === 'skill') {
+              destination = path.join(current, 'shared', 'skills', target, 'references', `${name}.md`);
+              if (!refsBySkill.has(target)) refsBySkill.set(target, []);
+              refsBySkill.get(target).push(name);
+            } else {
+              destination = path.join(current, 'packs', target, 'references', `${name}.md`);
+              if (!refsByPack.has(target)) refsByPack.set(target, []);
+              refsByPack.get(target).push(name);
+            }
+            ensure(path.dirname(destination));
+            const body = stripFrontmatter(raw);
+            const preamble = `# Legacy knowledge: ${name}\n\n> **Cold reference only.** Migrated from AG Kit v1 for knowledge preservation. Current v2 skill, flow, safety, runtime, and path contracts override any legacy activation/tool/agent/workflow instructions below. Load only the checklist/domain material needed for the current task.\n\nSource: \`.agents/skills/${name}/SKILL.md\` at \`${sourceCommit.slice(0, 12)}\`.\n\n---\n\n`;
+            fs.writeFileSync(destination, `${preamble}${body}\n`);
+            entries.push({
+              legacySkill: name,
+              sourceBytes: Buffer.byteLength(raw),
+              source: `.agents/skills/${name}/SKILL.md`,
+              mode: kind === 'skill' ? 'skill-reference' : 'pack-reference',
+              target,
+              reference: portable(path.relative(current, destination)),
+            });
+          }
+
+          for (const [pack, [title, purpose, triggers]] of Object.entries(packMeta)) {
+            const packDir = path.join(current, 'packs', pack);
+            ensure(packDir);
+            const refs = (refsByPack.get(pack) || []).sort();
+            const lines = [
+              `# ${title}`,
+              '',
+              `Load for ${purpose}.`,
+              '',
+              'Use project-local/framework documentation over generic guidance when they conflict. Keep this pack cold until the task actually needs it.',
+              '',
+              '## Triggers',
+              '',
+              triggers.map((value) => `\`${value}\``).join(', '),
+              '',
+              '## Deep references',
+              '',
+              'These references preserve v1 knowledge but are **non-normative**. Load only the specific file needed; v2 contracts always win.',
+              '',
+              ...(refs.length ? refs.map((name) => `- [${name}](references/${name}.md)`) : ['- No migrated legacy reference; this pack contains v2-native guidance only.']),
+              '',
+            ];
+            fs.writeFileSync(path.join(packDir, 'PACK.md'), lines.join('\n'));
+          }
+
+          for (const [skill, refs] of refsBySkill.entries()) {
+            const dir = path.join(current, 'shared', 'skills', skill, 'references');
+            ensure(dir);
+            const index = [
+              `# ${skill} deep references`,
+              '',
+              'Cold references migrated from AG Kit v1. Load only the specific reference needed. Current `SKILL.md` and v2 runtime/safety contracts are authoritative.',
+              '',
+              ...refs.sort().map((name) => `- [${name}](${name}.md)`),
+              '',
+            ].join('\n');
+            fs.writeFileSync(path.join(dir, 'INDEX.md'), index);
+
+            const skillFile = path.join(current, 'shared', 'skills', skill, 'SKILL.md');
+            let skillText = fs.readFileSync(skillFile, 'utf8').trimEnd();
+            const marker = 'Deep references: `references/INDEX.md`';
+            if (!skillText.includes(marker)) {
+              skillText += `\n\n## Deep references\n${marker}. Load only the specific legacy reference needed; this skill remains authoritative.\n`;
+              fs.writeFileSync(skillFile, skillText);
+            }
+          }
+
+          const registry = {
+            schema: 1,
+            policy: 'cold-load-only',
+            sourceOfTruth: 'shared skills + packs',
+            installedLocation: '.ag-kit/packs',
+            packs: Object.fromEntries(Object.entries(packMeta).map(([id, [title, purpose, triggers]]) => [id, {
+              title, purpose, triggers, index: `packs/${id}/PACK.md`, references: (refsByPack.get(id) || []).sort().map((name) => `packs/${id}/references/${name}.md`),
+            }]))
+          };
+          fs.writeFileSync(path.join(current, 'packs', 'registry.json'), `${JSON.stringify(registry, null, 2)}\n`);
+
+          const map = {
+            schema: 1,
+            legacySourceRef: sourceCommit,
+            legacySkillCount: discovered.length,
+            policy: 'Preserve deep knowledge as cold references; current v2 contracts are normative.',
+            entries,
+          };
+          fs.writeFileSync(path.join(current, 'packs', 'legacy-knowledge-map.json'), `${JSON.stringify(map, null, 2)}\n`);
+          NODE
+
+          cd current
+          npm run sync:antigravity
+
+      - name: Commit migrated knowledge
+        shell: bash
+        run: |
+          cd current
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add shared/skills packs .agents/skills
+          if git diff --cached --quiet; then
+            echo "No knowledge migration changes"
+            exit 0
+          fi
+          git commit -m "feat(packs): preserve legacy knowledge as cold references"
+          git push origin HEAD:feat/lean-multiruntime-v2
