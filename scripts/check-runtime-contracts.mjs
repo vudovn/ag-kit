@@ -10,6 +10,7 @@ let runtimeChecks=0;
 const read=(relative)=>fs.readFileSync(path.join(root,relative),'utf8');
 const exists=(relative)=>fs.existsSync(path.join(root,relative));
 const runtimeNames=Object.keys(capabilities.platforms||{});
+const {PROMPT_HOOK_RUNTIMES}=await import(pathToFileURL(path.join(root,'cli','lib','prompt-hook.js')).href);
 
 if(capabilities.sourceOfTruth!=='shared')errors.push(`sourceOfTruth must be shared, received ${JSON.stringify(capabilities.sourceOfTruth)}`);
 if('primaryRuntime' in capabilities||'primary_runtime' in capabilities)errors.push('platform capability contract must not declare a primary runtime');
@@ -29,6 +30,16 @@ for(const [name,platform] of Object.entries(capabilities.platforms||{})){
     const report=await mod.diagnose(root);runtimeChecks+=1;
     if(!report?.passed)for(const finding of report?.findings||[])if(finding.severity==='error')errors.push(`${name}: ${finding.code} - ${finding.message}`);
   }
+}
+
+for(const name of PROMPT_HOOK_RUNTIMES||[]){
+  const platform=capabilities.platforms?.[name];
+  if(!platform){errors.push(`prompt-hook runtime ${name} is missing from platform capabilities`);continue;}
+  if(!platform.hooks)errors.push(`${name}: prompt-hook runtime must declare hooks=true in platform capabilities`);
+  if(!platform.adapter||!exists(platform.adapter))continue;
+  const adapter=JSON.parse(read(platform.adapter));
+  if(!adapter.supports?.hooks)errors.push(`${name}: prompt-hook runtime adapter must declare supports.hooks=true`);
+  if(!adapter.hooks)errors.push(`${name}: prompt-hook runtime adapter must declare its hook/config surface`);
 }
 
 const rootPackage=JSON.parse(read('package.json'));
