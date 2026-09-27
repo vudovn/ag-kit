@@ -1,0 +1,40 @@
+name: Prune Legacy CLI Lock
+
+on:
+  push:
+    branches: [feat/lean-multiruntime-v2]
+    paths:
+      - .github/workflows/prune-legacy-cli-lock.yml
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/lean-multiruntime-v2
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Regenerate CLI lockfile
+        working-directory: cli
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Validate clean install and tests
+        working-directory: cli
+        run: |
+          npm ci
+          npm test
+          npm pack --dry-run
+      - name: Commit lockfile
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cli/package-lock.json
+          git diff --cached --check
+          git commit -m "chore(cli): prune legacy CLI dependencies"
+          git push origin HEAD:feat/lean-multiruntime-v2
