@@ -1,10 +1,9 @@
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { resolveSafeProjectRoot, stateRoot } from "./project-state.js";
-import { currentTraceId, traceEnv, traceFields } from "./trace-context.js";
+import { traceFields } from "./trace-context.js";
 
 const require = createRequire(import.meta.url);
 export const SUPPORTED_RUNTIMES = ["antigravity", "claude", "codex", "gemini", "cursor", "windsurf", "copilot", "opencode"];
@@ -12,7 +11,6 @@ export const SUPPORTED_RUNTIMES = ["antigravity", "claude", "codex", "gemini", "
 const ensureDir = (dir) => fs.mkdirSync(dir, { recursive: true });
 const slugify = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 64) || "entry";
 const tokenize = (value) => String(value).toLowerCase().match(/[\p{L}\p{N}_-]+/gu) || [];
-const truncate = (value, max = 80000) => String(value || "").slice(0, max);
 
 export const parseArgs = (argv) => {
     const out = { _: [] };
@@ -218,73 +216,6 @@ export function probeRoster() {
         const result = spawnSync(item.command, item.probe, { encoding: "utf8", timeout: 3000, shell: false });
         return { id: item.id, lineage: item.lineage, command: item.command, executable: Boolean(item.run), available: !result.error && result.status === 0, version: (result.stdout || result.stderr || "").trim().split(/\r?\n/)[0] || null };
     });
-}
-
-export function snapshotAuditTarget({ root = process.cwd(), target = "." }) {
-    const resolvedRoot = path.resolve(root);
-    if (target === "." || target === "diff") {
-        const diff = spawnSync("git", ["diff", "--no-ext-diff", "--unified=3", "HEAD"], { cwd: resolvedRoot, encoding: "utf8", timeout: 10000, shell: false });
-        const staged = spawnSync("git", ["diff", "--cached", "--no-ext-diff", "--unified=3"], { cwd: resolvedRoot, encoding: "utf8", timeout: 10000, shell: false });
-        const content = truncate(`${staged.stdout || ""}\n${diff.stdout || ""}`.trim());
-        return { kind: "diff", label: "working tree diff", content: content || "(no diff)" };
-    }
-    const absolute = path.resolve(resolvedRoot, target);
-    if (!absolute.startsWith(`${resolvedRoot}${path.sep}`) && absolute !== resolvedRoot) throw new Error("audit target must stay inside project root");
-    if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) throw new Error(`audit target not found or not a file: ${target}`);
-    return { kind: "file", label: path.relative(resolvedRoot, absolute), content: truncate(fs.readFileSync(absolute, "utf8")) };
-}
-
-const reviewerPrompt = (snapshot) => `You are an independent read-only reviewer. Review ONLY the snapshot below. Do not attempt to edit files, run tools, or assume access to the source repository. Focus on concrete correctness, security, regression, test, and maintainability risks. Return concise findings grouped as BLOCKING, IMPORTANT, and OPTIONAL. If no concrete issue exists, say so.\n\nTARGET: ${snapshot.label}\n\n--- SNAPSHOT START ---\n${snapshot.content}\n--- SNAPSHOT END ---`;
-
-const normalizeReviewerOutput = (id, stdout) => {
-    const raw = String(stdout || "").trim();
-    if (!raw) return "";
-    if (["gemini", "qwen"].includes(id)) {
-        try {
-            const data = JSON.parse(raw);
-            return String(data.response ?? data.result ?? data.output ?? raw);
-        } catch {}
-    }
-    return raw;
-};
-
-export function runCrossAudit({ root = process.cwd(), target = ".", reviewers = 2, timeoutMs = 180000 }) {
-    const snapshot = snapshotAuditTarget({ root, target });
-    const probes = probeRoster();
-    const byId = new Map(auditRoster.map((item) => [item.id, item]));
-    const selected = [];
-    const lineages = new Set();
-    for (const probe of probes) {
-        if (!probe.available || !probe.executable || lineages.has(probe.lineage)) continue;
-        selected.push(byId.get(probe.id)); lineages.add(probe.lineage);
-        if (selected.length >= Math.max(1, Math.min(3, Number(reviewers)))) break;
-    }
-    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-audit-"));
-    try {
-        const prompt = reviewerPrompt(snapshot);
-        const results = selected.map((reviewer) => {
-            const started = Date.now();
-            const result = spawnSync(reviewer.command, reviewer.run(prompt), { cwd: temp, encoding: "utf8", timeout: Number(timeoutMs), shell: false, env: traceEnv(root) });
-            return {
-                reviewer: reviewer.id,
-                lineage: reviewer.lineage,
-                ok: !result.error && result.status === 0,
-                exitCode: result.status,
-                durationMs: Date.now() - started,
-                output: normalizeReviewerOutput(reviewer.id, result.stdout),
-                error: truncate(result.error?.message || result.stderr || "", 1200)
-            };
-        });
-        const auditDir = path.join(stateRoot(root), "audits");
-        ensureDir(auditDir);
-        const reportPath = path.join(auditDir, `${Date.now()}-cross-audit.json`);
-        const report = { schema: 1, ...traceFields(root), target: snapshot.label, snapshotKind: snapshot.kind, reviewerCount: results.length, lineages: [...lineages], results };
-        fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
-        appendReceipt(root, "cross-audit", { action: "run", target: snapshot.label, reviewers: results.map((r) => r.reviewer), lineages: [...lineages], passedCalls: results.filter((r) => r.ok).length, report: path.relative(root, reportPath) });
-        return { ...report, report: path.relative(root, reportPath), status: results.length >= 2 && results.every((r) => r.ok) ? "complete" : results.length ? "degraded" : "unavailable" };
-    } finally {
-        fs.rmSync(temp, { recursive: true, force: true });
-    }
 }
 
 export function prepareAudit({ root = process.cwd(), target = "." }) {
