@@ -15,6 +15,8 @@ npm install -g @vudovn/ag-kit
 npx @vudovn/ag-kit --help
 ```
 
+Installing the package installs the CLI only. A project changes only after an explicit runtime install.
+
 ## Runtime lifecycle
 
 ```bash
@@ -31,7 +33,18 @@ AG Kit declares 16 runtime targets across first-class, connected, and bridge tie
 
 No runtime is the product's primary runtime. Runtime-specific hooks, plugins, and projection formats remain implementation details of their adapters.
 
-Runtime lifecycle uses pre-install backups, ownership manifests, drift-aware doctor checks, and surgical uninstall. Filesystem root and user home are rejected as v2 project targets.
+Runtime lifecycle uses pre-install backups, ownership manifests, drift-aware doctor checks, and surgical uninstall. Filesystem root and user home are rejected as project targets.
+
+### Migrating a pre-v2 Antigravity project
+
+Do not use the removed `init/update/rollback/status` managed-tree lifecycle. Commit or back up the project, then install the Antigravity adapter through the same lifecycle used by every other runtime:
+
+```bash
+ag-kit runtime install antigravity
+ag-kit runtime doctor antigravity
+```
+
+The adapter snapshots touched paths before installation and tracks AG Kit-owned state. `runtime uninstall antigravity` restores/removes only state whose ownership can be proven and preserves project memory by default.
 
 ## Memory and shared brain
 
@@ -45,27 +58,33 @@ ag-kit memory dream
 ag-kit memory reindex
 ag-kit memory status
 
+ag-kit memory semantic status
+ag-kit memory semantic on
+ag-kit memory semantic rebuild
+
 ag-kit brain register .
 ag-kit brain list
 ag-kit brain search "deployment convention"
 ag-kit brain unregister .
 ```
 
-Markdown is canonical. SQLite/FTS5 is optional acceleration. Cross-project search only sees explicitly registered projects, does not crawl `$HOME`, and is disabled by `AG_KIT_MINIMAL=1` or `AG_KIT_NO_CROSS_PROJECT=1`.
+Markdown is canonical. SQLite/FTS5 and the local semantic tier are optional, rebuildable acceleration layers. Semantic retrieval is off by default and does not make its index canonical. Cross-project search only sees explicitly registered projects, does not crawl `$HOME`, and is disabled by `AG_KIT_MINIMAL=1` or `AG_KIT_NO_CROSS_PROJECT=1`.
 
 ## Flow and teams
 
 ```bash
 ag-kit flow start "Ship account recovery" --mode deep
 ag-kit flow artifact "Compared approaches"
-ag-kit flow waves '[{"name":"foundation","parallel":false}]'
+ag-kit flow waves '[{"id":"foundation","mode":"parallel","tasks":["A","B"],"dependsOn":[]}]'
+ag-kit flow ready
+ag-kit flow wave-complete foundation "Foundation verified"
 ag-kit flow approve "approved"
 ag-kit flow status
 
 ag-kit team --archetype auto --name product --brief "Ship safely"
 ```
 
-QUICK, STANDARD, and DEEP share one development spine. User gates require artifacts; DEEP convergence requires an explicit wave table.
+QUICK, STANDARD, and DEEP share one development spine. User gates require artifacts; DEEP execution uses explicit dependency waves and mechanical verification evidence.
 
 ## Context economy
 
@@ -80,15 +99,16 @@ ag-kit handoff show
 
 `run` keeps full command output under `.ag-kit/session-sandbox/` and returns a bounded summary. `compress` is deterministic and non-destructive by default. `handoff` produces a structured continuation artifact and archives the previous one.
 
-## Audit and release gates
+## Prompt quality and audit
 
 ```bash
+ag-kit prompt-check "update it"
 ag-kit cross-audit --probe
 ag-kit cross-audit . --reviewers 3 --exclude-lineage openai
 ag-kit preflight
 ```
 
-Cross-audit reviewers receive a read-only snapshot/diff in temporary directories, never a writable source mount. Findings are clustered into consensus/contested groups and recorded with receipts.
+Prompt quality checks return bounded structural signals without persisting raw prompts. Cross-audit reviewers receive read-only snapshot chunks in temporary directories, never a writable source mount. Independent lineages can run in bounded parallelism; findings are clustered into consensus/contested groups and recorded with traceable receipts.
 
 ## Observability
 
@@ -100,7 +120,7 @@ ag-kit dashboard status
 ag-kit dashboard stop
 ```
 
-The ledger is bounded and rotating; the dashboard binds to localhost. AG Kit reports explicit/measured values rather than inventing a counterfactual savings multiplier. Adapters may feed privacy-minimal host events automatically when the runtime exposes a verified hook surface.
+The ledger is bounded and rotating; the dashboard binds to localhost and rolls events up by runtime and trace. AG Kit reports explicit/measured values rather than inventing a counterfactual savings multiplier.
 
 ## Personalization and design
 
@@ -125,30 +145,14 @@ Personalization requires verbatim evidence and cross-session confirmation. Injec
 ag-kit mcp serve
 ```
 
-The MCP surface intentionally stays small: project memory, opt-in cross-project search/status, team initialization, runtime status, and audit probing.
-
-## Legacy lifecycle compatibility
-
-Existing AG Kit installations still have the managed-tree migration path:
-
-```bash
-ag-kit init
-ag-kit update --dry-run
-ag-kit update --strategy merge
-ag-kit update --strategy replace
-ag-kit rollback
-ag-kit status
-```
-
-`merge` remains the default. `replace` is explicit and still creates a backup unless `--no-backup` is supplied.
+The MCP surface intentionally stays small and runtime-neutral: project/shared memory, team initialization, runtime status, audit probing, and prompt-quality assistance.
 
 ## Exit codes
 
 | Code | Meaning |
 |---:|---|
 | `0` | Success or no changes required |
-| `1` | Validation, filesystem, configuration, preflight, runtime, or audit failure |
-| `2` | Legacy update completed with conflicts requiring review |
+| `1` | Unknown command or validation/filesystem/configuration/preflight/runtime/audit failure |
 | `130` | Interrupted by the user |
 
 ## License
