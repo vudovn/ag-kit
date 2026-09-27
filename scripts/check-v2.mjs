@@ -6,6 +6,16 @@ const root = process.cwd();
 const fail = (msg) => { console.error(`AG Kit v2: ${msg}`); process.exitCode = 1; };
 const dirs = (p) => fs.existsSync(p) ? fs.readdirSync(p, {withFileTypes:true}).filter(x=>x.isDirectory()).map(x=>x.name) : [];
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
+const walkFiles = (dir) => {
+  if (!fs.existsSync(dir)) return [];
+  const rows = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) rows.push(...walkFiles(full));
+    else rows.push(full);
+  }
+  return rows;
+};
 
 const capabilities = readJson('platform-capabilities.json');
 const skills = dirs(path.join(root,'shared','skills'));
@@ -35,6 +45,8 @@ if (coreLines > 80) fail(`resident core is ${coreLines} lines; keep it <= 80`);
 const knowledgeMapPath = path.join(root, 'packs', 'legacy-knowledge-map.json');
 const packRegistryPath = path.join(root, 'packs', 'registry.json');
 let legacyKnowledgeCount = 0;
+let legacyAssetCount = 0;
+let legacyAssetBytes = 0;
 let packCount = 0;
 
 if (!fs.existsSync(knowledgeMapPath)) fail('missing packs/legacy-knowledge-map.json');
@@ -67,6 +79,16 @@ if (fs.existsSync(knowledgeMapPath) && fs.existsSync(packRegistryPath)) {
     if (!reference.includes('Cold reference only.')) fail(`${entry.legacySkill}: reference is missing non-normative cold-load warning`);
     if (Number(entry.sourceBytes || 0) <= 0) fail(`${entry.legacySkill}: sourceBytes must be recorded`);
 
+    const assetRoot = path.dirname(referencePath);
+    const assets = walkFiles(assetRoot);
+    const assetBytes = assets.reduce((sum, file) => sum + fs.statSync(file).size, 0);
+    const discoverable = assets.filter((file) => path.basename(file).toLowerCase() === 'skill.md');
+    if (discoverable.length) fail(`${entry.legacySkill}: cold reference tree contains ${discoverable.length} discoverable SKILL.md file(s)`);
+    if (Number(entry.assetCount || 0) !== assets.length) fail(`${entry.legacySkill}: assetCount drift ${entry.assetCount} != ${assets.length}`);
+    if (Number(entry.assetBytes || 0) !== assetBytes) fail(`${entry.legacySkill}: assetBytes drift ${entry.assetBytes} != ${assetBytes}`);
+    legacyAssetCount += assets.length;
+    legacyAssetBytes += assetBytes;
+
     if (entry.mode === 'skill-reference') {
       if (!skills.includes(entry.target)) fail(`${entry.legacySkill}: target skill ${entry.target} does not exist`);
       const index = path.join(root, 'shared', 'skills', entry.target, 'references', 'INDEX.md');
@@ -90,4 +112,4 @@ if (fs.existsSync(knowledgeMapPath) && fs.existsSync(packRegistryPath)) {
   }
 }
 
-if (!process.exitCode) console.log(`AG Kit v2 OK: ${skills.length} skills (${resident.length} resident), ${agents.length} agents, ${flows.length} flow, ${Object.keys(capabilities.platforms).length} runtimes, ${coreLines}-line core, ${packCount} cold packs, ${legacyKnowledgeCount}/47 legacy knowledge references preserved.`);
+if (!process.exitCode) console.log(`AG Kit v2 OK: ${skills.length} skills (${resident.length} resident), ${agents.length} agents, ${flows.length} flow, ${Object.keys(capabilities.platforms).length} runtimes, ${coreLines}-line core, ${packCount} cold packs, ${legacyKnowledgeCount}/47 legacy knowledge references preserved across ${legacyAssetCount} assets (${legacyAssetBytes} bytes).`);
