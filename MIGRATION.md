@@ -1,44 +1,55 @@
 # Migrating to AG Kit v2
 
-AG Kit v2 replaces the old prompt-heavy, Antigravity-centered layout with a lean multi-runtime operating layer. This guide is for projects upgrading from the `2026.8.31` generation or earlier.
+AG Kit v2 replaces the old Antigravity-centered managed-tree CLI with one runtime-neutral lifecycle. This guide is for projects upgrading from the `2026.8.31` generation or earlier.
 
-The migration is intentionally non-destructive: existing user files and locally modified managed files are preserved by the default merge strategy, runtime lifecycle writes are project-scoped where possible, and AG Kit-owned state lives under `.ag-kit/`.
+The important change is structural: there is no second `init/update/rollback/status` lifecycle anymore. Every host, including Antigravity, is installed and verified through `ag-kit runtime ...`.
 
 ## What changes in v2
 
-### Architecture
-
 - `shared/` is the canonical runtime-neutral source of truth.
-- `packs/` holds domain reference knowledge that loads only when relevant.
+- `packs/` holds cold domain/reference knowledge.
 - `runtimes/<runtime>/` contains thin capability-aware adapters.
-- Generated host trees such as `.agents/`, `.claude/`, or `.gemini/` are projections, not canonical implementations.
-- The resident surface is deliberately small: **1 core, 18 hot-loaded skills, 4 permanent agents, 1 development spine**.
-- Legacy `.agents/workflows/` files are removed. QUICK, STANDARD, and DEEP are modes of one flow engine rather than separate slash-command workflows.
+- Generated host trees such as `.agents/`, `.claude/`, `.gemini/`, managed instruction files, and plugin folders are projections, not canonical implementations.
+- The resident surface is **1 core, 18 hot-loaded skills, 4 permanent agents, 1 development spine**.
+- Legacy `.agents/workflows/` is gone. QUICK, STANDARD, and DEEP are modes of one flow engine.
+- No runtime is the product's primary runtime.
 
-No runtime is the product's primary runtime. Runtime-specific hooks, plugins, config formats, and host-native features stay behind adapter boundaries.
+## Before migrating
 
-### Activation model
-
-Natural-language intent is authoritative. Slash commands and CLI commands are aliases, not a requirement for the runtime to support a slash-command UI.
-
-Examples:
-
-- `plan this`, `spec this`, `brainstorm`, or `architecture` enters the development flow before multi-file implementation;
-- `continue`, `resume`, or `pick up where we left off` loads the latest handoff and relevant durable project memory before mutation;
-- a current user instruction overrides stale memory, and AG Kit surfaces the conflict instead of silently choosing stale state.
-
-### Runtime model
-
-AG Kit declares 16 targets across first-class, connected, and bridge tiers. Installation is capability-aware rather than pretending every host has identical native surfaces.
+1. Commit or stash project work.
+2. Make an external backup if the project contains important runtime-specific customizations.
+3. Install the v2 CLI.
+4. Detect the runtimes already present:
 
 ```bash
-ag-kit runtime list
 ag-kit runtime detect
+```
+
+If the project was an older Antigravity-only AG Kit installation, do **not** run the removed managed-tree commands. Install the Antigravity adapter through the unified lifecycle:
+
+```bash
+ag-kit runtime install antigravity
+ag-kit runtime doctor antigravity
+```
+
+During a pre-release review, use the reviewed branch/ref explicitly:
+
+```bash
+ag-kit runtime install antigravity --branch <reviewed-ref>
+```
+
+After a release tag exists, omit `--branch`; the published CLI resolves runtime source from its matching `v<CLI_VERSION>` tag.
+
+## Migrate additional runtimes
+
+Install detected runtimes in one pass:
+
+```bash
 ag-kit runtime install-present
 ag-kit runtime doctor
 ```
 
-Install one target explicitly when needed:
+Or install adapters explicitly:
 
 ```bash
 ag-kit runtime install claude
@@ -46,43 +57,19 @@ ag-kit runtime install codex
 ag-kit runtime install gemini
 ```
 
-AG Kit rejects filesystem root and the user home directory as project targets. Integrations that only expose user-global configuration are staged for explicit activation instead of being silently mutated.
+Each runtime install records ownership/lifecycle state under `.ag-kit/runtime-installs/` and snapshots paths the adapter is about to touch. Project-scoped config is preferred. Integrations that only expose user-global configuration are staged for explicit activation instead of being silently mutated.
 
-## Before upgrading
+## Existing `.agents` customizations
 
-1. Commit or stash project work.
-2. Install the current CLI build/release.
-3. Preview the legacy managed-tree update:
+An older project may already contain `.agents/` files that are not owned by AG Kit. Keep them backed up/committed before migration.
 
-```bash
-ag-kit update --dry-run
-```
+The v2 Antigravity adapter treats `.agents/` as a runtime projection. Lifecycle state and backups are used so doctor/uninstall can distinguish AG Kit-managed projection state from later user drift. The release smoke test specifically covers a pre-existing user-owned file under `.agents/` and verifies it survives install/uninstall.
 
-4. Review local modifications and reported conflicts.
+Do not manually copy the Antigravity tree into other runtime folders. Use the matching adapter.
 
-The default `merge` strategy preserves user-owned files and locally modified managed files. Use `--strategy replace` only when you intentionally want the upstream managed tree and have reviewed backup behavior.
+## Memory and continuity
 
-## Upgrade an existing project
-
-Apply the safe legacy managed-tree migration when the project came from v1:
-
-```bash
-ag-kit update
-```
-
-Then detect and activate the runtimes present in the project/machine:
-
-```bash
-ag-kit runtime detect
-ag-kit runtime install-present
-ag-kit runtime doctor
-```
-
-`runtime install-present` only operates on detected targets. Lifecycle manifests and pre-install backups are written under `.ag-kit/` so doctor/uninstall can distinguish AG Kit-owned state from later user drift.
-
-Projects that never used the v1 managed `.agents` tree can skip the legacy `update` path and install runtime projections directly.
-
-## Project memory and continuity
+Initialize project memory after or before installing runtime projections:
 
 ```bash
 ag-kit memory init
@@ -92,7 +79,7 @@ ag-kit handoff quick "Paused after verification" --next "Review remaining issues
 ag-kit handoff show
 ```
 
-Markdown under `.ag-kit/memory/` is canonical. The optional SQLite/FTS5 index is rebuildable acceleration only. The current handoff lives under `.ag-kit/`; resume intent should read it and then verify current Git/project state before acting.
+Markdown under `.ag-kit/memory/` is canonical. SQLite/FTS5 and the optional local semantic tier are rebuildable acceleration layers only.
 
 For large context artifacts:
 
@@ -100,13 +87,13 @@ For large context artifacts:
 ag-kit compress docs/long-context.md
 ```
 
-Compression writes a separate compact artifact by default. `--write` is explicit and creates a timestamped backup before replacing the source.
+Compression writes a separate compact artifact by default. `--write` is explicit and creates a backup before replacement.
 
 ## Workflow migration
 
-Do **not** recreate the old workflow directory or depend on `/coordinate`, `/orchestrate`, `/plan`, or similar v1 files being discoverable.
+Do **not** recreate `.agents/workflows/` or depend on old `/coordinate`, `/orchestrate`, `/plan`, or similar v1 workflow files.
 
-Use natural-language intent or the v2 flow CLI:
+Use natural-language intent or the flow CLI:
 
 ```bash
 ag-kit flow start "Ship account recovery" --mode standard
@@ -119,9 +106,9 @@ Modes:
 
 - QUICK: FRAME → PLAN → EXECUTE → VERIFY
 - STANDARD: FRAME → SHAPE → PLAN → EXECUTE → VERIFY → SHIP
-- DEEP: FRAME → RECON → SHAPE → PLAN → WAVES → VERIFY → CROSS-AUDIT → SHIP
+- DEEP: FRAME → RECON → SHAPE → PLAN → WAVES → VERIFY → CROSS_AUDIT → SHIP
 
-User gates do not auto-advance. DEEP mode requires an explicit dependency-wave table before execution convergence.
+User gates do not auto-advance. Verification boundaries require fresh mechanical evidence.
 
 ## MCP migration
 
@@ -131,26 +118,20 @@ The v2 MCP bridge is served by the CLI:
 ag-kit mcp serve
 ```
 
-Verified project-scoped adapters wire the AG Kit MCP entry where their runtime configuration format supports it. Global-only integrations are staged for explicit activation.
-
-Check actual wiring with:
+Verified project-scoped adapters wire the MCP entry where supported. Check actual lifecycle/wiring state with:
 
 ```bash
 ag-kit runtime doctor
 ```
 
-## Runtime projection migration
-
-Runtime projections are now adapter-owned. Examples include:
+## Runtime projection examples
 
 - Antigravity → `.agents/`
 - Claude → `.claude/` plus managed `CLAUDE.md`
 - Codex → managed `AGENTS.md` plus `.codex-plugin/`
 - Gemini → `.gemini/` plus managed `GEMINI.md`
 
-Do not manually copy one runtime tree into another. Run the lifecycle command so ownership, backup, MCP wiring, and uninstall semantics remain intact.
-
-Host-specific safety/observability hooks remain inside the host adapter. For example, Antigravity's native hook projection remains supported, but it is no longer a repository-wide runtime contract.
+Host-specific hooks/plugins stay inside their adapter boundary. Richer native surfaces do not make a runtime primary.
 
 ## Validation after migration
 
@@ -168,6 +149,7 @@ For AG Kit repository development:
 npm run check:v2
 npm run check:docs
 npm run test:v2
+npm run benchmark:v2 -- --output dist/evidence/benchmark-v2.json
 npm run check:runtimes
 npm run test:runtimes
 npm run build:runtimes
@@ -178,21 +160,19 @@ npm run typecheck:web
 npm run build:web
 ```
 
-## Rollback and uninstall
+## Rollback / removal in v2
 
-Restore a pre-update legacy managed-tree backup:
+There is no generic managed-tree rollback command in v2.
 
-```bash
-ag-kit rollback
-```
-
-Remove one v2 runtime projection:
+To remove one runtime adapter:
 
 ```bash
 ag-kit runtime uninstall <runtime>
 ```
 
-Runtime uninstall removes or restores only AG Kit-owned projection state where ownership can be proven. User drift is preserved, and `.ag-kit/memory/` is preserved by default.
+Uninstall uses lifecycle ownership metadata and pre-install backups. It restores/removes only state whose ownership can be proven, preserves user drift, and keeps `.ag-kit/memory/` by default.
+
+If a migration needs to be reverted beyond adapter-owned state, use the project backup or version-control commit created before migration. This is intentionally clearer than maintaining a second hidden lifecycle alongside runtime adapters.
 
 ## Compatibility notes
 
@@ -202,12 +182,13 @@ Runtime uninstall removes or restores only AG Kit-owned projection state where o
 | Runtime implementation | `runtimes/<runtime>/` adapters |
 | Host trees | generated/managed projections |
 | Primary runtime | none |
+| Lifecycle | one `runtime install/doctor/uninstall` model |
+| Legacy managed-tree CLI | removed |
 | Legacy workflow files | removed; one flow engine replaces them |
 | Slash-command dependency | removed; natural-language intent is first-class |
 | Memory | local Markdown canonical store under `.ag-kit/` |
-| Existing user files | preserved by default merge/lifecycle strategy |
 | Runtime config | project-scoped when verified; global-only changes are explicit |
-| Runtime uninstall | preserves user drift and memory |
+| Runtime uninstall | ownership-aware; preserves user drift and memory |
 | Cross-project memory | opt-in registry only; no automatic `$HOME` crawl |
 
-Historical pre-v2 details remain available in Git history and the changelog. New work should not restore runtime-centric root contracts, duplicate canonical runtime trees, or silently mutate user-global configuration.
+Historical pre-v2 behavior remains available in Git history and the changelog. New work should not restore the old Antigravity-only CLI, duplicate canonical runtime trees, or silently mutate user-global configuration.
