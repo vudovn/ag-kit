@@ -11,6 +11,7 @@ const read=(relative)=>fs.readFileSync(path.join(root,relative),'utf8');
 const exists=(relative)=>fs.existsSync(path.join(root,relative));
 const runtimeNames=Object.keys(capabilities.platforms||{});
 const {PROMPT_HOOK_RUNTIMES}=await import(pathToFileURL(path.join(root,'cli','lib','prompt-hook.js')).href);
+const capabilityKeys=['rules','skills','agents','hooks','mcp','plugins'];
 
 if(capabilities.sourceOfTruth!=='shared')errors.push(`sourceOfTruth must be shared, received ${JSON.stringify(capabilities.sourceOfTruth)}`);
 if('primaryRuntime' in capabilities||'primary_runtime' in capabilities)errors.push('platform capability contract must not declare a primary runtime');
@@ -22,7 +23,10 @@ for(const [name,platform] of Object.entries(capabilities.platforms||{})){
   const adapter=JSON.parse(fs.readFileSync(adapterPath,'utf8'));
   if(adapter.runtime!==name)errors.push(`${name}: adapter runtime mismatch`);
   if(adapter.tier!==platform.tier)errors.push(`${name}: adapter tier mismatch`);
-  for(const key of ['rules','skills','agents','hooks','mcp','plugins'])if(Boolean(adapter.supports?.[key])!==Boolean(platform[key]))errors.push(`${name}: ${key} capability drift`);
+  for(const key of capabilityKeys){
+    if(Boolean(adapter.supports?.[key])!==Boolean(platform[key]))errors.push(`${name}: ${key} capability drift`);
+    if(adapter.supports?.[key]&&!adapter[key])errors.push(`${name}: ${key}=true requires a concrete adapter.${key} surface`);
+  }
   const checkPath=path.join(path.dirname(adapterPath),'check.mjs');
   if(fs.existsSync(checkPath)){
     const mod=await import(pathToFileURL(checkPath).href);
