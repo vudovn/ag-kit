@@ -3,12 +3,12 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
+import { resolveSafeProjectRoot, stateRoot } from "./project-state.js";
 
 const require = createRequire(import.meta.url);
 export const SUPPORTED_RUNTIMES = ["antigravity", "claude", "codex", "gemini", "cursor", "windsurf", "copilot", "opencode"];
 
 const ensureDir = (dir) => fs.mkdirSync(dir, { recursive: true });
-const stateRoot = (root = process.cwd()) => path.join(path.resolve(root), ".ag-kit");
 const slugify = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 64) || "entry";
 const tokenize = (value) => String(value).toLowerCase().match(/[\p{L}\p{N}_-]+/gu) || [];
 const truncate = (value, max = 80000) => String(value || "").slice(0, max);
@@ -315,7 +315,7 @@ const managedBlock = (file, label, content) => {
 export function installRuntime({ sourceRoot, targetRoot = process.cwd(), runtime }) {
     if (!SUPPORTED_RUNTIMES.includes(runtime)) throw new Error(`unsupported runtime: ${runtime}`);
     const source = path.resolve(sourceRoot);
-    const target = path.resolve(targetRoot);
+    const target = resolveSafeProjectRoot(targetRoot);
     const shared = path.join(source, "shared");
     if (!fs.existsSync(shared)) throw new Error(`shared source not found at ${shared}`);
     const core = fs.readFileSync(path.join(shared, "core", "CORE.md"), "utf8");
