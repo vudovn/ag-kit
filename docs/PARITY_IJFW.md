@@ -13,6 +13,7 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 | One-install discovery | detect tools already present | **done** — `runtime detect` + `runtime install-present`; no `gh == Copilot` false-positive |
 | Verified injection states | live / standing-by / untouched | **done** — lifecycle manifests + digest/marker/MCP doctor checks |
 | Safe uninstall | remove only framework-owned state | **done** — restores backups, strips owned blocks/MCP keys, preserves drift and memory |
+| Prompt quality gate | deterministic ambiguity check before subjective work | **portable core done** — `prompt-check` + MCP `ag_prompt_check`, multi-signal/low-FP heuristics, no raw-prompt persistence; native pre-prompt interception remains capability-gated |
 | Plan-before-build workflow | explicit phases and sign-off | **done** — QUICK/STANDARD/DEEP session engine; artifact required before approval |
 | Deep convergence | dependency waves | **done** — DEEP convergence requires an explicit wave table |
 | Local-first memory | human-readable canonical store | **done** — Markdown canonical entries + receipts |
@@ -22,7 +23,7 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 | Cross-project brain | one brain across projects/tools | **done** — explicit opt-in registry + strictly read-only cross-project Markdown search |
 | Dream cycle | periodic consolidation | **done** — explicit `memory dream`; scheduling remains host/runtime-owned |
 | Project team assembly | local specialist bench | **done** — stack-aware archetype generator under `.ag-kit/agents` |
-| Cross-model audit | multiple independent model families | **done** — read-only snapshot execution with calling-lineage exclusion |
+| Cross-model audit | multiple independent model families | **done** — read-only snapshot execution with calling-lineage exclusion and bounded parallel lineages |
 | Audit convergence | consensus vs contested | **done** — structured finding parser/clustering + receipts |
 | Preflight | blocking ship gates | **done** — runtime-neutral architecture/docs/engine/runtime/CLI gates |
 | MCP bridge | one local brain for thin runtimes | **done** — MCP SDK v2 stdio server; project and opt-in cross-project recall |
@@ -30,8 +31,9 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 | Command sandbox | keep large output off-context | **done** — full output on disk, bounded summary in context, no shell interpolation |
 | Compression | shrink context artifacts | **done** — deterministic Markdown compaction with measured byte reduction; non-destructive by default |
 | Session handoff | compact continuity artifact | **done** — goal/state/decisions/changed files/evidence/risks/next action + archives |
-| Observability | local token/cost dashboard | **done** — bounded rotating JSONL ledger + localhost dashboard + measured-only methodology |
-| Native event ingestion | runtime hooks feed observability | **partial by verified surface** — adapters may ingest host events only where a stable hook/event contract is independently verified and privacy-tested |
+| Observability | local token/cost dashboard | **done** — bounded rotating JSONL ledger + localhost dashboard + measured-only methodology + trace rollups |
+| Native event ingestion | runtime hooks feed observability | **done by verified surface** — bounded metadata-only normalizer; adapters project automatic ingestion only where a stable hook/event contract is independently verified and tested |
+| Benchmark receipts | reproducible evidence instead of marketing claims | **done for deterministic local fixtures** — memory, routing, lifecycle, and compression benchmark receipts; optional provider/model arms remain separate |
 | Personalization | learn repeated user preferences | **done** — verbatim evidence + two-session confirmation |
 | Privacy controls | disclosure log / forget / kill switch | **done** — opt-in injection, egress JSONL, purge-on-forget, `AG_KIT_PROFILE_KILL` |
 | Design contract | cross-agent `DESIGN.md` | **done** — 12 templates + nine-section validator |
@@ -47,14 +49,15 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 - **No duplicate canonical runtime trees.** Runtime-specific copies are generated projections; reusable behavior remains in `shared/`.
 - **No primary runtime.** Rich host-native surfaces stay behind adapter boundaries instead of defining the product architecture.
 - **No capability-by-badge.** Detection, lifecycle manifests, adapter contracts, and doctor checks distinguish installed/live, staged/standing-by, and untouched states.
+- **No raw-prompt telemetry from prompt quality checks.** The checker returns only bounded structural metadata, signals, and clarification questions.
 
 ## Remaining convergence work
 
-These are optional strengthening areas, not reasons to inflate the resident core:
+These are strengthening areas, not reasons to inflate the resident core:
 
-1. add automatic observability adapters only for runtimes whose hook/event contracts can be verified and tested;
+1. wire prompt-quality interception automatically only for runtimes whose user-prompt hook/event contract is current, project-safe, and independently tested;
 2. optionally add a local semantic/cold retrieval provider behind Markdown + FTS without making it canonical or mandatory;
-3. expand benchmark/field-test coverage so memory, routing, lifecycle, and context-reduction claims have reproducible project-level receipts;
+3. optionally extend deterministic benchmark receipts into an explicit cost-capped multi-arm provider benchmark without turning provider spend into a default requirement;
 4. keep runtime schemas current and promote bridge targets only when their native contracts justify it;
 5. add more adapter-specific artifact builders only when a host has a real package/plugin artifact worth building, rather than manufacturing parity.
 
