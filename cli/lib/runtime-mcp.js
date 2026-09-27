@@ -12,6 +12,13 @@ const mergeMcp = (file, entry = stdio) => {
   writeJson(file, data);
   return { wired: true, file };
 };
+const mergeOpenCodeMcp = (file) => {
+  const data = readJson(file);
+  data.$schema ||= "https://opencode.ai/config.json";
+  data.mcp = { ...(data.mcp || {}), "ag-kit": { type: "local", command: ["ag-kit", "mcp", "serve"], enabled: true } };
+  writeJson(file, data);
+  return { wired: true, file };
+};
 const mergePromptHook = ({ root, file, runtime, event }) => {
   const data = readJson(file);
   data.hooks = { ...(data.hooks || {}) };
@@ -43,6 +50,7 @@ export function wireRuntimeMcp({ root = process.cwd(), runtime }) {
   else if (runtime === "cline") result = mergeMcp(path.join(target, ".cline", "mcp.json"));
   else if (runtime === "cursor") result = mergeMcp(path.join(target, ".cursor", "mcp.json"));
   else if (runtime === "copilot") result = mergeMcp(path.join(target, ".mcp.json"), { type: "local", ...stdio, env: {}, tools: ["*"] });
+  else if (runtime === "opencode") result = mergeOpenCodeMcp(path.join(target, "opencode.json"));
   else if (runtime === "codex") {
     const pluginDir = path.join(target, ".codex-plugin");
     const pluginSkills = path.join(pluginDir, "skills");
@@ -53,29 +61,10 @@ export function wireRuntimeMcp({ root = process.cwd(), runtime }) {
     const mcpFile = path.join(pluginDir, ".mcp.json");
     writeJson(mcpFile, { mcpServers: { "ag-kit": stdio } });
     const hooksFile = path.join(pluginDir, "hooks", "hooks.json");
-    writeJson(hooksFile, {
-      hooks: {
-        PostToolUse: [{
-          hooks: [{ type: "command", command: "ag-kit hook-ingest codex", async: true, timeout: 5 }],
-        }],
-      },
-    });
+    writeJson(hooksFile, { hooks: { PostToolUse: [{ hooks: [{ type: "command", command: "ag-kit hook-ingest codex", async: true, timeout: 5 }] }] } });
     const pluginFile = path.join(pluginDir, "plugin.json");
-    writeJson(pluginFile, {
-      name: "ag-kit",
-      version: "2.0.0",
-      description: "AG Kit shared skills, project-local MCP bridge, and privacy-minimal lifecycle observability",
-      skills: "./skills/",
-      mcpServers: "./.mcp.json",
-      hooks: "./hooks/hooks.json",
-    });
-    return {
-      wired: true,
-      file: portableRelative(target, mcpFile),
-      plugin: portableRelative(target, pluginFile),
-      skills: portableRelative(target, pluginSkills),
-      observability: { wired: true, event: "PostToolUse", file: portableRelative(target, hooksFile), privacy: "metadata-only" },
-    };
+    writeJson(pluginFile, { name: "ag-kit", version: "2.0.0", description: "AG Kit shared skills, project-local MCP bridge, and privacy-minimal lifecycle observability", skills: "./skills/", mcpServers: "./.mcp.json", hooks: "./hooks/hooks.json" });
+    return { wired: true, file: portableRelative(target, mcpFile), plugin: portableRelative(target, pluginFile), skills: portableRelative(target, pluginSkills), observability: { wired: true, event: "PostToolUse", file: portableRelative(target, hooksFile), privacy: "metadata-only" } };
   } else if (runtime === "wayland") return { wired: false, staged: ".ag-kit/integrations/wayland/README.md", reason: "Wayland MCP is supported, but AG Kit will not mutate its user-global/plugin registry automatically." };
   else if (runtime === "hermes") return { wired: false, staged: ".ag-kit/integrations/hermes/mcp.yaml", reason: "Hermes MCP config is user-global; merge the staged snippet explicitly." };
   else if (runtime === "openclaw") return { wired: false, reason: "Run `openclaw mcp add`/`openclaw mcp set` for the ag-kit stdio server; OpenClaw owns its MCP registry." };
