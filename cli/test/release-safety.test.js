@@ -76,6 +76,14 @@ test("public and runtime instruction docs reflect the lean v2 inventory", async 
     }
 });
 
+test("local preflight includes documentation integrity without claiming full CI", async () => {
+    const preflight = await read("cli/lib/preflight.js");
+    const flow = await read("AGENT_FLOW.md");
+    assert.match(preflight, /\["documentation-links", \["run", "check:docs"\]\]/);
+    assert.match(flow, /Local preflight gates include:/);
+    assert.match(flow, /Full GitHub CI additionally enforces/);
+});
+
 test("published CLI package includes its runtime library", async () => {
     const cliPackage = await readJson("cli/package.json");
     assert.ok(cliPackage.files.includes("bin"));
