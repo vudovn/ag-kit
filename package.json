@@ -4,6 +4,7 @@
     "check:v2":"node scripts/check-v2.mjs",
     "check:docs":"node scripts/check-doc-links.mjs",
     "test:v2":"node --test engine/tests/*.test.mjs",
+    "benchmark:v2":"node scripts/benchmark-v2.mjs",
     "sync:runtimes":"node scripts/sync-runtime-projections.mjs",
     "check:runtimes":"node scripts/check-runtime-contracts.mjs && node scripts/sync-runtime-projections.mjs --check",
     "test:runtimes":"node scripts/run-runtime-adapter-tests.mjs",
