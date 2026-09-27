@@ -25,6 +25,8 @@ const docs = [
   "PRODUCTION_CHECKLIST.md",
   "AGENT_FLOW.md",
   ".github/RELEASE_SETUP.md",
+  "cli/README.md",
+  "web/README.md",
 ];
 
 const visitMarkdown = (relative) => {
@@ -58,6 +60,14 @@ for (const file of [...new Set(docs)]) {
     const resolved = path.resolve(root, candidate);
     if (!resolved.startsWith(`${root}${path.sep}`) || !fs.existsSync(resolved)) fail(`${file}: documents missing Node entrypoint ${candidate}`);
   }
+
+  for (const match of body.matchAll(/\bag-kit\s+(init|update|rollback|status)\b/gi)) {
+    fail(`${file}: instructs removed legacy CLI command ag-kit ${match[1]}`);
+  }
+}
+
+for (const relative of ["cli/bin/index.js", "cli/lib/managed-tree.js", "cli/test/managed-tree.test.js", "cli/test/legacy-source-pin.test.js"]) {
+  if (fs.existsSync(path.join(root, relative))) fail(`removed legacy lifecycle source returned: ${relative}`);
 }
 
 const workflowDir = path.join(root, ".github", "workflows");
@@ -86,11 +96,12 @@ const benchmarkContract = [
 ];
 for (const [needle, label] of benchmarkContract) if (!ci.includes(needle)) fail(`CI benchmark evidence missing ${label}`);
 if (!/actions\/upload-artifact@[0-9a-f]{40}/.test(ci)) fail("CI benchmark artifact action must be pinned to a 40-character commit SHA");
+if (/Legacy managed-tree|\$CLI"?\s+(?:init|update|rollback|status)\b/.test(ci)) fail("CI must not exercise the removed legacy managed-tree lifecycle");
 
 if (failures.length) {
   console.error(`AG Kit docs claims: ${failures.length} drift issue(s)`);
   for (const issue of failures) console.error(`- ${issue}`);
   process.exitCode = 1;
 } else {
-  console.log(`AG Kit docs claims OK: ${new Set(docs).size} documentation surfaces, ${scripts.size} package scripts, ${documentedGates.length} required GitHub gates, benchmark evidence contract verified.`);
+  console.log(`AG Kit docs claims OK: ${new Set(docs).size} documentation surfaces, ${scripts.size} package scripts, ${documentedGates.length} required GitHub gates, unified runtime lifecycle, benchmark evidence contract verified.`);
 }
