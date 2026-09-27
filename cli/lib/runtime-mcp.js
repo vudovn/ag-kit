@@ -12,13 +12,32 @@ const mergeMcp = (file, entry = stdio) => {
   writeJson(file, data);
   return { wired: true, file };
 };
+const mergePromptHook = ({ root, file, runtime, event }) => {
+  const data = readJson(file);
+  data.hooks = { ...(data.hooks || {}) };
+  const groups = Array.isArray(data.hooks[event]) ? data.hooks[event] : [];
+  const command = `ag-kit prompt-hook ${runtime}`;
+  const exists = groups.some((group) => Array.isArray(group?.hooks) && group.hooks.some((handler) => handler?.command === command));
+  if (!exists) groups.push({ hooks: [{ type: "command", command, timeout: 5 }] });
+  data.hooks[event] = groups;
+  writeJson(file, data);
+  return { wired: true, event, file: portableRelative(root, file), privacy: "no-raw-prompt-persistence" };
+};
 
 export function wireRuntimeMcp({ root = process.cwd(), runtime }) {
   const target = path.resolve(root);
   let result;
   if (runtime === "antigravity") result = mergeMcp(path.join(target, ".agents", "mcp_config.json"));
-  else if (runtime === "claude") result = mergeMcp(path.join(target, ".mcp.json"), { ...stdio, env: {} });
-  else if (runtime === "gemini") result = mergeMcp(path.join(target, ".gemini", "settings.json"));
+  else if (runtime === "claude") {
+    result = mergeMcp(path.join(target, ".mcp.json"), { ...stdio, env: {} });
+    const promptQuality = mergePromptHook({ root: target, file: path.join(target, ".claude", "settings.json"), runtime, event: "UserPromptSubmit" });
+    return { ...result, file: portableRelative(target, result.file), promptQuality };
+  }
+  else if (runtime === "gemini") {
+    result = mergeMcp(path.join(target, ".gemini", "settings.json"));
+    const promptQuality = mergePromptHook({ root: target, file: path.join(target, ".gemini", "settings.json"), runtime, event: "BeforeAgent" });
+    return { ...result, file: portableRelative(target, result.file), promptQuality };
+  }
   else if (runtime === "qwen") result = mergeMcp(path.join(target, ".qwen", "settings.json"));
   else if (runtime === "kimi") result = mergeMcp(path.join(target, ".kimi-code", "mcp.json"));
   else if (runtime === "cline") result = mergeMcp(path.join(target, ".cline", "mcp.json"));
