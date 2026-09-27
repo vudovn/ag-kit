@@ -1,0 +1,51 @@
+name: Refresh Unreleased Changelog
+
+on:
+  push:
+    branches:
+      - feat/lean-multiruntime-v2
+    paths:
+      - .github/workflows/refresh-unreleased-changelog.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/lean-multiruntime-v2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Replace exact Unreleased placeholder
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const file = 'CHANGELOG.md';
+          let text = fs.readFileSync(file, 'utf8');
+          const from = '## [Unreleased]\n\nNo unreleased changes.\n';
+          const to = `## [Unreleased]\n\n### Added\n- Introduced AG Kit v2 as a lean multi-runtime operating layer with one resident core, 18 hot-loaded top-level skills, four permanent agents, one gated development spine, and 16 capability-aware runtime targets.\n- Added evolving Markdown-first project memory with optional SQLite/FTS5 acceleration, temporal validity, supersession, candidate-to-durable promotion, dream/archive maintenance, and opt-in cross-project brain search.\n- Added runtime discovery and lifecycle commands including \`runtime detect\`, \`runtime install-present\`, doctor states, ownership manifests, backups, and drift-preserving uninstall.\n- Added project-specific team assembly, independent read-only cross-model audit, MCP SDK v2 bridge, runtime-neutral routing, bounded command sandbox, deterministic context compression, structured handoffs, local observability/dashboard, evidence-backed personalization/privacy controls, and portable DESIGN.md contracts.\n- Added native Antigravity PostToolUse observability and regression coverage for npm-style CLI/hook symlink execution.\n\n### Changed\n- Made \`shared/\` the canonical runtime-neutral source of truth; Antigravity \`.agents/\` is now a generated/native projection with zero legacy workflow files.\n- Natural-language plan/spec/brainstorm/architecture intent now activates the project flow before multi-file mutation even when a runtime has no slash-command UI. Continue/resume intent loads handoff plus relevant durable memory first.\n- Command sandbox now prefers project Python virtual environments for bare \`python\`/\`python3\` execution while preserving explicitly requested interpreters.\n- Rewrote README, CLI, parity, and migration documentation around the v2 architecture; web install copy in English, Vietnamese, Chinese, and Japanese now reflects the lean inventory and Node.js 22 requirement.\n\n### Fixed\n- Hardened Antigravity safety-hook direct-run detection with realpath + file-URL resolution so npm/symlink and Windows-style paths cannot leave command tools waiting without a decision payload.\n- Added regression coverage for both the public CLI dispatcher and the legacy lifecycle entrypoint when invoked through npm-style symlinks.\n- Rejected filesystem root and user home as AG Kit project-state/runtime lifecycle targets.\n- Contained context artifact output through realpath-aware ancestor checks to prevent symlink-parent escape.\n\n### Security\n- Kept external cross-audit reviewers on read-only snapshots rather than writable project mounts, and kept cross-project memory opt-in without automatic home-directory crawling.\n- Upgraded the web app to the patched Next.js 16.3.3 line and sharp 0.35.4 while retaining blocking production dependency audits and immutable GitHub Action SHAs.\n`;
+          const count = text.split(from).length - 1;
+          if (count !== 1) {
+            console.error(`Expected exactly one Unreleased placeholder, found ${count}`);
+            process.exit(1);
+          }
+          text = text.replace(from, to);
+          fs.writeFileSync(file, text);
+          NODE
+      - name: Commit changelog
+        shell: bash
+        run: |
+          if git diff --quiet -- CHANGELOG.md; then
+            echo "No changelog update needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "docs: document AG Kit v2 unreleased changes"
+          git push origin HEAD:feat/lean-multiruntime-v2
