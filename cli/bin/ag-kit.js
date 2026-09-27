@@ -3,12 +3,16 @@ const command = process.argv[2];
 const runtimeSubcommand = command === "runtime" ? process.argv[3] : "";
 const memorySubcommand = command === "memory" ? process.argv[3] : "";
 const helpRequested = [undefined, "help", "-h", "--help"].includes(command);
+const versionRequested = ["-v", "--version"].includes(command);
 const runtimeHelpRequested = command === "runtime" && [undefined, "help", "-h", "--help"].includes(runtimeSubcommand);
 const v2Commands = new Set(["runtime", "memory", "team", "flow", "cross-audit", "observe", "dashboard", "personalize", "design", "route", "run", "preflight", "mcp"]);
 
 if (helpRequested) {
     const { printMainHelp } = await import("../lib/help.js");
     printMainHelp();
+} else if (versionRequested) {
+    const { cliVersion } = await import("../lib/source-spec.js");
+    process.stdout.write(`${cliVersion}\n`);
 } else if (runtimeHelpRequested) {
     const { printRuntimeHelp } = await import("../lib/help.js");
     printRuntimeHelp();
@@ -37,6 +41,8 @@ if (helpRequested) {
     const { runV2Cli } = await import("../lib/v2-cli.js");
     await runV2Cli(process.argv);
 } else {
-    const { runCli } = await import("./index.js");
-    await runCli(process.argv);
+    const { printMainHelp } = await import("../lib/help.js");
+    process.stderr.write(`[ag-kit] unknown command: ${String(command)}\n\n`);
+    printMainHelp(process.stderr);
+    process.exitCode = 1;
 }
