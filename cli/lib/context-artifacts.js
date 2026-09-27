@@ -10,9 +10,21 @@ const inside = (child, parent) => child === parent || child.startsWith(`${parent
 const resolveProjectFile = (root, file) => {
   const project = fs.realpathSync(path.resolve(root));
   const requested = path.resolve(project, file);
-  let real = requested;
-  if (fs.existsSync(requested)) real = fs.realpathSync(requested);
+  let cursor = requested;
+  while (!fs.existsSync(cursor)) {
+    const parent = path.dirname(cursor);
+    if (parent === cursor) break;
+    cursor = parent;
+  }
+  const existingReal = fs.realpathSync(cursor);
+  const suffix = path.relative(cursor, requested);
+  const real = path.resolve(existingReal, suffix);
   if (!inside(real, project)) throw new Error("artifact path must stay inside the project root");
+  if (fs.existsSync(requested)) {
+    const targetReal = fs.realpathSync(requested);
+    if (!inside(targetReal, project)) throw new Error("artifact path must stay inside the project root");
+    return { project, file: targetReal };
+  }
   return { project, file: real };
 };
 
@@ -123,36 +135,20 @@ export function createHandoff({ root = process.cwd(), goal = "", state = "", dec
   }
   const flow = readJson(path.join(agRoot, "flow", "session.json"), null);
   const changed = gitStatus(project);
+  const inheritedEvidence = evidence.length ? evidence : recentEvidence(project);
   const lines = [
-    "# AG Kit Handoff",
-    "",
+    "# AG Kit Handoff", "",
     `- Created: ${new Date().toISOString()}`,
     `- Project: ${path.basename(project)}`,
     flow?.mode ? `- Flow: ${flow.mode}${flow.phase ? ` / ${flow.phase}` : ""}` : "",
-    "",
-    "## Goal",
-    goal || flow?.goal || "Not recorded.",
-    "",
-    "## Current state",
-    state || "Continue from the repository and evidence below.",
-    "",
-    "## Decisions",
-    ...(decisions.length ? decisions.map((item) => `- ${item}`) : ["- None recorded for this handoff."]),
-    "",
-    "## Changed files",
-    ...(changed.length ? changed.map((item) => `- ${item}`) : ["- Working tree clean or Git unavailable."]),
-    "",
-    "## Verification evidence",
-    ...((evidence.length ? evidence : recentEvidence(project)).map((item) => `- ${item}`)),
-    ...(evidence.length || recentEvidence(project).length ? [] : ["- No local receipt evidence recorded."]),
-    "",
-    "## Open risks",
-    ...(risks.length ? risks.map((item) => `- ${item}`) : ["- None explicitly recorded."]),
-    "",
-    "## Next concrete action",
-    next || "Re-read this handoff, inspect current Git status, then continue the smallest unfinished verified step.",
-    "",
-  ].filter((line) => line !== "");
+    "", "## Goal", goal || flow?.goal || "Not recorded.",
+    "", "## Current state", state || "Continue from the repository and evidence below.",
+    "", "## Decisions", ...(decisions.length ? decisions.map((item) => `- ${item}`) : ["- None recorded for this handoff."]),
+    "", "## Changed files", ...(changed.length ? changed.map((item) => `- ${item}`) : ["- Working tree clean or Git unavailable."]),
+    "", "## Verification evidence", ...(inheritedEvidence.length ? inheritedEvidence.map((item) => `- ${item}`) : ["- No local receipt evidence recorded."]),
+    "", "## Open risks", ...(risks.length ? risks.map((item) => `- ${item}`) : ["- None explicitly recorded."]),
+    "", "## Next concrete action", next || "Re-read this handoff, inspect current Git status, then continue the smallest unfinished verified step.", "",
+  ];
   const content = compactMarkdown(lines.join("\n"));
   fs.writeFileSync(current, content);
   const receipt = { ts: new Date().toISOString(), kind: "handoff", file: path.relative(project, current), changedFiles: changed.length, bytes: Buffer.byteLength(content) };
