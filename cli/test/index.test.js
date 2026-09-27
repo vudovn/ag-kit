@@ -96,6 +96,20 @@ test("runtime lifecycle preserves user drift while stripping AG Kit marker", () 
   }
 });
 
+test("unified help exposes v2, context, runtime, and legacy command groups", async () => {
+  const { stdout } = await execFileAsync(process.execPath, [path.resolve("bin/ag-kit.js"), "--help"]);
+  for (const command of ["runtime detect", "memory <subcommand>", "brain <subcommand>", "handoff <subcommand>", "compress <file>", "cross-audit", "init", "rollback"]) {
+    assert.match(stdout, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("runtime help includes auto-discovery and lifecycle commands", async () => {
+  const { stdout } = await execFileAsync(process.execPath, [path.resolve("bin/ag-kit.js"), "runtime", "--help"]);
+  for (const command of ["detect", "install-present", "install <runtime>", "doctor [runtime]", "uninstall <runtime>"]) {
+    assert.ok(stdout.includes(command));
+  }
+});
+
 test("CLI dispatcher runs through npm bin symlink", async (t) => {
   await runSymlinkedEntry(t, "bin/ag-kit.js", "ag-kit-dispatcher-symlink-");
 });
