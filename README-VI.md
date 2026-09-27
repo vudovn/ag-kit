@@ -5,42 +5,44 @@
 <h1 align="center">AG KIT</h1>
 
 <p align="center">
-  Lớp vận hành multi-runtime gọn cho AI coding agents: tiny core, hot-loaded skills, evolving project memory, gated execution, MCP, observability, privacy controls và independent cross-audit.
+  Lớp vận hành multi-runtime gọn cho AI coding agents: một tiny core, hot-loaded skills, shared local brain, gated execution, context economy, privacy controls và independent verification.
 </p>
 
 <p align="center">
-  <a href="./README.md">English</a> · <a href="./docs/PARITY_IJFW.md">Parity map</a> · <a href="./MIGRATION.md">Migration</a> · <a href="./SECURITY.md">Bảo mật</a>
+  <a href="./README.md">English</a> · <a href="./docs/PARITY_IJFW.md">IJFW parity</a> · <a href="./MIGRATION.md">Migration</a> · <a href="./SECURITY.md">Bảo mật</a>
 </p>
 
 ---
 
-## Kiến trúc v2
+## Hình dạng v2
 
-AG Kit v2 giữ framework nhỏ theo mặc định:
+AG Kit cố tình giữ phần luôn nằm trong context thật nhỏ:
 
-- **1 tiny resident core**.
-- **18 hot-loaded skills**.
-- **4 permanent agents**: `scout`, `architect`, `builder`, `reviewer`.
-- **1 development spine** với QUICK / STANDARD / DEEP và user gate rõ ràng.
-- `shared/` là source of truth; runtime chỉ là adapter/projection.
-- `packs/` chứa domain knowledge để không làm skill phình.
-- Markdown là canonical memory; SQLite FTS5 chỉ là warm index có thể rebuild.
-- Memory có candidate/durable/superseded/archived, temporal validity và dream cycle.
-- Cross-audit chỉ đọc snapshot/diff, tách reviewer theo lineage và phân loại consensus/contested.
-- Observability, personalization/privacy và `DESIGN.md` đều là local project state, không phải resident prompt mới.
+- **1 resident core** — chỉ rule vận hành.
+- **18 hot-loaded skills** — capability chỉ load khi liên quan.
+- **4 permanent agents** — `scout`, `architect`, `builder`, `reviewer`.
+- **1 development spine** — QUICK / STANDARD / DEEP với gate rõ ràng.
+- **16 runtime targets** — chia tier theo capability thật, không giả parity.
+- **Domain packs** — knowledge nằm ngoài resident behavior.
+- **Một local brain** — Markdown là canonical; SQLite/FTS5 chỉ là lớp tăng tốc; cross-project recall phải opt-in.
+- **Executable evidence** — doctor, preflight, cross-audit, receipts, dependency audit và CI.
 
 ```text
-shared/        # canonical core / skills / agents / flow
-packs/         # domain reference knowledge
-runtimes/      # capability-aware adapters
-cli/           # CLI + MCP + local engines
-.agents/       # generated Antigravity projection
-.ag-kit/       # project-local runtime state, memory, receipts, audits
+shared/                  # source canonical, runtime-neutral
+├── core/                # tiny always-on core
+├── skills/              # 18 hot-loaded skills
+├── agents/              # scout / architect / builder / reviewer
+└── flows/               # một development spine
+
+packs/                   # domain knowledge
+runtimes/                # thin adapters theo capability
+cli/                     # memory, MCP, flow, audit, lifecycle, context tools
+.agents/                 # generated native Antigravity projection
 ```
 
-## Độ phủ runtime
+`shared/` là source of truth. Runtime tree chỉ là projection/adapter, không phải fork độc lập.
 
-AG Kit hiện khai báo **16 runtime targets** theo capability thật.
+## Runtime coverage
 
 | Tier | Runtime |
 | --- | --- |
@@ -48,74 +50,141 @@ AG Kit hiện khai báo **16 runtime targets** theo capability thật.
 | Connected | Cursor, Windsurf, GitHub Copilot |
 | Bridge | OpenCode, OpenClaw, Aider, Wayland, Hermes, Pi |
 
-AG Kit ưu tiên project-scoped config. Nếu runtime chỉ có user-global registry/config, AG Kit sẽ stage hướng dẫn/snippet thay vì tự ý sửa home directory.
+Contract chi tiết nằm trong [`platform-capabilities.json`](platform-capabilities.json). AG Kit ưu tiên project-scoped activation; integration chỉ có global config sẽ được stage để người dùng bật rõ ràng, không tự sửa home directory.
 
-## Bắt đầu nhanh
+## Một lần cài cho những runtime đang có
+
+Yêu cầu Node.js **22+** và Git.
 
 ```bash
 npm install -g @vudovn/ag-kit
-ag-kit runtime list
-ag-kit runtime install antigravity
+ag-kit runtime detect
+ag-kit runtime install-present
+ag-kit runtime doctor
 ```
 
-Yêu cầu Node.js **22+**.
+`runtime detect` dùng executable/project/user markers và lifecycle evidence. `install-present` tải source AG Kit một lần, chỉ cài runtime đã detect và bỏ qua target đã managed trừ khi bạn dùng `--force`.
 
-## Gated development flow
+Cài/gỡ riêng một runtime vẫn được hỗ trợ:
+
+```bash
+ag-kit runtime install antigravity
+ag-kit runtime doctor antigravity
+ag-kit runtime uninstall antigravity
+```
+
+Mỗi install có pre-install backup và ownership manifest. Uninstall chỉ gỡ vùng do AG Kit sở hữu, khôi phục bản gốc khi an toàn, giữ file đã drift và giữ memory mặc định.
+
+## Một shared local brain
+
+Project memory:
+
+```bash
+ag-kit memory init
+ag-kit memory add "Repo dùng pnpm" --kind convention --session s1
+ag-kit memory recall "package manager" --session s2
+ag-kit memory dream
+ag-kit memory status
+```
+
+Markdown dưới `.ag-kit/memory/` là canonical. Candidate có thể thành durable sau repeated evidence qua nhiều session, có validity window, supersede fact cũ và được dream cycle archive khi stale. SQLite FTS5 là warm index có thể xóa/rebuild.
+
+Cross-project recall phải opt-in; AG Kit không tự crawl `$HOME`:
+
+```bash
+ag-kit brain register .
+ag-kit brain list
+ag-kit brain search "deployment convention"
+```
+
+Path được realpath-check, không cho register filesystem root/home, project ngoài home cần explicit consent. `AG_KIT_MINIMAL=1` hoặc `AG_KIT_NO_CROSS_PROJECT=1` tắt cross-project search. MCP chỉ search registry đã được duyệt, không có quyền tự register project.
+
+## Một development spine
 
 ```bash
 ag-kit flow start "Ship account recovery" --mode deep
-ag-kit flow artifact "Đã so sánh ba phương án và chọn signed one-time token"
+ag-kit flow artifact "Đã so sánh phương án và chọn signed one-time token"
 ag-kit flow approve "Shape approved"
 ag-kit flow status
 ```
 
-Mỗi phase phải có artifact summary trước khi approve. DEEP mode bắt buộc có dependency-wave table ở CONVERGE. AG Kit không tự approve user gate.
+Mỗi phase phải có artifact trước khi approve; AG Kit không tự approve user gate. DEEP mode còn yêu cầu dependency-wave table rõ ràng trước convergence.
 
-## Evolving memory
-
-```bash
-ag-kit memory init
-ag-kit memory add "Repo dùng pnpm" --kind convention --title "Package manager" --session s1
-ag-kit memory recall "package manager" --session s2
-ag-kit memory touch <memory-id> --session s3
-ag-kit memory dream
-ag-kit memory reindex
-ag-kit memory status
-```
-
-Memory nằm trong `.ag-kit/memory/`. Candidate được promote thành durable sau repeated evidence qua nhiều session; fact cũ có thể supersede thay vì bị xóa khỏi lịch sử; `validFrom`/`validTo` hỗ trợ recall theo thời điểm.
-
-## Specialist team
+Specialist theo dự án chỉ sinh khi cần:
 
 ```bash
-ag-kit team --archetype auto --name product-v2 --brief "Ship release an toàn"
+ag-kit team --archetype auto --name product-v2 --brief "Ship an toàn"
 ```
 
-Specialist theo dự án nằm trong `.ag-kit/agents/`; framework vẫn chỉ giữ bốn permanent agents.
+Role generated nằm dưới `.ag-kit/agents/`; framework vẫn chỉ giữ bốn permanent agents.
 
-## Cross-audit
+## Context economy
+
+Route task mà không hard-code vendor model:
+
+```bash
+ag-kit route "đọc auth module và giải thích flow"
+ag-kit route "thiết kế migration nhiều service"
+```
+
+Command output lớn có thể nằm ngoài context:
+
+```bash
+ag-kit run npm test
+ag-kit run npm run build --max-lines 30
+```
+
+Full stdout/stderr được lưu dưới `.ag-kit/session-sandbox/`; caller chỉ nhận bounded summary. Command chạy không qua shell-string interpolation.
+
+Compress artifact theo kiểu deterministic, không tự bịa semantic summary:
+
+```bash
+ag-kit compress notes.md
+ag-kit compress notes.md --write        # explicit overwrite + timestamped backup
+```
+
+AG Kit báo byte reduction thực đo; mặc định luôn ghi file mới.
+
+Tạo handoff để tiếp tục session:
+
+```bash
+ag-kit handoff create \
+  --goal "hoàn tất runtime rollout" \
+  --state "core và CLI đang xanh" \
+  --evidence "npm test passed" \
+  --risk "web audit còn pending" \
+  --next "run full CI"
+
+ag-kit handoff show
+```
+
+Handoff giữ goal, state, decisions, Git-changed files, evidence, risks và next action; handoff cũ được archive.
+
+## Independent cross-audit
 
 ```bash
 ag-kit cross-audit --probe
 ag-kit cross-audit . --reviewers 3 --exclude-lineage openai
 ```
 
-Reviewer chạy trong temp directory với snapshot/diff, không có writable source mount. Kết quả được cluster thành consensus hoặc contested và ghi report/receipt local.
+Reviewer lineage khác chỉ nhận snapshot/diff trong temp directory, không có writable source mount. Finding được cluster thành **consensus** và **contested**, kèm receipt.
 
-## Observability local
+## Observability không bịa savings
 
 ```bash
 ag-kit observe turn --runtime claude --input 1200 --output 300 --cached 500 --cost 0.02
 ag-kit dashboard summary
-ag-kit dashboard start --port 4737
+ag-kit dashboard start
 ```
 
-Dashboard chỉ bind `127.0.0.1`. AG Kit chỉ lưu số liệu token/cost được integration cung cấp rõ ràng, không tự bịa “token saved”.
+Ledger có rotation/cap và dashboard chỉ bind localhost. AG Kit chỉ ghi số liệu đo được hoặc integration cung cấp rõ ràng, không tạo multiplier “nếu không dùng AG Kit”.
+
+Antigravity còn dùng official `PostToolUse` hook để auto-record event tối thiểu: tool name, success/error class, runtime và session. Hook không ghi command args, prompt, file content hay tool arguments; telemetry fail-open nên không thể chặn agent loop.
 
 ## Personalization và privacy
 
 ```bash
-ag-kit personalize learn "Viết ngắn gọn" --evidence "User yêu cầu rút release note" --session s1
+ag-kit personalize learn "Viết ngắn gọn" --evidence "User rút release note" --session s1
 ag-kit personalize learn "Viết ngắn gọn" --evidence "User tiếp tục rút report" --session s2
 ag-kit personalize inject on
 ag-kit personalize preview --host claude
@@ -123,7 +192,7 @@ ag-kit personalize egress
 ag-kit personalize forget all
 ```
 
-Preference cần verbatim evidence và lặp qua nhiều session mới được confirm. Injection mặc định tắt. `AG_KIT_PROFILE_KILL=1` là hard kill switch. Disclosure được log local và `forget` xóa cả inference lẫn egress rows liên quan.
+Preference cần verbatim evidence và xác nhận qua nhiều session. Injection mặc định tắt. `AG_KIT_PROFILE_KILL=1` luôn thắng setting đã lưu. `forget` xóa cả preference lẫn egress rows tham chiếu tới nó.
 
 ## Design contract
 
@@ -133,7 +202,7 @@ ag-kit design init --template graphite --brand "Acme"
 ag-kit design check
 ```
 
-`DESIGN.md` khóa brand intent, color, typography, layout, component, imagery, motion, accessibility và do/don't để visual behavior đi xuyên runtime mà không cần thêm giant prompt.
+`DESIGN.md` mang brand intent, color, typography, layout, component, imagery, motion, accessibility và constraints xuyên runtime mà không cần thêm resident prompt.
 
 ## MCP bridge
 
@@ -141,24 +210,15 @@ ag-kit design check
 ag-kit mcp serve
 ```
 
-MCP surface được giữ nhỏ có chủ đích: evolving memory, team init, runtime status và audit probe. Capability khác vẫn là CLI/local state module.
-
-## Preflight
-
-```bash
-ag-kit preflight
-```
-
-Preflight kiểm architecture budget, v2 engines, Antigravity projection/runtime build, native doctor/tests/plugin và CLI. CI còn chạy web lint/typecheck/build, dependency audit và dependency review.
+MCP surface được giữ nhỏ có chủ đích: evolving project memory, opt-in cross-project search/status, team init, runtime status và audit probe. Capability giàu hơn vẫn ở CLI/local state để không làm tool surface của mọi agent phình ra.
 
 ## Antigravity native projection
 
-`.agents/` hiện chỉ giữ:
+Antigravity vẫn là target native mạnh nhất của AG Kit:
 
-- **18 skills**
-- **4 permanent agents**
-- **0 legacy workflow files**
-- native safety hook
+- **18 skills / 4 agents / 0 legacy workflow files**
+- native rules + safety gate
+- privacy-minimal `PostToolUse` observability
 - project MCP config
 - native plugin packaging
 
@@ -170,7 +230,16 @@ npm run test:antigravity
 npm run build:antigravity-plugin
 ```
 
-Behavior reusable phải sửa trong `shared/`, không tạo source-of-truth thứ hai trong `.agents/`.
+## Release gates
+
+```bash
+ag-kit preflight
+npm run check:v2
+npm run test:v2
+npm run test:cli
+```
+
+CI còn kiểm Antigravity projection/plugin compatibility, runtime build, web lint/typecheck/build, dependency review và production dependency audit. Security advisory vẫn là blocking gate; không tắt audit để “cho xanh”.
 
 ## Tương thích lifecycle cũ
 
@@ -178,33 +247,25 @@ Behavior reusable phải sửa trong `shared/`, không tạo source-of-truth th�
 ag-kit init
 ag-kit update --dry-run
 ag-kit update
-ag-kit update --strategy replace
 ag-kit rollback
 ag-kit status
 ```
 
-Legacy update vẫn merge-aware và backup-aware để migration sang v2 an toàn.
+Legacy update vẫn merge-aware và backup-aware để người dùng cũ migration an toàn sang v2.
 
-## Validation
+## Nguyên tắc
 
-```bash
-npm run check:v2
-npm run test:v2
-npm run check:antigravity-projection
-npm run build:runtimes
-npm run check:antigravity
-npm run test:antigravity
-npm run test:cli
-npm run lint:web
-npm run typecheck:web
-npm run build:web
-```
+1. **Context là budget.**
+2. **Behavior khác knowledge.** Skill hành động; pack cung cấp tri thức.
+3. **Một source, nhiều runtime.**
+4. **Capability claim phải machine-checkable.**
+5. **Memory phải human-readable và user-owned.**
+6. **Judgment phải explicit.** Không silent phase approval.
+7. **Verification phải tạo evidence.**
+8. **Privacy phải inspect được và có kill switch.**
+9. **Dangerous automation phải hẹp.**
 
-## Parity với IJFW
-
-AG Kit v2 triển khai các feature class hữu ích của kiến trúc kiểu IJFW—tiny core, hot-loaded skills, runtime tiers, evolving local memory, gated phases, specialist assembly, independent audit, observability, personalization/privacy và design contract—bằng code, naming và runtime model riêng của AG Kit.
-
-Xem [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md) để biết phần đã parity và intentional differences.
+AG Kit v2 tự triển khai các feature class hữu ích của mô hình tiny-core kiểu IJFW nhưng giữ code, naming, privacy posture và native Antigravity integration riêng của AG Kit. Xem [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md) để biết capability map và intentional differences.
 
 ## Giấy phép
 
