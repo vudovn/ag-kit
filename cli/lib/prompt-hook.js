@@ -1,7 +1,7 @@
 import { checkPromptQuality } from "./prompt-quality.js";
 
 const MAX_STDIN_BYTES = 256 * 1024;
-const SUPPORTED = new Set(["claude", "gemini"]);
+const SUPPORTED = new Set(["claude", "gemini", "qwen"]);
 
 const additionalContext = (result) => [
   "<ag-kit-prompt-quality>",
@@ -14,7 +14,10 @@ const additionalContext = (result) => [
 
 export function promptHookEnvelope(runtime, payload = {}) {
   if (!SUPPORTED.has(runtime)) throw new Error(`unsupported prompt hook runtime: ${runtime}`);
-  const prompt = String(payload.prompt ?? payload.user_prompt ?? "");
+  const prompt = runtime === "qwen"
+    ? String(payload.submitted_prompt ?? "")
+    : String(payload.prompt ?? payload.user_prompt ?? "");
+  if (runtime === "qwen" && !prompt.trim()) return { decision: "allow" };
   const result = checkPromptQuality(prompt);
 
   if (runtime === "gemini") {
@@ -23,6 +26,17 @@ export function promptHookEnvelope(runtime, payload = {}) {
       decision: "allow",
       hookSpecificOutput: {
         hookEventName: "BeforeAgent",
+        additionalContext: additionalContext(result),
+      },
+    };
+  }
+
+  if (runtime === "qwen") {
+    if (result.ok) return { decision: "allow" };
+    return {
+      decision: "allow",
+      hookSpecificOutput: {
+        hookEventName: "UserPromptSubmit",
         additionalContext: additionalContext(result),
       },
     };
@@ -53,13 +67,13 @@ const readBoundedStdin = async (stream = process.stdin) => {
 
 export async function runPromptHookCli(argv = process.argv) {
   const runtime = String(argv[3] || "").toLowerCase();
-  if (!SUPPORTED.has(runtime)) throw new Error("usage: ag-kit prompt-hook <claude|gemini>");
+  if (!SUPPORTED.has(runtime)) throw new Error("usage: ag-kit prompt-hook <claude|gemini|qwen>");
   try {
     const raw = await readBoundedStdin();
     const payload = raw.trim() ? JSON.parse(raw) : {};
     process.stdout.write(`${JSON.stringify(promptHookEnvelope(runtime, payload))}\n`);
   } catch {
-    const fallback = runtime === "gemini" ? { decision: "allow" } : { continue: true, suppressOutput: true };
+    const fallback = runtime === "claude" ? { continue: true, suppressOutput: true } : { decision: "allow" };
     process.stdout.write(`${JSON.stringify(fallback)}\n`);
   }
 }

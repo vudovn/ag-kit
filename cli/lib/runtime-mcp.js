@@ -45,7 +45,11 @@ export function wireRuntimeMcp({ root = process.cwd(), runtime }) {
     const promptQuality = mergePromptHook({ root: target, file: path.join(target, ".gemini", "settings.json"), runtime, event: "BeforeAgent" });
     return { ...result, file: portableRelative(target, result.file), promptQuality };
   }
-  else if (runtime === "qwen") result = mergeMcp(path.join(target, ".qwen", "settings.json"));
+  else if (runtime === "qwen") {
+    result = mergeMcp(path.join(target, ".qwen", "settings.json"));
+    const promptQuality = mergePromptHook({ root: target, file: path.join(target, ".qwen", "settings.json"), runtime, event: "UserPromptSubmit" });
+    return { ...result, file: portableRelative(target, result.file), promptQuality };
+  }
   else if (runtime === "kimi") result = mergeMcp(path.join(target, ".kimi-code", "mcp.json"));
   else if (runtime === "cline") result = mergeMcp(path.join(target, ".cline", "mcp.json"));
   else if (runtime === "cursor") result = mergeMcp(path.join(target, ".cursor", "mcp.json"));

@@ -24,7 +24,7 @@ const specsByRuntime = {
   claude: [[".claude/skills", "tree"], [".claude/agents", "tree"], ["CLAUDE.md", "block"], [".mcp.json", "mcp-json"], [".claude/settings.json", "prompt-hooks-json"]],
   codex: [[".agents/skills", "tree"], ["AGENTS.md", "block"], [".codex-plugin", "tree"]],
   gemini: [[".gemini/skills", "tree"], ["GEMINI.md", "block"], [".gemini/settings.json", "mcp-prompt-hooks-json"]],
-  qwen: [[".qwen/skills", "tree"], [".qwen/agents", "tree"], ["QWEN.md", "block"], [".qwen/settings.json", "mcp-json"]],
+  qwen: [[".qwen/skills", "tree"], [".qwen/agents", "tree"], ["QWEN.md", "block"], [".qwen/settings.json", "mcp-prompt-hooks-json"]],
   kimi: [[".kimi-code/skills", "tree"], [".kimi-code/agents", "tree"], ["AGENTS.md", "block"], [".kimi-code/mcp.json", "mcp-json"]],
   cline: [[".cline/skills", "tree"], [".cline/rules/ag-kit.md", "block"], [".cline/mcp.json", "mcp-json"]],
   cursor: [[".cursor/rules/ag-kit.mdc", "replace"], [".cursor/mcp.json", "mcp-json"]],
@@ -101,7 +101,9 @@ const promptHookDefinition = (runtime) => runtime === "claude"
   ? { event: "UserPromptSubmit", command: "ag-kit prompt-hook claude" }
   : runtime === "gemini"
     ? { event: "BeforeAgent", command: "ag-kit prompt-hook gemini" }
-    : null;
+    : runtime === "qwen"
+      ? { event: "UserPromptSubmit", command: "ag-kit prompt-hook qwen" }
+      : null;
 
 const removePromptHook = (file, runtime) => {
   if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) return { changed: false, removed: false };

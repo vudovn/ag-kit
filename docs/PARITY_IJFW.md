@@ -13,7 +13,7 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 | One-install discovery | detect tools already present | **done** — `runtime detect` + `runtime install-present`; no `gh == Copilot` false-positive |
 | Verified injection states | live / standing-by / untouched | **done** — lifecycle manifests + digest/marker/MCP doctor checks |
 | Safe uninstall | remove only framework-owned state | **done** — restores backups, strips owned blocks/MCP keys, preserves drift and memory |
-| Prompt quality gate | deterministic ambiguity check before subjective work | **portable core done** — `prompt-check` + MCP `ag_prompt_check`, multi-signal/low-FP heuristics, no raw-prompt persistence; native pre-prompt interception remains capability-gated |
+| Prompt quality gate | deterministic ambiguity check before subjective work | **portable core done** — `prompt-check` + MCP `ag_prompt_check`; verified automatic interception is wired for Claude, Gemini, and Qwen, with raw-prompt provenance rules and no raw-prompt persistence |
 | Plan-before-build workflow | explicit phases and sign-off | **done** — QUICK/STANDARD/DEEP session engine; artifact required before approval |
 | Deep convergence | dependency waves | **done** — DEEP convergence requires an explicit wave table |
 | Local-first memory | human-readable canonical store | **done** — Markdown canonical entries + receipts |
@@ -58,7 +58,7 @@ This tracks feature-class and architectural convergence without copying IJFW sou
 
 These are strengthening areas, not reasons to inflate the resident core:
 
-1. wire prompt-quality interception automatically only for runtimes whose user-prompt hook/event contract is current, project-safe, and independently tested;
+1. expand automatic prompt-quality interception beyond Claude, Gemini, and Qwen only when another runtime’s user-prompt hook/event contract is current, project-safe, provenance-safe, and independently tested;
 2. optionally extend deterministic benchmark receipts into an explicit cost-capped multi-arm provider benchmark without turning provider spend into a default requirement;
 3. keep runtime schemas current and promote bridge targets only when their native contracts justify it;
 4. add more adapter-specific artifact builders only when a host has a real package/plugin artifact worth building, rather than manufacturing parity.

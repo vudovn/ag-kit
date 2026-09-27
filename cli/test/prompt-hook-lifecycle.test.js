@@ -9,6 +9,7 @@ import { wireRuntimeMcp } from "../lib/runtime-mcp.js";
 const cases = [
   { runtime: "claude", settings: ".claude/settings.json", event: "UserPromptSubmit" },
   { runtime: "gemini", settings: ".gemini/settings.json", event: "BeforeAgent" },
+  { runtime: "qwen", settings: ".qwen/settings.json", event: "UserPromptSubmit" },
 ];
 
 for (const { runtime, settings, event } of cases) {
@@ -21,7 +22,7 @@ for (const { runtime, settings, event } of cases) {
     const initial = {
       userSetting: true,
       hooks: { Custom: [{ hooks: [{ type: "command", command: "echo user" }] }] },
-      ...(runtime === "gemini" ? { mcpServers: { user: { command: "user-mcp", args: [] } } } : {}),
+      ...(["gemini", "qwen"].includes(runtime) ? { mcpServers: { user: { command: "user-mcp", args: [] } } } : {}),
     };
     fs.writeFileSync(settingsFile, `${JSON.stringify(initial, null, 2)}\n`);
 
@@ -44,7 +45,7 @@ for (const { runtime, settings, event } of cases) {
 
     installed.userAfterInstall = true;
     installed.hooks.Custom.push({ hooks: [{ type: "command", command: "echo later-user-hook" }] });
-    if (runtime === "gemini") installed.mcpServers.later = { command: "later-mcp", args: [] };
+    if (["gemini", "qwen"].includes(runtime)) installed.mcpServers.later = { command: "later-mcp", args: [] };
     fs.writeFileSync(settingsFile, `${JSON.stringify(installed, null, 2)}\n`);
 
     const result = uninstallRuntime({ root, runtime });
@@ -58,7 +59,7 @@ for (const { runtime, settings, event } of cases) {
     assert.ok(remaining.hooks.Custom.some((group) => group.hooks.some((hook) => hook.command === "echo later-user-hook")));
     assert.equal(remaining.hooks?.[event]?.some((group) => group.hooks?.some((hook) => hook.command === command)) ?? false, false);
 
-    if (runtime === "gemini") {
+    if (["gemini", "qwen"].includes(runtime)) {
       assert.equal(Boolean(remaining.mcpServers?.["ag-kit"]), false);
       assert.equal(remaining.mcpServers.user.command, "user-mcp");
       assert.equal(remaining.mcpServers.later.command, "later-mcp");
