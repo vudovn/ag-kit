@@ -15,12 +15,9 @@ export type LandingDictionary = {
 type LandingOverrides = { [K in keyof LandingDictionary]?: Partial<LandingDictionary[K]> };
 
 const testimonials = [
-  { name: "winniwoods", role: "GitHub · #38", comment: "First of all, thank you for this amazing project! I've been using the Antigravity Kit and really enjoy the workflow.", clamp: "line-clamp-3" },
-  { name: "ghiemer", role: "GitHub · #23", comment: "Good work with antigravity-kit. Love it — Cheers.", clamp: "line-clamp-2" },
   { name: "AlexOptimizer", role: "GitHub · #66", comment: "The separation into specialized agents and pluggable skills prevents AI context overload.", clamp: "line-clamp-3" },
   { name: "DRYN07", role: "GitHub · #67", comment: "Yours seems quite well-organized, so I thought I'd give it a try.", clamp: "line-clamp-2", className: "hidden md:block" },
   { name: "kkkasio", role: "GitHub · #38", comment: "I support the idea — the tool is really quite robust for new environments like Node.", clamp: "line-clamp-2", className: "hidden md:block" },
-  { name: "pragnyanramtha", role: "GitHub · #69", comment: "Antigravity now also supports .agents/ and it helps extensibility when installing other skills.", clamp: "line-clamp-3", className: "hidden lg:block" },
 ];
 
 export const landingEn: LandingDictionary = {
