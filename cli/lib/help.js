@@ -5,7 +5,7 @@ export const mainHelp = () => lines([
   "",
   "Usage: ag-kit <command> [options]",
   "",
-  "`npm install -g @vudovn/ag-kit` installs the CLI only; project files change only after a runtime install or legacy `init`.",
+  "`npm install -g @vudovn/ag-kit` installs the CLI only; project files change only after an explicit runtime install.",
   "",
   "Core workflow:",
   "  prompt-check <prompt...>      Check whether a task is concrete enough to act without guessing",
@@ -38,12 +38,6 @@ export const mainHelp = () => lines([
   "  personalize <subcommand>     Evidence-backed preferences/privacy controls",
   "  design <subcommand>          Create/check the portable DESIGN.md contract",
   "",
-  "Legacy managed-tree lifecycle:",
-  "  init                         Safely install/merge the Antigravity .agents tree",
-  "  update                       Merge-aware update with backup/conflict report",
-  "  rollback                     Restore a pre-update .agents backup",
-  "  status                       Show legacy managed-tree installation status",
-  "",
   "Global options:",
   "  -h, --help                   Show this help",
   "  -v, --version                Show CLI version",
@@ -67,11 +61,11 @@ export const runtimeHelp = () => lines([
   "Examples:",
   "  ag-kit runtime detect",
   "  ag-kit runtime install-present",
-  "  ag-kit runtime install antigravity",
+  "  ag-kit runtime install claude",
   "  ag-kit runtime doctor",
   "",
   "Project-scoped config is preferred. Global-only integrations are staged for explicit activation.",
 ]);
 
-export const printMainHelp = () => process.stdout.write(mainHelp());
-export const printRuntimeHelp = () => process.stdout.write(runtimeHelp());
+export const printMainHelp = (stream = process.stdout) => stream.write(mainHelp());
+export const printRuntimeHelp = (stream = process.stdout) => stream.write(runtimeHelp());
