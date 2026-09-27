@@ -63,7 +63,11 @@ test("public and runtime instruction docs reflect the lean v2 inventory", async 
 
     for (const file of ["README.md", "README-VI.md", "web/README.md", "AGENTS.md", "CLAUDE.md", "MIGRATION.md", "AGENT_FLOW.md"]) {
         const content = await read(file);
-        assert.doesNotMatch(content, /47\s+(?:skills|kỹ năng)|20\s+(?:specialist\s+agents|agent\s+chuyên)|13\s+(?:workflows|quy trình)|45\s+(?:skills|skill)/i, `${file} must not restore the legacy inventory`);
+        const legacyCountLines = content.split(/\r?\n/).filter((line) => /47\s+(?:skills?|kỹ năng)/i.test(line));
+        for (const line of legacyCountLines) {
+            assert.match(line, /baseline[^\n]*legacy-knowledge-map\.json/i, `${file} may mention 47 legacy skills only as the mapped preservation baseline`);
+        }
+        assert.doesNotMatch(content, /20\s+(?:specialist\s+agents|agent\s+chuyên)|13\s+(?:workflows|quy trình)|45\s+(?:skills|skill)/i, `${file} must not restore the legacy inventory`);
         assert.doesNotMatch(content, /ln -s ~\/\.ag-kit\/\.agents \.agent(?:\s|$)/, `${file} must not restore the legacy symlink setup`);
     }
 
