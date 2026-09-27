@@ -2,7 +2,7 @@
 
 Use this checklist before marking a v2 release PR ready, creating a release tag, or publishing `@vudovn/ag-kit`.
 
-A green CI run is necessary but not sufficient: release metadata, migration guidance, package contents, runtime source pinning, and rollback behavior must agree with the code being shipped.
+A green CI run is necessary but not sufficient: release metadata, migration guidance, package contents, runtime source pinning, rollback behavior, and reproducible evidence must agree with the code being shipped.
 
 ## 1. Branch and PR state
 
@@ -12,7 +12,7 @@ A green CI run is necessary but not sufficient: release metadata, migration guid
 - [ ] No temporary migration/workflow files remain under `.github/workflows/`.
 - [ ] No unresolved release-blocking review is hidden by a docs-only workaround.
 
-## 2. Architecture invariants
+## 2. Architecture and evidence invariants
 
 Run:
 
@@ -20,6 +20,7 @@ Run:
 npm run check:v2
 npm run check:docs
 npm run test:v2
+npm run benchmark:v2 -- --output dist/evidence/benchmark-v2.json
 npm run check:runtimes
 npm run test:runtimes
 npm run build:runtimes
@@ -36,7 +37,12 @@ Confirm:
 - [ ] no runtime is declared primary in repository contracts or public docs;
 - [ ] root package scripts and GitHub workflow gates remain runtime-neutral;
 - [ ] legacy `.agents/workflows/` is absent;
-- [ ] `platform-capabilities.json` and runtime adapters do not drift.
+- [ ] `platform-capabilities.json` and runtime adapters do not drift;
+- [ ] deterministic benchmark fixtures pass for memory recall, routing, compression, and runtime lifecycle;
+- [ ] the benchmark receipt records the reviewed branch head SHA/ref and measured outputs rather than synthetic comparisons;
+- [ ] CI uploads the benchmark receipt as an immutable artifact and fails if the receipt is missing.
+
+The default release gate must stay local and deterministic. Paid-provider/model benchmarks, if used, are supplemental evidence only unless the release contract is intentionally changed in a future reviewed PR.
 
 ## 3. CLI and npm package
 
@@ -133,7 +139,7 @@ This is adapter evidence, not a repository-wide primary-runtime gate.
 
 ## 8. Cross-audit and privacy
 
-Confirm external reviewer CLIs receive read-only snapshot/diff material, lineage exclusion works when requested, consensus and contested findings remain distinguishable, personalization injection defaults off, kill switches override stored settings, forget semantics remove related egress state, and no fabricated token-savings multiplier is reported.
+Confirm external reviewer CLIs receive read-only snapshot/diff material, lineage exclusion works when requested, reviewer lineages execute with bounded parallelism, consensus and contested findings remain distinguishable, trace IDs connect audit evidence to the active flow when present, personalization injection defaults off, kill switches override stored settings, forget semantics remove related egress state, and no fabricated token-savings multiplier is reported.
 
 ## 9. Web/docs quality gate
 
@@ -175,7 +181,7 @@ Before tagging:
 
 For the final release commit, require:
 
-- [ ] **CI / V2 core validation**;
+- [ ] **CI / V2 core validation** — includes deterministic benchmark receipt generation + artifact upload;
 - [ ] **CI / CLI tests and package validation**;
 - [ ] **CI / CLI Windows compatibility**;
 - [ ] **CI / Web lint, typecheck, build, and audit**;
