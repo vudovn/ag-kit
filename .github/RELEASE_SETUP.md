@@ -10,12 +10,12 @@ Protect `main` and require pull requests. Require these checks before merge:
 - `CLI tests and package validation`
 - `CLI Windows compatibility`
 - `Web lint, typecheck, build, and audit`
-- `Antigravity Compatibility`
+- `Runtime contracts`
 - `Dependency Review`
 
 Dismiss stale approvals after new commits. Block force pushes and branch deletion. Keep release PRs in Draft until the hands-on smoke tests in `PRODUCTION_CHECKLIST.md` are complete and recorded in the PR.
 
-The v2 core job also runs documentation-link integrity checks so public migration/security/readme links cannot silently drift to deleted repository paths. The Linux CLI job packs the real npm artifact and runs branch-backed managed-tree plus Antigravity lifecycle smoke tests through the npm-created binary. The Windows CLI job runs the full CLI test suite and package dry-run so path, symlink/entrypoint, MCP, lifecycle, and package assumptions are exercised on Windows as well as Linux.
+The core job runs documentation-link integrity and generic runtime contract checks. The Linux CLI job packs the real npm artifact and exercises legacy migration plus representative multi-runtime lifecycle paths through the npm-created binary. The Windows CLI job runs the full CLI test suite and package dry-run so path, entrypoint, MCP, lifecycle, and package assumptions are exercised on Windows as well as Linux.
 
 ## npm Trusted Publishing
 
@@ -32,7 +32,7 @@ Published v2 CLI runtime installs download their projection source from `v<CLI_V
 
 Before tagging:
 
-- ensure the intended tag will contain the same runtime projection tested by CI;
+- ensure the intended tag contains the same `shared/`, `packs/`, and runtime adapters tested by CI;
 - verify `runtimeSourceSpec()` resolves to that release tag;
 - use `--branch` only as an explicit development/beta override;
 - do not publish a package version whose matching repository tag will not exist.
@@ -47,32 +47,23 @@ Create a protected GitHub Environment named `production`. Store deployment value
 
 Never place token samples, internal addresses, application IDs, or private certificate material in repository documentation.
 
-Require an approval gate and a rollback plan before the deployment job can access production credentials. Deployment/preview integrations are operational concerns and must not be used to weaken repository CI, dependency, or package-release gates.
-
-## Antigravity release evidence
-
-Before marking a release PR ready:
-
-1. run the full automated command set in `PRODUCTION_CHECKLIST.md`;
-2. open the release branch in a trusted Antigravity staging workspace;
-3. verify `.agents/rules/`, `.agents/skills/`, and `.agents/agents/` are discovered and `.agents/workflows/` is absent;
-4. verify natural-language planning intent enters the gated workflow without relying on legacy slash-command files;
-5. verify continue/resume intent reads the current handoff and relevant project memory before mutation;
-6. test the destructive-command policy with mocked stdin only;
-7. verify the PostToolUse observability hook returns `{}` and does not block a normal command;
-8. verify the project MCP entry with `ag-kit runtime doctor antigravity` / the relevant staging runtime;
-9. build and inspect the local plugin bundle;
-10. record Antigravity build/channel, operating system, results, and unresolved warnings in the PR.
+Require an approval gate and a rollback plan before the deployment job can access production credentials. Deployment/preview integrations are operational concerns and must not weaken repository CI, dependency, or package-release gates.
 
 ## Multi-runtime release evidence
 
-The runtime matrix is a capability claim, not a marketing list. CI automatically smoke-tests the packed CLI against the current reviewed ref for legacy managed-tree init/update and for Antigravity install → doctor → uninstall, including user-file and memory preservation. Before release, still perform hands-on checks where runtime-owned UI or external configuration is involved:
+The runtime matrix is a capability claim, not a marketing list. Before marking a release PR ready:
 
-- run `ag-kit runtime detect` in at least one representative staging project;
-- verify a first-class runtime is usable from its actual host application, not only from lifecycle state;
-- verify global-only targets are staged rather than silently modifying home configuration;
-- after the release tag exists, confirm a default install without `--branch` resolves to the matching release tag;
-- record any platform-specific caveat in `platform-capabilities.json`/docs rather than pretending parity.
+1. run the full automated command set in `PRODUCTION_CHECKLIST.md`;
+2. run `ag-kit runtime detect` in representative staging projects;
+3. verify at least two different first-class runtimes from their actual host applications where practical;
+4. verify a plugin/instruction-style target whose ownership shape differs from directory-based hosts;
+5. verify global-only targets are staged rather than silently modifying home configuration;
+6. verify runtime doctor reports lifecycle state that matches files on disk;
+7. verify uninstall preserves user drift and project memory;
+8. after the release tag exists, confirm default install without `--branch` resolves to the matching release tag;
+9. record platform-specific caveats in `platform-capabilities.json`/docs rather than pretending parity.
+
+Adapter-specific evidence belongs with the adapter. For example, a runtime that supports native hooks should test hook payload/decision behavior; a runtime that packages plugins should build and inspect that artifact. These are adapter checks, not primary-runtime requirements for the whole product.
 
 ## GitHub security settings
 
@@ -91,10 +82,12 @@ Enable:
 The release operator must confirm:
 
 - the calendar version is chosen only when the artifact is actually ready to tag;
-- root, CLI, web, package locks, `.agents/VERSION`, and committed release metadata use the intended version consistently;
+- root, CLI, web, package locks, generated runtime metadata, and release docs use the intended version consistently;
 - the Git tag is exactly `v<cli-package-version>`;
-- `shared/` is canonical and the committed Antigravity projection passes the drift gate;
+- `shared/` is canonical and no runtime is treated as product source-of-truth;
 - runtime adapters build from the same source being tagged;
+- `platform-capabilities.json` matches adapter declarations;
+- generic runtime checks pass without relying on a runtime-specific root command or workflow gate;
 - npm `pack --dry-run` contains every required CLI module and no unexpected secret/private file;
 - Linux packaged lifecycle smoke and Windows CLI compatibility are green on the final release commit;
 - `CHANGELOG.md` `[Unreleased]` entries are moved into the dated release section;
