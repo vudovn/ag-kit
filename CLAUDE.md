@@ -4,7 +4,7 @@ This file provides repository guidance to Claude Code when working on AG Kit.
 
 ## What this repository is
 
-AG Kit v2 is a lean multi-runtime operating layer for AI coding agents.
+AG Kit v2 is a lean multi-runtime operating layer for AI coding agents. No runtime is the product's primary runtime.
 
 Canonical behavior lives in `shared/`:
 
@@ -14,17 +14,18 @@ Canonical behavior lives in `shared/`:
 - `shared/flows/` — one development spine with QUICK / STANDARD / DEEP modes;
 - `packs/` — domain reference knowledge loaded only when relevant.
 
-Runtime surfaces are adapters/projections:
+Runtime integration lives behind adapter boundaries:
 
-- `.agents/` — native Antigravity projection (18 skills, 4 agents, rules, hooks, MCP, plugin support, **no legacy workflow files**);
-- `runtimes/` — capability-aware projections for the rest of the supported runtime matrix;
-- `platform-capabilities.json` — machine-readable capability claims.
+- `runtimes/<runtime>/` — capability-aware host adapters;
+- `platform-capabilities.json` — machine-readable capability claims;
+- generated host trees such as `.agents/`, `.claude/`, `.gemini/`, managed instruction files, or plugin folders — projections, never a second source of truth.
 
 The other major deliverables are:
 
 - `cli/` — npm package `@vudovn/ag-kit`, Node.js 22+, ESM;
+- `engine/` — runtime-neutral execution engines and wrappers;
 - `web/` — Next.js 16 docs/marketing site;
-- `.ag-kit/` — project-local runtime state produced in consumer projects (memory, receipts, lifecycle manifests, audits, handoffs, etc.), not a canonical source folder in this repository.
+- `.ag-kit/` — project-local state produced in consumer projects (memory, receipts, lifecycle manifests, audits, handoffs, etc.), not a canonical source folder in this repository.
 
 ## Operating rules
 
@@ -34,32 +35,31 @@ The other major deliverables are:
 4. Explicit plan/spec/brainstorm/architecture requests enter the development flow before multi-file mutation.
 5. Continue/resume requests load the latest handoff and relevant durable memory before mutation.
 6. Verify `platform-capabilities.json` before claiming a runtime supports hooks, agents, MCP, plugins, or another native surface.
-7. Do not recreate `.agents/workflows/`; QUICK/STANDARD/DEEP are modes of one flow engine.
+7. Do not recreate legacy `.agents/workflows/`; QUICK/STANDARD/DEEP are modes of one flow engine.
 8. Do not silently mutate user-global runtime configuration. Prefer project scope; stage global-only activation explicitly.
 9. Preserve user drift during runtime uninstall/update unless ownership can be proven.
-10. Evidence beats completion claims: run the relevant gates and report failures rather than weakening them.
+10. Keep runtime-specific source, tests, schemas, hook logic, and artifact builders inside `runtimes/<runtime>/`.
+11. Root package scripts, required CI gates, release docs, and architecture contracts must remain runtime-neutral.
+12. Evidence beats completion claims: run relevant gates and report failures rather than weakening them.
 
 ## Commands
 
 Run from repository root unless noted.
 
 ```bash
-# V2 architecture + docs
+# Architecture + docs + engines
 npm run check:v2
 npm run check:docs
 npm run test:v2
-npm run check:antigravity-projection
-npm run build:runtimes
 
-# Antigravity native projection
-npm run check:antigravity
-npm run test:antigravity
-npm run build:antigravity-plugin
+# Runtime matrix
+npm run check:runtimes
+npm run test:runtimes
+npm run build:runtimes
+npm run build:runtime-artifacts
 
 # CLI
 npm run test:cli
-# or:
-npm --prefix cli test
 npm --prefix cli pack --dry-run
 npm --prefix cli audit --omit=dev --audit-level=high
 
@@ -70,7 +70,7 @@ npm run build:web
 npm --prefix web audit --omit=dev --audit-level=high
 ```
 
-There is no Python-based canonical toolkit validator in v2. Do not restore removed `generate:agents`, `check:agents`, `test:toolkit`, manifest-lock, dependency-graph, or legacy workflow regeneration steps.
+There is no Python-based canonical toolkit validator in v2. Do not restore removed `generate:agents`, `check:agents`, `test:toolkit`, manifest-lock, dependency-graph, legacy workflow regeneration, or runtime-specific root validation commands.
 
 ## CLI architecture
 
@@ -100,11 +100,11 @@ Published runtime installs default to the repository tag matching the CLI versio
 - Personalization injection defaults off; `AG_KIT_PROFILE_KILL=1` is the hard kill switch.
 - Observability must not record prompt bodies, command arguments, file contents, or secrets.
 
-## Antigravity hooks
+## Runtime adapters
 
-The native safety hook is intentionally narrow: it blocks high-confidence root/disk destructive operations and supplements, rather than replaces, Antigravity permissions/workspace trust.
+A host may expose richer native features than another host. Use those features only inside that adapter and only when the capability matrix declares them.
 
-Hook entrypoint detection must remain cross-platform and symlink-safe. `PostToolUse` observability must always fail open and return `{}` so telemetry can never block the agent loop.
+For example, the Antigravity adapter currently projects native hooks and plugin packaging, while other adapters use their own verified instruction/config/plugin shapes. This does not make any one runtime canonical or primary.
 
 ## Release
 
@@ -122,4 +122,4 @@ The npm publish workflow uses Trusted Publishing and verifies the tag against `c
 
 ## Web notes
 
-`next build --webpack` is intentional. Keep web copy consistent with the v2 inventory: 1 core, 18 hot-loaded skills, 4 permanent agents, one development spine, and 16 runtime targets.
+`next build --webpack` is intentional. Keep web copy consistent with the v2 inventory: 1 core, 18 hot-loaded skills, 4 permanent agents, one development spine, and 16 runtime targets. Public product copy must not revive an old single-runtime identity.
