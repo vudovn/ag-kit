@@ -1,0 +1,40 @@
+name: Inventory Legacy Skills
+
+on:
+  push:
+    branches:
+      - feat/lean-multiruntime-v2
+    paths:
+      - .github/workflows/inventory-legacy-skills.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: current
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          path: legacy
+      - name: Print legacy skill inventory
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const root = path.join(process.cwd(), 'legacy', '.agents', 'skills');
+          const rows = fs.readdirSync(root, { withFileTypes: true })
+            .filter((entry) => entry.isDirectory())
+            .map((entry) => {
+              const file = path.join(root, entry.name, 'SKILL.md');
+              return { name: entry.name, bytes: fs.existsSync(file) ? fs.statSync(file).size : 0 };
+            })
+            .sort((a, b) => a.name.localeCompare(b.name));
+          console.log(`LEGACY_SKILL_COUNT=${rows.length}`);
+          for (const row of rows) console.log(`${row.name}\t${row.bytes}`);
+          NODE
