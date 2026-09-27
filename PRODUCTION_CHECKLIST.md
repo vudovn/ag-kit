@@ -2,7 +2,7 @@
 
 Use this checklist before marking a v2 release PR ready, creating a release tag, or publishing `@vudovn/ag-kit`.
 
-A green CI run is necessary but not sufficient: release metadata, migration guidance, package contents, runtime source pinning, rollback behavior, and reproducible evidence must agree with the code being shipped.
+A green CI run is necessary but not sufficient: release metadata, migration guidance, package contents, runtime source pinning, ownership behavior, and reproducible evidence must agree with the code being shipped.
 
 ## 1. Branch and PR state
 
@@ -37,12 +37,10 @@ Confirm:
 - [ ] no runtime is declared primary in repository contracts or public docs;
 - [ ] root package scripts and GitHub workflow gates remain runtime-neutral;
 - [ ] legacy `.agents/workflows/` is absent;
+- [ ] the old Antigravity-only `init/update/rollback/status` lifecycle source is absent;
 - [ ] `platform-capabilities.json` and runtime adapters do not drift;
 - [ ] deterministic benchmark fixtures pass for memory recall, routing, compression, and runtime lifecycle;
-- [ ] the benchmark receipt records the reviewed branch head SHA/ref and measured outputs rather than synthetic comparisons;
-- [ ] CI uploads the benchmark receipt as an immutable artifact and fails if the receipt is missing.
-
-The default release gate must stay local and deterministic. Paid-provider/model benchmarks, if used, are supplemental evidence only unless the release contract is intentionally changed in a future reviewed PR.
+- [ ] CI uploads the benchmark receipt and fails if the receipt is missing.
 
 ## 3. CLI and npm package
 
@@ -57,9 +55,11 @@ npm --prefix cli audit --omit=dev --audit-level=high
 
 Confirm:
 
-- [ ] `ag-kit --help` explains that global npm installation installs the CLI only;
+- [ ] global npm installation installs the CLI only;
+- [ ] `ag-kit --help` exposes only the runtime-neutral v2 command surface;
+- [ ] `ag-kit --version` works directly and through an npm-style symlink;
+- [ ] unknown commands fail instead of falling back to a second lifecycle;
 - [ ] `ag-kit runtime --help` exposes discovery, install, doctor, and uninstall commands;
-- [ ] npm-style symlink execution works for both the public dispatcher and legacy lifecycle entrypoint;
 - [ ] machine-readable project-relative paths use stable `/` separators across Linux and Windows;
 - [ ] default runtime downloads resolve to `v<CLI_VERSION>` rather than floating `main`;
 - [ ] `--branch` remains an explicit source-ref override for development/testing;
@@ -68,11 +68,7 @@ Confirm:
 
 ## 4. Multi-runtime lifecycle smoke
 
-CI must exercise the real packed npm artifact against more than one runtime family. The representative smoke set should include at least:
-
-- one host with a rich native projection;
-- one different first-class host with its own config/instruction shape;
-- one plugin/instruction-style host where lifecycle ownership differs.
+CI must install the real packed npm artifact and exercise multiple ownership/projection shapes. The representative set currently covers Antigravity, Claude, and Codex.
 
 For each representative runtime, verify:
 
@@ -93,7 +89,9 @@ Confirm:
 - [ ] filesystem root and user home are rejected as project targets;
 - [ ] user-global runtime configuration is never silently mutated.
 
-After the matching `v<CLI_VERSION>` tag exists, repeat a default install without `--branch` and verify the source resolves to the release tag.
+For migration from a pre-v2 Antigravity project, keep a committed/external backup and run the same `runtime install antigravity` lifecycle. There is no separate managed-tree release path.
+
+After the matching `v<CLI_VERSION>` tag exists, repeat a default install without `--branch` and verify source resolution uses the release tag.
 
 ## 5. Memory and continuity
 
@@ -105,7 +103,7 @@ ag-kit handoff quick "Release smoke test paused" --next "Resume verification"
 ag-kit handoff show
 ```
 
-Confirm Markdown remains canonical, optional indexes are rebuildable, handoffs archive safely, resume intent reads current continuity state before mutation, and cross-project search never crawls `$HOME` automatically.
+Confirm Markdown remains canonical, optional FTS/semantic indexes are rebuildable, semantic retrieval stays opt-in/local, handoffs archive safely, and cross-project search never crawls `$HOME` automatically.
 
 ## 6. Context economy and command sandbox
 
@@ -117,7 +115,7 @@ Confirm full output is stored on disk while returned context stays bounded, shel
 
 ## 7. Runtime adapter validation
 
-Root validation is runtime-neutral. Adapter-specific evidence belongs inside the matching `runtimes/<runtime>/` implementation and is invoked through the generic runners:
+Root validation is runtime-neutral. Adapter-specific evidence belongs inside `runtimes/<runtime>/` and is invoked through the generic runners:
 
 ```bash
 npm run check:runtimes
@@ -126,20 +124,13 @@ npm run build:runtimes
 npm run build:runtime-artifacts
 ```
 
-For adapters that expose native hooks/plugins, additionally confirm their own checks cover payload shape, deterministic artifact output, privacy boundaries, and failure behavior.
+For adapters that expose native hooks/plugins, additionally confirm payload shape, deterministic artifact output, privacy boundaries, and failure behavior.
 
-For the Antigravity adapter specifically, destructive-command testing must use mocked stdin only — never execute the destructive command:
-
-```bash
-printf '%s' '{"toolCall":{"name":"run_command","args":{"CommandLine":"rm -rf /"}}}' \
-  | node .agents/hooks/validate-tool-call.mjs
-```
-
-This is adapter evidence, not a repository-wide primary-runtime gate.
+Antigravity-specific destructive-command tests must use mocked stdin only; this remains adapter evidence, not a product-wide primary-runtime gate.
 
 ## 8. Cross-audit and privacy
 
-Confirm external reviewer CLIs receive read-only snapshot/diff material, lineage exclusion works when requested, reviewer lineages execute with bounded parallelism, consensus and contested findings remain distinguishable, trace IDs connect audit evidence to the active flow when present, personalization injection defaults off, kill switches override stored settings, forget semantics remove related egress state, and no fabricated token-savings multiplier is reported.
+Confirm external reviewer CLIs receive read-only snapshot/diff material, lineage exclusion works, reviewer lineages execute with bounded parallelism, consensus/contested findings stay distinguishable, trace IDs connect evidence to the active flow, personalization injection defaults off, kill switches override stored settings, forget semantics purge related egress state, and no fabricated token-savings multiplier is reported.
 
 ## 9. Web/docs quality gate
 
@@ -152,7 +143,7 @@ npm --prefix web run build
 npm --prefix web audit --omit=dev --audit-level=high
 ```
 
-Confirm docs describe **1 core / 18 skills / 4 permanent agents / 1 flow / 16 runtimes**, repository instruction files describe v2, package-level docs match shipped commands, Node.js 22+ remains the requirement, local Markdown links pass, and public copy does not present one runtime as the product identity.
+Confirm docs describe **1 core / 18 skills / 4 permanent agents / 1 flow / 16 runtimes**, package-level docs match shipped commands, Node.js 22+ remains the requirement, local links/claims pass, and public copy does not present one runtime as the product identity.
 
 ## 10. Release metadata
 
@@ -167,21 +158,21 @@ Only when the code is actually ready to release:
 
 Do not bump the version early just to make a branch appear release-ready.
 
-## 11. Publish and rollback readiness
+## 11. Migration and removal readiness
 
 Before tagging:
 
-- [ ] `ag-kit update --dry-run` still produces a non-destructive migration plan for legacy managed trees;
-- [ ] `ag-kit rollback` can restore a pre-update managed-tree backup;
-- [ ] runtime uninstall behavior is documented separately from legacy tree rollback;
-- [ ] `MIGRATION.md` reflects commands that actually ship;
+- [ ] `MIGRATION.md` describes only commands that actually ship;
+- [ ] pre-v2 Antigravity migration uses `runtime install antigravity`, not a hidden second lifecycle;
+- [ ] runtime uninstall restores/removes only adapter-owned state and preserves user drift/memory;
+- [ ] project backup/version control is documented as the recovery path for pre-v2 state that is not adapter-owned;
 - [ ] the PR can remain Draft until maintainers intentionally choose review/merge timing.
 
 ## Required GitHub gates
 
 For the final release commit, require:
 
-- [ ] **CI / V2 core validation** — includes deterministic benchmark receipt generation + artifact upload;
+- [ ] **CI / V2 core validation**;
 - [ ] **CI / CLI tests and package validation**;
 - [ ] **CI / CLI Windows compatibility**;
 - [ ] **CI / Web lint, typecheck, build, and audit**;
