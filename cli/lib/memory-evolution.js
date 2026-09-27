@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { addMemory, appendReceipt, recallMemory } from "./v2-engine.js";
 import { ensureDir, readJson, stateRoot, writeJson } from "./project-state.js";
+import { findNearDuplicate, indexMemoryGraph, memoryGraphStatus, rebuildMemoryGraph, relationsForMemory } from "./memory-graph.js";
 
 const evolutionFile = (root) => path.join(stateRoot(root), "memory", "evolution.json");
 const entriesDir = (root) => path.join(stateRoot(root), "memory", "entries");
@@ -21,7 +22,24 @@ const maybePromote = (entry) => {
     return false;
 };
 
-export function addEvolvingMemory({ root = process.cwd(), text, kind = "learning", title = "", session = "manual", validFrom = "", validTo = "", durable = false, supersedes = "" }) {
+export function addEvolvingMemory({ root = process.cwd(), text, kind = "learning", title = "", session = "manual", validFrom = "", validTo = "", durable = false, supersedes = "", dedup = true }) {
+    if (dedup && kind !== "handoff") {
+        const duplicate = findNearDuplicate({ root, text, kind });
+        if (duplicate) {
+            const evolution = referenceMemory({ root, id: duplicate.id, session });
+            appendReceipt(root, "memory-evolution", { action: "dedupe", id: duplicate.id, kind, session, similarity: duplicate.similarity, exact: duplicate.exact });
+            return {
+                id: duplicate.id,
+                file: path.join(entriesDir(root), `${duplicate.id}.md`),
+                index: "deduped",
+                deduped: true,
+                similarity: duplicate.similarity,
+                evolution,
+                relations: relationsForMemory(root, duplicate.id),
+            };
+        }
+    }
+
     const result = addMemory({ root, text, kind, title });
     const state = load(root);
     state.entries[result.id] = {
@@ -39,8 +57,9 @@ export function addEvolvingMemory({ root = process.cwd(), text, kind = "learning
         supersededBy: null,
     };
     save(root, state);
-    appendReceipt(root, "memory-evolution", { action: "add", id: result.id, status: state.entries[result.id].status, session, validFrom: validFrom || null, validTo: validTo || null });
-    return { ...result, evolution: state.entries[result.id] };
+    const relations = indexMemoryGraph(root, result.id, { kind, title: title || kind });
+    appendReceipt(root, "memory-evolution", { action: "add", id: result.id, status: state.entries[result.id].status, session, validFrom: validFrom || null, validTo: validTo || null, links: relations.links.length, tags: relations.tags.length, facts: relations.facts.length });
+    return { ...result, deduped: false, evolution: state.entries[result.id], relations: relationsForMemory(root, result.id) };
 }
 
 export function referenceMemory({ root = process.cwd(), id, session = "manual" }) {
@@ -82,7 +101,7 @@ export function recallEvolvingMemory({ root = process.cwd(), query = "", limit =
         const ageDays = Math.max(0, (atMs - createdMs) / 86400000);
         const recency = Math.exp(-ageDays / 90);
         const statusBoost = meta?.status === "durable" ? 1.2 : 1;
-        return [{ ...item, id, status: meta?.status || "legacy", validFrom: meta?.validFrom || null, validTo: meta?.validTo || null, score: Number(item.score || 1) * (1 + recency) * statusBoost }];
+        return [{ ...item, id, status: meta?.status || "legacy", validFrom: meta?.validFrom || null, validTo: meta?.validTo || null, relations: relationsForMemory(root, id), score: Number(item.score || 1) * (1 + recency) * statusBoost }];
     }).sort((a, b) => b.score - a.score).slice(0, Number(limit));
     for (const item of ranked) referenceMemory({ root, id: item.id, session });
     return ranked;
@@ -91,7 +110,7 @@ export function recallEvolvingMemory({ root = process.cwd(), query = "", limit =
 export function supersedeMemory({ root = process.cwd(), id, text, title = "", kind = "decision", session = "manual", validFrom = "", validTo = "" }) {
     const state = load(root);
     if (!state.entries[id] && !fs.existsSync(path.join(entriesDir(root), `${id}.md`))) throw new Error(`memory entry not found: ${id}`);
-    const next = addEvolvingMemory({ root, text, title, kind, session, validFrom, validTo, durable: true, supersedes: id });
+    const next = addEvolvingMemory({ root, text, title, kind, session, validFrom, validTo, durable: true, supersedes: id, dedup: false });
     const refreshed = load(root);
     refreshed.entries[id] = refreshed.entries[id] || { id, file: path.join(".ag-kit", "memory", "entries", `${id}.md`), status: "durable", references: 0, sessions: [] };
     refreshed.entries[id].status = "superseded";
@@ -138,7 +157,8 @@ export function runMemoryDream({ root = process.cwd(), staleDays = 180 } = {}) {
     }
     state.lastDreamAt = new Date().toISOString();
     save(root, state);
-    appendReceipt(root, "memory-evolution", { action: "dream", promoted, archived, deduplicated, staleDays: Number(staleDays) });
+    const graph = rebuildMemoryGraph(root);
+    appendReceipt(root, "memory-evolution", { action: "dream", promoted, archived, deduplicated, staleDays: Number(staleDays), graphEntries: Object.keys(graph.entries).length });
     return { promoted, archived, deduplicated, entries: Object.keys(state.entries).length, lastDreamAt: state.lastDreamAt };
 }
 
@@ -146,5 +166,5 @@ export function memoryEvolutionStatus(root = process.cwd()) {
     const state = load(root);
     const counts = { candidate: 0, durable: 0, superseded: 0, archived: 0 };
     for (const entry of Object.values(state.entries)) counts[entry.status] = (counts[entry.status] || 0) + 1;
-    return { schema: state.schema, counts, lastDreamAt: state.lastDreamAt || null };
+    return { schema: state.schema, counts, lastDreamAt: state.lastDreamAt || null, graph: memoryGraphStatus(root) };
 }
