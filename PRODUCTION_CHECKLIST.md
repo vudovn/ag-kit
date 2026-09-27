@@ -45,12 +45,15 @@ npm --prefix cli pack --dry-run
 npm --prefix cli audit --omit=dev --audit-level=high
 ```
 
+CI additionally installs the **real packed tarball** through npm's binary layout and runs branch-backed lifecycle smoke tests. The release candidate is not considered portable unless the separate `CLI Windows compatibility` job also passes the full CLI tests and package dry-run on Windows.
+
 Confirm:
 
-- [ ] `ag-kit --help` exposes v2, context, runtime, and legacy lifecycle commands;
+- [ ] `ag-kit --help` explains that global npm installation installs the CLI only and exposes v2, context, runtime, and legacy lifecycle commands;
 - [ ] `ag-kit runtime --help` includes `detect`, `install-present`, `install`, `doctor`, and `uninstall`;
 - [ ] npm-style symlink execution works for both the public dispatcher and legacy lifecycle entrypoint;
 - [ ] `lib/` contains every module referenced by the dispatcher (including help, context, brain, runtime discovery, and source pinning);
+- [ ] machine-readable project-relative paths use stable `/` separators across Linux and Windows;
 - [ ] default runtime downloads resolve to `v<CLI_VERSION>` rather than floating `main`;
 - [ ] `--branch` remains an explicit source-ref override for development/testing;
 - [ ] MCP runtime status reports all lifecycle manifests, not only the last-written legacy `runtime.json` value;
@@ -58,7 +61,12 @@ Confirm:
 
 ## 4. Runtime lifecycle smoke test
 
-Before the release tag exists, explicitly point the smoke test at the release branch/ref so the test exercises the code under review rather than a previous published tag:
+For same-repository PRs and `main`, CI automatically packs the CLI and executes two disposable-project smoke paths against the reviewed branch/ref:
+
+1. legacy managed-tree `init → update → status`, starting with a user-owned `.agents` file and verifying it survives;
+2. Antigravity runtime `install → doctor(live) → uninstall → doctor(untouched)`, verifying ownership manifests, restoration of pre-existing user state, and preservation of `.ag-kit/memory/`.
+
+Before the release tag exists, manual smoke tests must still use an explicit reviewed branch/ref when you need to test a host application or runtime behavior not represented by lifecycle state:
 
 ```bash
 ag-kit runtime detect
@@ -71,10 +79,11 @@ After the matching `v<CLI_VERSION>` tag exists, repeat installation **without** 
 
 Confirm:
 
-- [ ] pre-tag smoke testing uses an explicit reviewed branch/commit override;
+- [ ] CI packaged lifecycle smoke is green on the final release commit;
+- [ ] pre-tag manual smoke testing uses an explicit reviewed branch/commit override;
 - [ ] post-tag/default install resolves to `v<CLI_VERSION>`;
 - [ ] install creates an ownership/lifecycle manifest and pre-install backup when required;
-- [ ] doctor reports a meaningful state (`live`, `standing-by`, `degraded`, or `untouched`);
+- [ ] doctor reports a meaningful status (`live`, `standing-by`, `degraded`, or `untouched`);
 - [ ] uninstall removes/restores only AG Kit-owned state;
 - [ ] user drift survives uninstall;
 - [ ] `.ag-kit/memory/` survives runtime uninstall;
@@ -209,7 +218,10 @@ Before tagging:
 
 For the final release commit, require:
 
-- [ ] **CI** — v2/core, docs links, CLI/package, web build, and production audits;
+- [ ] **CI / V2 core validation** — architecture, docs links, projections, Antigravity checks;
+- [ ] **CI / CLI tests and package validation** — Linux tests, package dry-run/audit, packaged lifecycle smoke;
+- [ ] **CI / CLI Windows compatibility** — full CLI tests and package dry-run on Windows;
+- [ ] **CI / Web lint, typecheck, build, and audit**;
 - [ ] **Antigravity Compatibility** — projection/doctor/tests/plugin build;
 - [ ] **Dependency Review**.
 
