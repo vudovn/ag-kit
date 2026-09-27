@@ -16,7 +16,7 @@
 
 ## AG Kit v2 là gì?
 
-AG Kit runtime-neutral từ lõi. Behavior dùng chung chỉ tồn tại một lần trong `shared/`; từng runtime adapter dịch nó sang native surface của host mà không biến thành một fork riêng.
+AG Kit runtime-neutral từ lõi. Behavior dùng chung chỉ tồn tại một lần trong `shared/`; từng runtime adapter dịch nó sang native surface của host mà không biến thành fork riêng.
 
 - **1 resident core** — rule vận hành luôn bật nhưng rất nhỏ.
 - **18 hot-loaded skills** — chỉ vào context khi task cần.
@@ -24,8 +24,8 @@ AG Kit runtime-neutral từ lõi. Behavior dùng chung chỉ tồn tại một l
 - **1 development spine** — QUICK / STANDARD / DEEP với gate rõ ràng.
 - **16 runtime targets** — chia tier theo capability thật, không giả parity.
 - **Domain packs** — knowledge sâu giữ lạnh đến lúc cần.
-- **Local-first memory** — Markdown canonical; SQLite/FTS5 chỉ là lớp tăng tốc tùy chọn.
-- **Executable evidence** — preflight, runtime doctor, cross-audit, receipts, dependency audit và CI.
+- **Local-first memory** — Markdown canonical; FTS/semantic chỉ là lớp tăng tốc tùy chọn, có thể rebuild.
+- **Executable evidence** — preflight, runtime doctor, cross-audit, receipts, benchmark artifacts, dependency audit và CI.
 
 ```text
 shared/                  # behavior canonical, runtime-neutral
@@ -34,7 +34,7 @@ shared/                  # behavior canonical, runtime-neutral
 ├── agents/              # scout / architect / builder / reviewer
 └── flows/               # một development spine
 
-packs/                   # domain knowledge
+packs/                   # cold domain/reference knowledge
 runtimes/                # thin adapters theo capability
 engine/                  # memory / planning / audit / preflight / observability
 cli/                     # lifecycle, MCP, context, memory, audit tools
@@ -50,9 +50,7 @@ Những host tree như `.agents/`, `.claude/` hay `.gemini/` chỉ là projectio
 | Connected | Cursor, Windsurf, GitHub Copilot |
 | Bridge | OpenCode, OpenClaw, Aider, Wayland, Hermes, Pi |
 
-Contract machine-readable nằm ở [`platform-capabilities.json`](platform-capabilities.json). AG Kit chỉ claim capability khi adapter tương ứng thật sự khai báo và kiểm được capability đó.
-
-Không runtime nào là “primary runtime” của AG Kit. Host nào giàu native surface hơn thì adapter của host đó có thể làm nhiều hơn, nhưng product behavior vẫn phải portable qua shared core.
+Contract machine-readable nằm ở [`platform-capabilities.json`](platform-capabilities.json). Không runtime nào là primary runtime của AG Kit.
 
 ## Cài đặt
 
@@ -65,17 +63,28 @@ ag-kit runtime install-present
 ag-kit runtime doctor
 ```
 
-Cài riêng một runtime khi cần:
+Cài package chỉ cài CLI. Project chỉ thay đổi sau khi bạn chủ động cài runtime adapter.
 
 ```bash
 ag-kit runtime install claude
-ag-kit runtime install codex
+ag-kit runtime doctor claude
 ag-kit runtime uninstall claude
 ```
 
-Mỗi runtime install có ownership manifest và pre-install backup. Uninstall chỉ gỡ state do AG Kit sở hữu khi chứng minh được ownership, giữ user drift và mặc định giữ project memory.
+Mỗi runtime install có ownership manifest và pre-install backup. Uninstall chỉ gỡ/restore state AG Kit sở hữu khi chứng minh được ownership, giữ user drift và mặc định giữ project memory.
 
-## Local-first memory
+### Migrate project Antigravity đời cũ
+
+CLI managed-tree Antigravity-only đời cũ đã bị loại bỏ. Commit hoặc backup project, sau đó migrate bằng đúng lifecycle chung:
+
+```bash
+ag-kit runtime install antigravity
+ag-kit runtime doctor antigravity
+```
+
+Xem [`MIGRATION.md`](MIGRATION.md) để biết chi tiết backup/recovery từ pre-v2.
+
+## Memory và continuity
 
 ```bash
 ag-kit memory init
@@ -83,30 +92,38 @@ ag-kit memory add "Repo dùng pnpm" --kind convention --session s1
 ag-kit memory recall "package manager" --session s2
 ag-kit memory dream
 ag-kit memory status
-```
 
-Markdown dưới `.ag-kit/memory/` là canonical. Candidate có thể thành durable sau repeated evidence qua nhiều session, có validity window, supersede fact cũ và được archive bởi dream cycle. SQLite FTS5 là warm index có thể rebuild.
+ag-kit memory semantic status
+ag-kit memory semantic on
+ag-kit memory semantic rebuild
 
-Cross-project recall phải opt-in:
-
-```bash
 ag-kit brain register .
-ag-kit brain list
 ag-kit brain search "deployment convention"
 ```
 
-AG Kit không tự crawl home directory. Filesystem root/home bị từ chối; integration chỉ có global config sẽ được stage để người dùng tự kích hoạt thay vì âm thầm sửa config.
+Markdown dưới `.ag-kit/memory/` là canonical. SQLite/FTS5 và semantic tier local chỉ là acceleration layer có thể rebuild. Semantic mặc định tắt. Cross-project recall phải opt-in và không bao giờ tự crawl `$HOME`.
+
+Tạo handoff:
+
+```bash
+ag-kit handoff create --goal "hoàn tất runtime rollout" --state "core đang xanh" --next "run full CI"
+ag-kit handoff show
+```
 
 ## Một development spine
 
 ```bash
+ag-kit prompt-check "update it"
+ag-kit route "thiết kế migration nhiều service"
 ag-kit flow start "Ship account recovery" --mode deep
-ag-kit flow artifact "Đã so sánh phương án và chọn signed one-time token"
-ag-kit flow approve "Shape approved"
-ag-kit flow status
+ag-kit flow artifact "Đã so sánh phương án"
+ag-kit flow waves '[{"id":"foundation","mode":"parallel","tasks":["A","B"],"dependsOn":[]}]'
+ag-kit flow ready
+ag-kit flow wave-complete foundation "Foundation verified"
+ag-kit flow approve "approved"
 ```
 
-Mỗi gated phase cần artifact trước khi approve. DEEP mode còn cần dependency-wave table rõ ràng trước khi hội tụ execution.
+Mỗi gated phase cần artifact trước khi approve. Boundary VERIFY/CROSS_AUDIT cần mechanical evidence mới. DEEP mode dùng dependency waves rõ ràng trước khi ship.
 
 Specialist theo dự án chỉ sinh tạm thời:
 
@@ -114,38 +131,15 @@ Specialist theo dự án chỉ sinh tạm thời:
 ag-kit team --archetype auto --name product-v2 --brief "Ship an toàn"
 ```
 
-Generated role nằm dưới `.ag-kit/agents/`; framework vẫn chỉ giữ bốn permanent agents.
-
 ## Context economy
-
-Route task mà không hard-code vendor model:
-
-```bash
-ag-kit route "đọc auth module và giải thích flow"
-ag-kit route "thiết kế migration nhiều service"
-```
-
-Giới hạn output command lớn:
 
 ```bash
 ag-kit run npm test
 ag-kit run npm run build --max-lines 30
+ag-kit compress docs/long-context.md
 ```
 
-Full stdout/stderr nằm dưới `.ag-kit/session-sandbox/`; caller chỉ nhận bounded summary.
-
-Tạo handoff để tiếp tục session:
-
-```bash
-ag-kit handoff create \
-  --goal "hoàn tất runtime rollout" \
-  --state "core và CLI đang xanh" \
-  --evidence "npm test passed" \
-  --risk "web audit còn pending" \
-  --next "run full CI"
-
-ag-kit handoff show
-```
+Full command output nằm dưới `.ag-kit/session-sandbox/`; caller chỉ nhận bounded summary. Compression deterministic và mặc định không ghi đè source.
 
 ## Independent cross-audit
 
@@ -154,7 +148,7 @@ ag-kit cross-audit --probe
 ag-kit cross-audit . --reviewers 3 --exclude-lineage openai
 ```
 
-Reviewer lineage khác chỉ nhận snapshot/diff trong temp directory, không có writable source mount. Finding vẫn được tách thành consensus và contested, kèm receipt.
+Reviewer lineage khác chỉ nhận bounded snapshot chunk trong temp directory, không có writable source mount. Nhiều lineage có thể chạy bounded-parallel; finding được tách consensus/contested và có traceable receipt.
 
 ## Observability và privacy
 
@@ -164,40 +158,39 @@ ag-kit dashboard summary
 ag-kit dashboard start
 ```
 
-Local ledger có giới hạn/rotation và dashboard chỉ bind localhost. AG Kit chỉ ghi giá trị đo được hoặc do integration truyền rõ ràng, không tự bịa savings multiplier.
+Local ledger có giới hạn/rotation, rollup theo runtime/trace và dashboard chỉ bind localhost. AG Kit chỉ ghi giá trị đo được hoặc integration truyền rõ ràng, không tự bịa savings multiplier.
 
-Adapter có thể dùng native observability hook của host khi host hỗ trợ. Những hook đó chỉ là implementation detail của runtime, phải privacy-minimal và fail-open.
-
-## Design contract
+Personalization là evidence-backed và opt-in:
 
 ```bash
-ag-kit design list
-ag-kit design init --template graphite --brand "Acme"
-ag-kit design check
+ag-kit personalize status
+ag-kit personalize learn "Dùng prose gọn" --evidence "User rút ngắn report" --session s1
+ag-kit personalize inject on
+ag-kit personalize forget all
 ```
 
-`DESIGN.md` mang brand intent, color, typography, layout, component, imagery, motion, accessibility và constraints xuyên runtime mà không cần thêm resident prompt.
+`AG_KIT_PROFILE_KILL=1` là hard kill switch.
 
-## MCP bridge
+## Design và MCP
 
 ```bash
+ag-kit design init --template graphite --brand "Acme"
+ag-kit design check
 ag-kit mcp serve
 ```
 
-MCP surface được giữ nhỏ có chủ đích: project memory, opt-in cross-project search/status, team init, runtime status và audit probe. Adapter chỉ wire hoặc stage MCP bridge khi configuration model của runtime đó đã được verify.
+`DESIGN.md` mang design intent portable xuyên runtime. MCP bridge cố ý giữ surface nhỏ và runtime-neutral.
 
 ## Runtime adapters
 
-Mỗi adapter nằm dưới `runtimes/<runtime>/` và khai capability trong `platform-capabilities.json`.
-
-Ví dụ:
+Mỗi adapter nằm dưới `runtimes/<runtime>/` và khai capability đã verify trong `platform-capabilities.json`.
 
 - Antigravity có thể project native rules, skills, agents, hooks, MCP và plugin packaging.
-- Claude có native skills/agents và project MCP ở cấp project.
-- Codex nhận portable instructions, skills và plugin/MCP projection.
-- Connected/bridge target chỉ expose đúng surface AG Kit đã verify.
+- Claude có native skills/agents và project integration.
+- Codex nhận portable instructions, skills và hook/plugin surface khi đã verify.
+- Connected/bridge target chỉ expose đúng surface AG Kit kiểm chứng được.
 
-Code/test runtime-specific ở trong adapter boundary. Validation cấp root luôn runtime-neutral.
+Native richness của một adapter không biến runtime đó thành trung tâm sản phẩm.
 
 ## Validation repo
 
@@ -205,6 +198,7 @@ Code/test runtime-specific ở trong adapter boundary. Validation cấp root lu�
 npm run check:v2
 npm run check:docs
 npm run test:v2
+npm run benchmark:v2 -- --output dist/evidence/benchmark-v2.json
 npm run check:runtimes
 npm run test:runtimes
 npm run build:runtimes
@@ -215,19 +209,7 @@ npm run typecheck:web
 npm run build:web
 ```
 
-`check:runtimes` còn khóa invariant runtime-neutral: không được khai primary runtime, không có root script/workflow gate mang tên một runtime, và không cho tooling thời Antigravity-only quay lại trong generated `.agents/` surface.
-
-## Tương thích lifecycle cũ
-
-```bash
-ag-kit init
-ag-kit update --dry-run
-ag-kit update
-ag-kit rollback
-ag-kit status
-```
-
-Legacy update vẫn merge-aware và backup-aware để người dùng cũ migrate an toàn sang v2.
+`check:runtimes` khóa invariant runtime-neutral. `check:docs` kiểm link và claim machine-checkable. CI còn publish deterministic benchmark receipt cho memory recall, routing, compression và runtime lifecycle.
 
 ## Nguyên tắc
 
@@ -240,13 +222,14 @@ Legacy update vẫn merge-aware và backup-aware để người dùng cũ migrat
 7. **Judgment phải explicit.** Không silent phase approval.
 8. **Verification phải tạo evidence.**
 9. **Privacy phải inspect được và có kill switch.**
+10. **Một lifecycle duy nhất.** `runtime install/doctor/uninstall` thay thế lifecycle ẩn theo từng runtime.
 
-AG Kit v2 tự triển khai các feature class hữu ích của mô hình tiny-core multi-runtime kiểu IJFW nhưng giữ code, naming, lifecycle model và privacy posture riêng của AG Kit. Xem [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md) để biết capability map và intentional differences.
+AG Kit v2 tự triển khai các feature class hữu ích kiểu IJFW nhưng giữ code, naming, lifecycle model và privacy posture riêng. Xem [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md).
 
 ## Tài liệu
 
-- [`docs/ARCHITECTURE_V2.md`](docs/ARCHITECTURE_V2.md) — kiến trúc v2
-- [`docs/RUNTIMES.md`](docs/RUNTIMES.md) — runtime tiers và adapters
+- [`docs/ARCHITECTURE_V2.md`](docs/ARCHITECTURE_V2.md) — kiến trúc
+- [`docs/RUNTIMES.md`](docs/RUNTIMES.md) — runtime tiers/adapters
 - [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md) — functional parity map
 - [`MIGRATION.md`](MIGRATION.md) — hướng dẫn migration
 - [`PRODUCTION_CHECKLIST.md`](PRODUCTION_CHECKLIST.md) — release checklist
