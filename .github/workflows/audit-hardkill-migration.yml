@@ -1,0 +1,188 @@
+name: Audit Hard-Kill Migration
+
+on:
+  push:
+    branches: [feat/lean-multiruntime-v2]
+    paths:
+      - .github/workflows/audit-hardkill-migration.yml
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/lean-multiruntime-v2
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Harden reviewer termination
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('cli/lib/audit-consensus.js')
+          text = p.read_text()
+          old = '''const runChild = ({ reviewer, prompt, cwd, timeoutMs, root }) => new Promise((resolve) => {
+    let stdout = "";
+    let stderr = "";
+    let outputBytes = 0;
+    let timedOut = false;
+    let overflow = false;
+    let spawnError = null;
+    let settled = false;
+    const child = spawn(reviewer.command, reviewer.run(prompt), {
+        cwd,
+        shell: false,
+        env: traceEnv(root),
+        stdio: ["ignore", "pipe", "pipe"],
+        windowsHide: true,
+    });
+    const finish = (status, signal) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve({ status, signal, stdout, stderr, timedOut, overflow, error: spawnError });
+    };
+    const append = (kind, chunk) => {
+        const text = chunk.toString("utf8");
+        outputBytes += Buffer.byteLength(text);
+        if (outputBytes > MAX_REVIEW_OUTPUT_BYTES) {
+            overflow = true;
+            child.kill("SIGTERM");
+            return;
+        }
+        if (kind === "stdout") stdout += text;
+        else stderr += text;
+    };
+    child.stdout?.on("data", (chunk) => append("stdout", chunk));
+    child.stderr?.on("data", (chunk) => append("stderr", chunk));
+    child.once("error", (error) => { spawnError = error; finish(null, null); });
+    child.once("close", (status, signal) => finish(status, signal));
+    const timer = setTimeout(() => {
+        timedOut = true;
+        child.kill("SIGTERM");
+    }, Math.max(1000, Number(timeoutMs) || 120000));
+});'''
+          new = '''const runChild = ({ reviewer, prompt, cwd, timeoutMs, root }) => new Promise((resolve) => {
+    let stdout = "";
+    let stderr = "";
+    let outputBytes = 0;
+    let timedOut = false;
+    let overflow = false;
+    let spawnError = null;
+    let settled = false;
+    let timer = null;
+    let killTimer = null;
+    const child = spawn(reviewer.command, reviewer.run(prompt), {
+        cwd,
+        shell: false,
+        env: traceEnv(root),
+        stdio: ["ignore", "pipe", "pipe"],
+        windowsHide: true,
+    });
+    const finish = (status, signal) => {
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        if (killTimer) clearTimeout(killTimer);
+        resolve({ status, signal, stdout, stderr, timedOut, overflow, error: spawnError });
+    };
+    const terminate = () => {
+        if (settled) return;
+        child.kill("SIGTERM");
+        if (!killTimer) killTimer = setTimeout(() => { if (!settled) child.kill("SIGKILL"); }, 300);
+    };
+    const append = (kind, chunk) => {
+        const text = chunk.toString("utf8");
+        outputBytes += Buffer.byteLength(text);
+        if (outputBytes > MAX_REVIEW_OUTPUT_BYTES) {
+            overflow = true;
+            terminate();
+            return;
+        }
+        if (kind === "stdout") stdout += text;
+        else stderr += text;
+    };
+    child.stdout?.on("data", (chunk) => append("stdout", chunk));
+    child.stderr?.on("data", (chunk) => append("stderr", chunk));
+    child.once("error", (error) => { spawnError = error; finish(null, null); });
+    child.once("close", (status, signal) => finish(status, signal));
+    timer = setTimeout(() => {
+        timedOut = true;
+        terminate();
+    }, Math.max(1000, Number(timeoutMs) || 120000));
+});'''
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one runChild block, found {text.count(old)}')
+          text = text.replace(old, new, 1)
+          old_error = 'error: truncate(result.error?.message || (result.overflow ? "reviewer output exceeded limit" : result.stderr) || "", 1200),'
+          new_error = 'error: truncate(result.error?.message || (result.timedOut ? "reviewer timed out" : result.overflow ? "reviewer output exceeded limit" : result.stderr) || "", 1200),'
+          if text.count(old_error) != 1:
+              raise SystemExit('expected one reviewer error expression')
+          p.write_text(text.replace(old_error, new_error, 1))
+
+          Path('cli/test/audit-timeout.test.js').write_text(r'''import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { runConsensusAudit } from "../lib/audit-consensus.js";
+
+const tempRoot = (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-audit-timeout-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  return root;
+};
+
+const stubbornReviewer = `#!/usr/bin/env node
+const args = process.argv.slice(2);
+if (args.includes("--version")) { console.log("fake-codex 1.0"); process.exit(0); }
+process.on("SIGTERM", () => {});
+setTimeout(() => console.log('{"findings":[]}'), 10000);
+`;
+
+test("cross-audit hard-kills a reviewer that ignores the soft timeout", { skip: process.platform === "win32" }, async (t) => {
+  const root = tempRoot(t);
+  const bin = path.join(root, "fake-bin");
+  fs.mkdirSync(bin, { recursive: true });
+  const codex = path.join(bin, "codex");
+  fs.writeFileSync(codex, stubbornReviewer);
+  fs.chmodSync(codex, 0o755);
+  fs.writeFileSync(path.join(root, "sample.txt"), "bounded audit\n");
+
+  const previousPath = process.env.PATH;
+  process.env.PATH = `${bin}${path.delimiter}${previousPath || ""}`;
+  t.after(() => { process.env.PATH = previousPath; });
+
+  const started = Date.now();
+  const report = await runConsensusAudit({ root, target: "sample.txt", reviewers: 1, timeoutMs: 1000 });
+  const elapsed = Date.now() - started;
+
+  assert.equal(report.status, "unavailable");
+  assert.equal(report.results.length, 1);
+  assert.equal(report.results[0].ok, false);
+  assert.equal(report.results[0].chunks[0].timedOut, true);
+  assert.match(report.results[0].chunks[0].error, /timed out/i);
+  assert.ok(elapsed < 4000, `expected hard-kill bound, elapsed=${elapsed}ms`);
+});
+''')
+          PY
+      - name: Validate CLI tests
+        working-directory: cli
+        run: |
+          npm ci
+          npm test
+      - name: Commit migration
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cli/lib/audit-consensus.js cli/test/audit-timeout.test.js
+          git diff --cached --check
+          git commit -m "fix(audit): hard-bound stubborn reviewer processes"
+          git push origin HEAD:feat/lean-multiruntime-v2
