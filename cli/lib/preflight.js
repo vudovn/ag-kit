@@ -3,6 +3,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { appendReceipt } from "./v2-engine.js";
 import { resolveSafeProjectRoot } from "./project-state.js";
+import { traceEnv } from "./trace-context.js";
 
 const AG_KIT_SELF_GATES = [
     ["v2-architecture", "check:v2"],
@@ -126,6 +127,7 @@ export function runCurrentPreflight(root = process.cwd()) {
             stdio: "pipe",
             timeout: gate.timeoutMs,
             shell: false,
+            env: traceEnv(resolvedRoot),
         });
         const output = `${result.stdout || ""}${result.stderr || ""}`.trim().slice(-1600);
         return {

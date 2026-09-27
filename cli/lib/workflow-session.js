@@ -118,9 +118,11 @@ export function startFlow({ root = process.cwd(), goal, mode = "standard", force
     if (previous?.status === "active" && !force) throw new Error("an active AG Kit flow already exists; finish it or use --force");
     const phases = [...contract.modes[normalized]];
     const startedAt = new Date().toISOString();
+    const flowId = `flow-${Date.now()}`;
     const session = {
         schema: 3,
-        id: `flow-${Date.now()}`,
+        id: flowId,
+        traceId: flowId,
         goal: String(goal || "").trim(),
         mode: normalized,
         contract: { schema: contract.schema || 1, name: contract.name || "development", source: contract.source },

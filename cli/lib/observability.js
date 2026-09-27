@@ -2,6 +2,7 @@ import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { ensureDir, readJson, readJsonl, stateRoot, writeJson } from "./project-state.js";
+import { traceFields } from "./trace-context.js";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const MAX_ARCHIVES = 10;
@@ -34,7 +35,7 @@ const boundedLine = (event) => {
 };
 
 export function recordObservation({ root = process.cwd(), runtime = "unknown", session = "manual", kind = "turn", inputTokens = 0, outputTokens = 0, cacheReadTokens = 0, savedTokens = 0, costUsd = 0, metadata = {} }) {
-  const event = { ts: new Date().toISOString(), runtime, session, kind, inputTokens: num(inputTokens), outputTokens: num(outputTokens), cacheReadTokens: num(cacheReadTokens), savedTokens: num(savedTokens), costUsd: num(costUsd), metadata };
+  const event = { ts: new Date().toISOString(), ...traceFields(root), runtime, session, kind, inputTokens: num(inputTokens), outputTokens: num(outputTokens), cacheReadTokens: num(cacheReadTokens), savedTokens: num(savedTokens), costUsd: num(costUsd), metadata };
   const line = `${boundedLine(event)}\n`;
   ensureDir(observabilityDir(root));
   rotateIfNeeded(root, Buffer.byteLength(line));

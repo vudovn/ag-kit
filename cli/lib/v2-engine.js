@@ -4,6 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { resolveSafeProjectRoot, stateRoot } from "./project-state.js";
+import { currentTraceId, traceEnv, traceFields } from "./trace-context.js";
 
 const require = createRequire(import.meta.url);
 export const SUPPORTED_RUNTIMES = ["antigravity", "claude", "codex", "gemini", "cursor", "windsurf", "copilot", "opencode"];
@@ -29,7 +30,7 @@ export const parseArgs = (argv) => {
 export const appendReceipt = (root, type, data) => {
     const dir = path.join(stateRoot(root), "receipts");
     ensureDir(dir);
-    const record = { ts: new Date().toISOString(), type, ...data };
+    const record = { ts: new Date().toISOString(), type, ...traceFields(root), ...data };
     fs.appendFileSync(path.join(dir, `${type}.jsonl`), `${JSON.stringify(record)}\n`);
     return record;
 };
@@ -263,7 +264,7 @@ export function runCrossAudit({ root = process.cwd(), target = ".", reviewers = 
         const prompt = reviewerPrompt(snapshot);
         const results = selected.map((reviewer) => {
             const started = Date.now();
-            const result = spawnSync(reviewer.command, reviewer.run(prompt), { cwd: temp, encoding: "utf8", timeout: Number(timeoutMs), shell: false, env: process.env });
+            const result = spawnSync(reviewer.command, reviewer.run(prompt), { cwd: temp, encoding: "utf8", timeout: Number(timeoutMs), shell: false, env: traceEnv(root) });
             return {
                 reviewer: reviewer.id,
                 lineage: reviewer.lineage,
@@ -277,7 +278,7 @@ export function runCrossAudit({ root = process.cwd(), target = ".", reviewers = 
         const auditDir = path.join(stateRoot(root), "audits");
         ensureDir(auditDir);
         const reportPath = path.join(auditDir, `${Date.now()}-cross-audit.json`);
-        const report = { schema: 1, target: snapshot.label, snapshotKind: snapshot.kind, reviewerCount: results.length, lineages: [...lineages], results };
+        const report = { schema: 1, ...traceFields(root), target: snapshot.label, snapshotKind: snapshot.kind, reviewerCount: results.length, lineages: [...lineages], results };
         fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
         appendReceipt(root, "cross-audit", { action: "run", target: snapshot.label, reviewers: results.map((r) => r.reviewer), lineages: [...lineages], passedCalls: results.filter((r) => r.ok).length, report: path.relative(root, reportPath) });
         return { ...report, report: path.relative(root, reportPath), status: results.length >= 2 && results.every((r) => r.ok) ? "complete" : results.length ? "degraded" : "unavailable" };

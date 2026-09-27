@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { appendJsonl, ensureDir, slugify, stateRoot } from "./project-state.js";
+import { traceEnv, traceFields } from "./trace-context.js";
 
 const receiptFile = (root) => path.join(stateRoot(root), "receipts", "efficiency.jsonl");
 const sandboxDir = (root) => path.join(stateRoot(root), "session-sandbox");
@@ -31,7 +32,7 @@ export function routeTask(task = "", root = process.cwd()) {
   }
 
   const result = { task: String(task), role, effort, mode, reason };
-  appendJsonl(receiptFile(root), { ts: new Date().toISOString(), type: "route", ...result });
+  appendJsonl(receiptFile(root), { ts: new Date().toISOString(), type: "route", ...traceFields(root), ...result });
   return result;
 }
 
@@ -79,7 +80,7 @@ export function runSandboxedCommand({ root = process.cwd(), command, args = [], 
   ensureDir(sandboxDir(projectRoot));
   const resolved = resolveSandboxCommand({ root: projectRoot, command });
   const started = Date.now();
-  const result = spawnSync(resolved.resolvedCommand, args, { cwd: projectRoot, encoding: "utf8", shell: false, timeout: Number(timeoutMs), maxBuffer: 50 * 1024 * 1024, env: process.env });
+  const result = spawnSync(resolved.resolvedCommand, args, { cwd: projectRoot, encoding: "utf8", shell: false, timeout: Number(timeoutMs), maxBuffer: 50 * 1024 * 1024, env: traceEnv(projectRoot) });
   const durationMs = Date.now() - started;
   const stdout = result.stdout || "";
   const stderr = result.stderr || "";
@@ -91,6 +92,7 @@ export function runSandboxedCommand({ root = process.cwd(), command, args = [], 
   const receipt = {
     ts: new Date().toISOString(),
     type: "sandbox-command",
+    ...traceFields(projectRoot),
     command: resolved.requestedCommand,
     resolvedCommand: resolved.resolvedCommand,
     environment: resolved.environment,
