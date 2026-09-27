@@ -1,0 +1,149 @@
+name: Preserve Legacy Skill Assets
+
+on:
+  push:
+    branches:
+      - feat/lean-multiruntime-v2
+    paths:
+      - .github/workflows/preserve-legacy-skill-assets.yml
+
+permissions:
+  contents: write
+
+jobs:
+  preserve:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: feat/lean-multiruntime-v2
+          path: current
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+          path: legacy
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Preserve full legacy skill directories as cold references
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+
+          const cwd = process.cwd();
+          const current = path.join(cwd, 'current');
+          const legacy = path.join(cwd, 'legacy');
+          const mapFile = path.join(current, 'packs', 'legacy-knowledge-map.json');
+          const registryFile = path.join(current, 'packs', 'registry.json');
+          const map = JSON.parse(fs.readFileSync(mapFile, 'utf8'));
+          const registry = JSON.parse(fs.readFileSync(registryFile, 'utf8'));
+          const portable = (value) => value.split(path.sep).join('/');
+          const stripFrontmatter = (text) => text.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '').trim();
+          const walk = (dir) => {
+            const rows = [];
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) rows.push(...walk(full));
+              else rows.push(full);
+            }
+            return rows;
+          };
+
+          for (const entry of map.entries) {
+            const legacyDir = path.join(legacy, '.agents', 'skills', entry.legacySkill);
+            if (!fs.existsSync(legacyDir)) throw new Error(`missing legacy skill directory: ${entry.legacySkill}`);
+
+            const oldReference = path.join(current, entry.reference);
+            const referenceRoot = path.dirname(oldReference);
+            if (fs.existsSync(oldReference) && fs.statSync(oldReference).isFile()) fs.rmSync(oldReference);
+
+            const destinationDir = path.join(referenceRoot, entry.legacySkill);
+            fs.rmSync(destinationDir, { recursive: true, force: true });
+            fs.mkdirSync(destinationDir, { recursive: true });
+            fs.cpSync(legacyDir, destinationDir, { recursive: true });
+
+            const copiedSkill = path.join(destinationDir, 'SKILL.md');
+            if (!fs.existsSync(copiedSkill)) throw new Error(`${entry.legacySkill}: missing copied SKILL.md`);
+            const raw = fs.readFileSync(copiedSkill, 'utf8');
+            fs.rmSync(copiedSkill);
+            const referenceFile = path.join(destinationDir, 'REFERENCE.md');
+            const preamble = `# Legacy knowledge: ${entry.legacySkill}\n\n> **Cold reference only.** Migrated from AG Kit v1 for knowledge preservation. Current v2 skill, flow, safety, runtime, and path contracts override any legacy activation/tool/agent/workflow instructions below. Supporting files are preserved only as on-demand reference assets; scripts are never auto-executed by the migration contract.\n\nSource: \`.agents/skills/${entry.legacySkill}/\` at \`${map.legacySourceRef.slice(0, 12)}\`.\n\n---\n\n`;
+            fs.writeFileSync(referenceFile, `${preamble}${stripFrontmatter(raw)}\n`);
+
+            const assets = walk(destinationDir).map((file) => portable(path.relative(destinationDir, file))).sort();
+            if (assets.some((file) => /(^|\/)SKILL\.md$/i.test(file))) throw new Error(`${entry.legacySkill}: nested SKILL.md would become auto-discoverable`);
+            entry.reference = portable(path.relative(current, referenceFile));
+            entry.assetCount = assets.length;
+            entry.assetBytes = walk(destinationDir).reduce((sum, file) => sum + fs.statSync(file).size, 0);
+          }
+
+          // Rebuild pack reference lists from the canonical migration map.
+          for (const pack of Object.values(registry.packs || {})) pack.references = [];
+          for (const entry of map.entries) {
+            if (entry.mode === 'pack-reference') registry.packs[entry.target].references.push(entry.reference);
+          }
+          for (const pack of Object.values(registry.packs || {})) pack.references.sort();
+
+          // Rebuild concise PACK.md indexes with directory-based reference entrypoints.
+          for (const [packId, pack] of Object.entries(registry.packs || {})) {
+            const packFile = path.join(current, pack.index);
+            const refs = map.entries.filter((entry) => entry.mode === 'pack-reference' && entry.target === packId).sort((a,b)=>a.legacySkill.localeCompare(b.legacySkill));
+            const lines = [
+              `# ${pack.title}`,
+              '',
+              `Load for ${pack.purpose}.`,
+              '',
+              'Use project-local/framework documentation over generic guidance when they conflict. Keep this pack cold until the task actually needs it.',
+              '',
+              '## Triggers',
+              '',
+              pack.triggers.map((value) => `\`${value}\``).join(', '),
+              '',
+              '## Deep references',
+              '',
+              'These references preserve v1 knowledge and supporting assets but are **non-normative**. Load only the specific reference needed; v2 contracts always win.',
+              '',
+              ...(refs.length ? refs.map((entry) => `- [${entry.legacySkill}](references/${entry.legacySkill}/REFERENCE.md)`) : ['- No migrated legacy reference; this pack contains v2-native guidance only.']),
+              '',
+            ];
+            fs.writeFileSync(packFile, lines.join('\n'));
+          }
+
+          // Rebuild behavior-skill reference indexes.
+          const skillTargets = [...new Set(map.entries.filter((entry) => entry.mode === 'skill-reference').map((entry) => entry.target))];
+          for (const skill of skillTargets) {
+            const refs = map.entries.filter((entry) => entry.mode === 'skill-reference' && entry.target === skill).sort((a,b)=>a.legacySkill.localeCompare(b.legacySkill));
+            const index = path.join(current, 'shared', 'skills', skill, 'references', 'INDEX.md');
+            const lines = [
+              `# ${skill} deep references`,
+              '',
+              'Cold references migrated from AG Kit v1. Load only the specific reference needed. Current `SKILL.md` and v2 runtime/safety contracts are authoritative.',
+              '',
+              ...refs.map((entry) => `- [${entry.legacySkill}](${entry.legacySkill}/REFERENCE.md)`),
+              '',
+            ];
+            fs.writeFileSync(index, lines.join('\n'));
+          }
+
+          fs.writeFileSync(mapFile, `${JSON.stringify(map, null, 2)}\n`);
+          fs.writeFileSync(registryFile, `${JSON.stringify(registry, null, 2)}\n`);
+          NODE
+
+          cd current
+          npm run sync:antigravity
+
+      - name: Commit full knowledge assets
+        shell: bash
+        run: |
+          cd current
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A shared/skills packs .agents/skills
+          if git diff --cached --quiet; then
+            echo "No asset-preservation changes"
+            exit 0
+          fi
+          git commit -m "feat(packs): preserve full legacy knowledge assets"
+          git push origin HEAD:feat/lean-multiruntime-v2
