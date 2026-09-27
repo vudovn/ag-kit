@@ -5,7 +5,6 @@ import os from "node:os";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { buildProgram } from "../bin/index.js";
 import { buildV2Program } from "../lib/v2-cli.js";
 import { addMemory, recallMemory, initTeam } from "../lib/v2-engine.js";
 import { createMcpServer } from "../lib/mcp-server.js";
@@ -23,13 +22,6 @@ const runSymlinkedEntry = async (t, relativeEntry, prefix) => {
   const { stdout } = await execFileAsync(process.execPath, [link, "--version"]);
   assert.match(stdout.trim(), /^\d{4}\.\d+\.\d+$/);
 };
-
-test("legacy CLI keeps safe lifecycle commands", () => {
-  const program = buildProgram();
-  const commands = new Map(program.commands.map((command) => [command.name(), command]));
-  assert.deepEqual([...commands.keys()], ["init", "update", "rollback", "status"]);
-  assert.ok(commands.get("update").options.some((option) => option.long === "--strategy"));
-});
 
 test("v2 CLI exposes operating-layer commands", () => {
   assert.deepEqual(buildV2Program().commands.map((command) => command.name()), [
@@ -96,11 +88,12 @@ test("runtime lifecycle preserves user drift while stripping AG Kit marker", () 
   }
 });
 
-test("unified help exposes v2, context, runtime, and legacy command groups", async () => {
+test("unified help exposes runtime-neutral command groups only", async () => {
   const { stdout } = await execFileAsync(process.execPath, [path.resolve("bin/ag-kit.js"), "--help"]);
-  for (const command of ["runtime detect", "memory <subcommand>", "brain <subcommand>", "handoff <subcommand>", "compress <file>", "cross-audit", "init", "rollback"]) {
+  for (const command of ["runtime detect", "memory <subcommand>", "brain <subcommand>", "handoff <subcommand>", "compress <file>", "cross-audit"]) {
     assert.match(stdout, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
+  assert.doesNotMatch(stdout, /Legacy managed-tree|\bag-kit init\b|\bag-kit update\b|\bag-kit rollback\b/);
 });
 
 test("runtime help includes auto-discovery and lifecycle commands", async () => {
@@ -110,10 +103,17 @@ test("runtime help includes auto-discovery and lifecycle commands", async () => 
   }
 });
 
-test("CLI dispatcher runs through npm bin symlink", async (t) => {
+test("CLI dispatcher reports version through npm-style symlink", async (t) => {
   await runSymlinkedEntry(t, "bin/ag-kit.js", "ag-kit-dispatcher-symlink-");
 });
 
-test("legacy CLI entry resolves npm-style symlink before direct-run detection", async (t) => {
-  await runSymlinkedEntry(t, "bin/index.js", "ag-kit-legacy-symlink-");
+test("unknown commands fail instead of falling back to a second lifecycle", async () => {
+  await assert.rejects(
+    execFileAsync(process.execPath, [path.resolve("bin/ag-kit.js"), "init"]),
+    (error) => error?.code === 1 && /unknown command: init/i.test(error.stderr || ""),
+  );
+});
+
+test("legacy Antigravity CLI entrypoint is not shipped in source", () => {
+  assert.equal(fs.existsSync(path.resolve("bin/index.js")), false);
 });
