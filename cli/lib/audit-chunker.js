@@ -1,4 +1,5 @@
 const tokens = (value) => new Set(String(value || "").toLowerCase().match(/[a-z0-9_]{3,}/g) || []);
+const normalizeTitle = (value) => String(value || "").toLowerCase().replace(/\s+/g, " ").trim();
 
 const similarity = (a, b) => {
     const left = tokens(`${a.title || ""} ${a.evidence || ""}`);
@@ -19,7 +20,8 @@ export function dedupeFindings(findings, threshold = 0.78) {
             title: String(finding.title || "Finding").trim(),
             evidence: String(finding.evidence || "").trim(),
         };
-        let existing = merged.find((item) => similarity(item, normalized) >= threshold);
+        const title = normalizeTitle(normalized.title);
+        const existing = merged.find((item) => normalizeTitle(item.title) === title || similarity(item, normalized) >= threshold);
         if (!existing) {
             merged.push({ ...normalized, occurrences: 1 });
             continue;
