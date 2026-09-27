@@ -58,7 +58,7 @@ export async function runBenchmark({ sourceRoot = repoRoot } = {}) {
         ["review this security regression", "reviewer", "medium", "standard"],
         ["design a cross-runtime architecture migration", "architect", "high", "deep"],
       ];
-      return cases.map(([task, role, effort, mode]) => ({ expected: { role, effort, mode }, actual: routeTask(task, project) }));
+      return cases.map(([task, role, effort, mode]) => ({ task, expected: { role, effort, mode }, actual: routeTask(task, project) }));
     });
     const routingPassed = routing.value.filter((item) => item.actual.role === item.expected.role && item.actual.effort === item.expected.effort && item.actual.mode === item.expected.mode).length;
     ensure(routingPassed === routing.value.length, "routing benchmark failed a deterministic routing case");
@@ -85,13 +85,17 @@ export async function runBenchmark({ sourceRoot = repoRoot } = {}) {
     return {
       schema: 1,
       generatedAt: new Date().toISOString(),
+      source: {
+        commit: process.env.GITHUB_SHA || null,
+        ref: process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || null,
+      },
       environment: { node: process.version, platform: process.platform, arch: process.arch },
       methodology: "Local deterministic fixture evidence only; timings are machine-specific and are not a synthetic comparison against a no-AG-Kit baseline.",
       passed: true,
       totalDurationMs: round(performance.now() - started),
       benchmarks: {
         memoryRecall: { durationMs: memory.durationMs, resultCount: memory.value.length, topHit: memory.value[0].file, expectedTopHit: true },
-        routing: { durationMs: routing.durationMs, cases: routing.value.length, passed: routingPassed },
+        routing: { durationMs: routing.durationMs, cases: routing.value.length, passed: routingPassed, results: routing.value },
         compression: { durationMs: compression.durationMs, bytesBefore, bytesAfter, bytesSaved: bytesBefore - bytesAfter, reductionPct: round(((bytesBefore - bytesAfter) / bytesBefore) * 100), fencedCodePreserved: true },
         lifecycle: { durationMs: lifecycle.durationMs, runtime: "aider", installedStatus: lifecycle.value.live.status, uninstallStatus: lifecycle.value.removed.status, finalStatus: lifecycle.value.after.status, memoryPreserved: lifecycle.value.removed.memoryPreserved === true },
       },
