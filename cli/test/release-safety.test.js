@@ -67,7 +67,7 @@ test("public and runtime instruction docs reflect the lean v2 inventory", async 
     }
 
     const claude = await read("CLAUDE.md");
-    assert.doesNotMatch(claude, /generate:agents|check:agents|test:toolkit|validate_kit\.py/, "CLAUDE.md must not instruct removed v1 validation steps");
+    assert.doesNotMatch(claude, /npm\s+run\s+(?:generate:agents|check:agents|test:toolkit)|python[^\n]*validate_kit\.py/i, "CLAUDE.md must not instruct running removed v1 validation steps");
     assert.match(claude, /check:docs/);
 
     for (const file of ["README.md", "README-VI.md"]) {
