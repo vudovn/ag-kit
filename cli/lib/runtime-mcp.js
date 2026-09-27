@@ -33,13 +33,29 @@ export function wireRuntimeMcp({ root = process.cwd(), runtime }) {
     if (fs.existsSync(projected)) fs.cpSync(projected, pluginSkills, { recursive: true });
     const mcpFile = path.join(pluginDir, ".mcp.json");
     writeJson(mcpFile, { mcpServers: { "ag-kit": stdio } });
+    const hooksFile = path.join(pluginDir, "hooks", "hooks.json");
+    writeJson(hooksFile, {
+      hooks: {
+        PostToolUse: [{
+          hooks: [{ type: "command", command: "ag-kit hook-ingest codex", async: true, timeout: 5 }],
+        }],
+      },
+    });
     const pluginFile = path.join(pluginDir, "plugin.json");
-    writeJson(pluginFile, { name: "ag-kit", version: "2.0.0", description: "AG Kit shared skills and project-local MCP bridge", skills: "./skills/", mcpServers: "./.mcp.json" });
+    writeJson(pluginFile, {
+      name: "ag-kit",
+      version: "2.0.0",
+      description: "AG Kit shared skills, project-local MCP bridge, and privacy-minimal lifecycle observability",
+      skills: "./skills/",
+      mcpServers: "./.mcp.json",
+      hooks: "./hooks/hooks.json",
+    });
     return {
       wired: true,
       file: portableRelative(target, mcpFile),
       plugin: portableRelative(target, pluginFile),
       skills: portableRelative(target, pluginSkills),
+      observability: { wired: true, event: "PostToolUse", file: portableRelative(target, hooksFile), privacy: "metadata-only" },
     };
   } else if (runtime === "wayland") return { wired: false, staged: ".ag-kit/integrations/wayland/README.md", reason: "Wayland MCP is supported, but AG Kit will not mutate its user-global/plugin registry automatically." };
   else if (runtime === "hermes") return { wired: false, staged: ".ag-kit/integrations/hermes/mcp.yaml", reason: "Hermes MCP config is user-global; merge the staged snippet explicitly." };
