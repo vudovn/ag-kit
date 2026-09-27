@@ -86,7 +86,7 @@ export async function runBenchmark({ sourceRoot = repoRoot } = {}) {
       schema: 1,
       generatedAt: new Date().toISOString(),
       source: {
-        commit: process.env.GITHUB_SHA || null,
+        commit: process.env.AG_KIT_SOURCE_COMMIT || process.env.GITHUB_SHA || null,
         ref: process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || null,
       },
       environment: { node: process.version, platform: process.platform, arch: process.arch },
