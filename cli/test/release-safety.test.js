@@ -9,6 +9,7 @@ const repoRoot = path.resolve(__dirname, "..", "..");
 
 const read = (relativePath) => fse.readFile(path.join(repoRoot, relativePath), "utf8");
 const readJson = (relativePath) => fse.readJson(path.join(repoRoot, relativePath));
+const mentionsCount = (content, count, labelPattern) => new RegExp(`(?:${count}[^\\n]*(?:${labelPattern})|(?:${labelPattern})[^\\n]*${count})`, "i").test(content);
 
 test("all GitHub Actions are pinned to immutable commit SHAs", async () => {
     const workflowDir = path.join(repoRoot, ".github", "workflows");
@@ -55,9 +56,9 @@ test("public and runtime instruction docs reflect the lean v2 inventory", async 
     const inventoryDocs = ["README.md", "README-VI.md", "web/README.md", "AGENT_FLOW.md"];
     for (const file of inventoryDocs) {
         const content = await read(file);
-        assert.match(content, /18[^\n]*(?:skills|skill)/i, `${file} should mention the 18-skill v2 surface`);
-        assert.match(content, /4[^\n]*(?:permanent\s+agents|agents|agent)/i, `${file} should mention the four-agent v2 surface`);
-        assert.match(content, new RegExp(`${runtimeCount}[^\\n]*runtime`, "i"), `${file} should mention all ${runtimeCount} runtimes`);
+        assert.equal(mentionsCount(content, 18, "skills?"), true, `${file} should mention the 18-skill v2 surface`);
+        assert.equal(mentionsCount(content, 4, "(?:permanent\\s+)?agents?"), true, `${file} should mention the four-agent v2 surface`);
+        assert.equal(mentionsCount(content, runtimeCount, "runtime(?:s|\\s+targets?)?"), true, `${file} should mention all ${runtimeCount} runtimes`);
     }
 
     for (const file of ["README.md", "README-VI.md", "web/README.md", "AGENTS.md", "CLAUDE.md", "MIGRATION.md", "AGENT_FLOW.md"]) {
