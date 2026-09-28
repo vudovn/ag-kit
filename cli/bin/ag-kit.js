@@ -25,6 +25,9 @@ if (helpRequested) {
 } else if (command === "hook-ingest") {
     const { runHookIngestCli } = await import("../lib/hook-ingest.js");
     await runHookIngestCli(process.argv);
+} else if (command === "benchmark") {
+    const { runBenchmarkCli } = await import("../lib/benchmark-cli.js");
+    await runBenchmarkCli(process.argv);
 } else if (command === "memory" && memorySubcommand === "semantic") {
     const { runSemanticMemoryCli } = await import("../lib/memory-semantic-cli.js");
     await runSemanticMemoryCli(process.argv);
