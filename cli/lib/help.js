@@ -14,6 +14,7 @@ export const mainHelp = () => lines([
   "  team                         Generate project-specific specialists",
   "  cross-audit [target]         Run independent read-only reviewers",
   "  preflight                    Run blocking release/project gates",
+  "  benchmark                    Run deterministic local parity/evidence checks",
   "",
   "Memory & continuity:",
   "  memory <subcommand>          Evolving local-first project memory",
