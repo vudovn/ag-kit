@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "policy": "cold-load-only",
+  "sourceOfTruth": "shared skills + packs",
+  "installedLocation": ".ag-kit/packs",
+  "packs": {
+    "backend": {
+      "title": "Backend Pack",
+      "purpose": "services, APIs, jobs, and server-side application work",
+      "triggers": [
+        "api",
+        "backend",
+        "server",
+        "service",
+        "node",
+        "nodejs",
+        "python",
+        "rust",
+        "queue",
+        "cache"
+      ],
+      "index": "packs/backend/PACK.md",
+      "references": [
+        "packs/backend/references/api-patterns/REFERENCE.md",
+        "packs/backend/references/nodejs-best-practices/REFERENCE.md",
+        "packs/backend/references/python-patterns/REFERENCE.md",
+        "packs/backend/references/rust-pro/REFERENCE.md"
+      ]
+    },
+    "content": {
+      "title": "Content Pack",
+      "purpose": "documentation, technical writing, templates, and content-system work",
+      "triggers": [
+        "docs",
+        "documentation",
+        "readme",
+        "writing",
+        "content",
+        "template"
+      ],
+      "index": "packs/content/PACK.md",
+      "references": [
+        "packs/content/references/documentation-templates/REFERENCE.md"
+      ]
+    },
+    "database": {
+      "title": "Database Pack",
+      "purpose": "schema, data-modeling, SQL, migrations, and persistence work",
+      "triggers": [
+        "database",
+        "sql",
+        "schema",
+        "postgres",
+        "mysql",
+        "prisma",
+        "drizzle",
+        "migration"
+      ],
+      "index": "packs/database/PACK.md",
+      "references": [
+        "packs/database/references/database-design/REFERENCE.md"
+      ]
+    },
+    "devops": {
+      "title": "DevOps Pack",
+      "purpose": "deployment, servers, shells, CI/CD, and operational automation",
+      "triggers": [
+        "deploy",
+        "deployment",
+        "server",
+        "linux",
+        "powershell",
+        "windows",
+        "ci",
+        "cd",
+        "ops"
+      ],
+      "index": "packs/devops/PACK.md",
+      "references": [
+        "packs/devops/references/bash-linux/REFERENCE.md",
+        "packs/devops/references/deployment-procedures/REFERENCE.md",
+        "packs/devops/references/powershell-windows/REFERENCE.md",
+        "packs/devops/references/server-management/REFERENCE.md"
+      ]
+    },
+    "game": {
+      "title": "Game Pack",
+      "purpose": "game architecture, gameplay systems, engines, and game QA",
+      "triggers": [
+        "game",
+        "unity",
+        "unreal",
+        "godot",
+        "gameplay"
+      ],
+      "index": "packs/game/PACK.md",
+      "references": [
+        "packs/game/references/game-development/REFERENCE.md"
+      ]
+    },
+    "mobile": {
+      "title": "Mobile Pack",
+      "purpose": "mobile product, UX, platform, and application work",
+      "triggers": [
+        "mobile",
+        "ios",
+        "android",
+        "flutter",
+        "react-native"
+      ],
+      "index": "packs/mobile/PACK.md",
+      "references": [
+        "packs/mobile/references/mobile-design/REFERENCE.md"
+      ]
+    },
+    "security": {
+      "title": "Security Pack",
+      "purpose": "security-sensitive implementation, threat review, and defensive testing",
+      "triggers": [
+        "security",
+        "vulnerability",
+        "threat",
+        "red-team",
+        "auth",
+        "secret"
+      ],
+      "index": "packs/security/PACK.md",
+      "references": [
+        "packs/security/references/red-team-tactics/REFERENCE.md",
+        "packs/security/references/vulnerability-scanner/REFERENCE.md"
+      ]
+    },
+    "web": {
+      "title": "Web Pack",
+      "purpose": "browser applications, sites, frontend architecture, UI systems, and web testing",
+      "triggers": [
+        "web",
+        "frontend",
+        "react",
+        "next",
+        "nextjs",
+        "tailwind",
+        "css",
+        "html",
+        "browser",
+        "accessibility"
+      ],
+      "index": "packs/web/PACK.md",
+      "references": [
+        "packs/web/references/frontend-architecture/REFERENCE.md",
+        "packs/web/references/frontend-design/REFERENCE.md",
+        "packs/web/references/nextjs-react-expert/REFERENCE.md",
+        "packs/web/references/tailwind-patterns/REFERENCE.md",
+        "packs/web/references/web-design-guidelines/REFERENCE.md"
+      ]
+    },
+    "growth": {
+      "title": "Search & Growth Pack",
+      "purpose": "SEO, GEO, discoverability, citation, and search-facing content work",
+      "triggers": [
+        "seo",
+        "geo",
+        "search",
+        "ranking",
+        "citation",
+        "discoverability"
+      ],
+      "index": "packs/growth/PACK.md",
+      "references": [
+        "packs/growth/references/geo-fundamentals/REFERENCE.md",
+        "packs/growth/references/seo-fundamentals/REFERENCE.md"
+      ]
+    },
+    "localization": {
+      "title": "Localization Pack",
+      "purpose": "internationalization, localization, locale, and translation work",
+      "triggers": [
+        "i18n",
+        "l10n",
+        "localization",
+        "locale",
+        "translation"
+      ],
+      "index": "packs/localization/PACK.md",
+      "references": [
+        "packs/localization/references/i18n-localization/REFERENCE.md"
+      ]
+    },
+    "integration": {
+      "title": "Integration Pack",
+      "purpose": "MCP, protocol, tool-server, and external integration work",
+      "triggers": [
+        "mcp",
+        "protocol",
+        "integration",
+        "tool-server"
+      ],
+      "index": "packs/integration/PACK.md",
+      "references": [
+        "packs/integration/references/mcp-builder/REFERENCE.md"
+      ]
+    },
+    "software": {
+      "title": "Software Architecture Pack",
+      "purpose": "general software architecture, module boundaries, and dependency design",
+      "triggers": [
+        "architecture",
+        "module",
+        "boundary",
+        "dependency",
+        "design"
+      ],
+      "index": "packs/software/PACK.md",
+      "references": [
+        "packs/software/references/architecture/REFERENCE.md"
+      ]
+    }
+  }
+}

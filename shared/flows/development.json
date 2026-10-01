@@ -1,0 +1,22 @@
+{
+  "schema": 3,
+  "name": "development",
+  "modes": {
+    "quick": ["FRAME", "PLAN", "EXECUTE", "VERIFY"],
+    "standard": ["FRAME", "SHAPE", "PLAN", "EXECUTE", "VERIFY", "SHIP"],
+    "deep": ["FRAME", "RECON", "SHAPE", "PLAN", "WAVES", "VERIFY", "CROSS_AUDIT", "SHIP"]
+  },
+  "requirements": {
+    "default": ["artifact"],
+    "WAVES": ["wave-table", "waves-complete"],
+    "VERIFY": ["preflight-passed"],
+    "CROSS_AUDIT": ["cross-audit-2-lineages"]
+  },
+  "rules": {
+    "planBeforeMultiFileBuild": true,
+    "explicitWaveDependencies": true,
+    "verifyBeforeShip": true,
+    "crossAuditInDeepMode": true,
+    "freshEvidencePerPhase": true
+  }
+}

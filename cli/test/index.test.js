@@ -1,33 +1,119 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildProgram } from "../bin/index.js";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { buildV2Program } from "../lib/v2-cli.js";
+import { addMemory, recallMemory, initTeam } from "../lib/v2-engine.js";
+import { createMcpServer } from "../lib/mcp-server.js";
+import { wireRuntimeMcp } from "../lib/runtime-mcp.js";
+import { doctorRuntime, finalizeRuntimeInstall, prepareRuntimeInstall, uninstallRuntime } from "../lib/runtime-lifecycle.js";
 
-test("CLI exposes safe lifecycle commands", () => {
-    const program = buildProgram();
-    const commands = new Map(program.commands.map((command) => [command.name(), command]));
+const execFileAsync = promisify(execFile);
 
-    assert.deepEqual([...commands.keys()], ["init", "update", "rollback", "status"]);
-    assert.ok(commands.get("update").options.some((option) => option.long === "--strategy"));
-    assert.ok(commands.get("update").options.some((option) => option.long === "--dry-run"));
-    assert.ok(commands.get("rollback").options.some((option) => option.long === "--backup"));
+const runSymlinkedEntry = async (t, relativeEntry, prefix) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(dir, ".bin"));
+  const link = path.join(dir, ".bin", "ag-kit");
+  fs.symlinkSync(path.resolve(relativeEntry), link);
+  const { stdout } = await execFileAsync(process.execPath, [link, "--version"]);
+  assert.match(stdout.trim(), /^\d{4}\.\d+\.\d+$/);
+};
+
+test("v2 CLI exposes operating-layer commands", () => {
+  assert.deepEqual(buildV2Program().commands.map((command) => command.name()), [
+    "runtime", "memory", "team", "flow", "cross-audit", "observe", "dashboard", "personalize", "design", "route", "run", "preflight", "mcp",
+  ]);
 });
 
-test("CLI runs when invoked through an npm bin symlink", async (t) => {
-    const { mkdtemp, mkdir, symlink, rm } = await import("node:fs/promises");
-    const { tmpdir } = await import("node:os");
-    const path = await import("node:path");
-    const { execFile } = await import("node:child_process");
-    const { promisify } = await import("node:util");
-    const run = promisify(execFile);
+test("runtime CLI exposes lifecycle verification and safe removal", () => {
+  const runtime = buildV2Program().commands.find((command) => command.name() === "runtime");
+  assert.deepEqual(runtime.commands.map((command) => command.name()), ["list", "install", "doctor", "uninstall"]);
+});
 
-    const dir = await mkdtemp(path.join(tmpdir(), "ag-kit-symlink-"));
-    t.after(() => rm(dir, { recursive: true, force: true }));
+test("dashboard CLI exposes summary lifecycle", () => {
+  const dashboard = buildV2Program().commands.find((command) => command.name() === "dashboard");
+  assert.deepEqual(dashboard.commands.map((command) => command.name()), ["summary", "start", "status", "stop"]);
+});
 
-    const binDir = path.join(dir, ".bin");
-    await mkdir(binDir);
-    const link = path.join(binDir, "ag-kit");
-    await symlink(path.resolve("bin/index.js"), link);
+test("memory and team engines are project-local", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-v2-cli-"));
+  try {
+    fs.writeFileSync(path.join(root, "package.json"), "{}");
+    addMemory({ root, text: "Use transactions for billing", kind: "decision" });
+    assert.equal(recallMemory({ root, query: "billing" }).length, 1);
+    assert.equal(initTeam({ root, archetype: "auto" }).archetype, "software");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
 
-    const { stdout } = await run(process.execPath, [link, "--version"]);
-    assert.match(stdout.trim(), /^\d{4}\.\d+\.\d+$/);
+test("MCP server constructs without transport", () => assert.ok(createMcpServer()));
+
+test("runtime MCP wiring uses project-scoped formats", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-mcp-"));
+  try {
+    const claude = wireRuntimeMcp({ root, runtime: "claude" });
+    assert.equal(claude.file, ".mcp.json");
+    assert.equal(JSON.parse(fs.readFileSync(path.join(root, ".mcp.json"), "utf8")).mcpServers["ag-kit"].command, "ag-kit");
+    const gemini = wireRuntimeMcp({ root, runtime: "gemini" });
+    assert.equal(gemini.file, ".gemini/settings.json");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("runtime lifecycle preserves user drift while stripping AG Kit marker", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ag-kit-lifecycle-"));
+  try {
+    const file = path.join(root, "AGENTS.md");
+    fs.writeFileSync(file, "# User rules\n");
+    const prepared = prepareRuntimeInstall({ root, runtime: "pi" });
+    fs.writeFileSync(file, "# User rules\n\n<!-- AG-KIT:CORE:START -->\nAG Kit core\n<!-- AG-KIT:CORE:END -->\n");
+    finalizeRuntimeInstall({ prepared, mcp: { wired: false, reason: "rules-only" } });
+    assert.equal(doctorRuntime({ root, runtime: "pi" }).status, "live");
+    fs.appendFileSync(file, "\nUser edit after install.\n");
+    const result = uninstallRuntime({ root, runtime: "pi" });
+    assert.equal(result.status, "uninstalled");
+    const remaining = fs.readFileSync(file, "utf8");
+    assert.match(remaining, /User rules/);
+    assert.match(remaining, /User edit after install/);
+    assert.doesNotMatch(remaining, /AG-KIT:CORE/);
+    assert.equal(doctorRuntime({ root, runtime: "pi" }).status, "untouched");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("unified help exposes runtime-neutral command groups only", async () => {
+  const { stdout } = await execFileAsync(process.execPath, [path.resolve("bin/ag-kit.js"), "--help"]);
+  for (const command of ["runtime detect", "memory <subcommand>", "brain <subcommand>", "handoff <subcommand>", "compress <file>", "cross-audit"]) {
+    assert.match(stdout, new RegExp(command.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.doesNotMatch(stdout, /Legacy managed-tree|\bag-kit init\b|\bag-kit update\b|\bag-kit rollback\b/);
+});
+
+test("runtime help includes auto-discovery and lifecycle commands", async () => {
+  const { stdout } = await execFileAsync(process.execPath, [path.resolve("bin/ag-kit.js"), "runtime", "--help"]);
+  for (const command of ["detect", "install-present", "install <runtime>", "doctor [runtime]", "uninstall <runtime>"]) {
+    assert.ok(stdout.includes(command));
+  }
+});
+
+test("CLI dispatcher reports version through npm-style symlink", async (t) => {
+  await runSymlinkedEntry(t, "bin/ag-kit.js", "ag-kit-dispatcher-symlink-");
+});
+
+test("unknown commands fail instead of falling back to a second lifecycle", async () => {
+  await assert.rejects(
+    execFileAsync(process.execPath, [path.resolve("bin/ag-kit.js"), "init"]),
+    (error) => error?.code === 1 && /unknown command: init/i.test(error.stderr || ""),
+  );
+});
+
+test("legacy Antigravity CLI entrypoint is not shipped in source", () => {
+  assert.equal(fs.existsSync(path.resolve("bin/index.js")), false);
 });

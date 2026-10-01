@@ -6,7 +6,8 @@ build/
 dist/
 coverage/
 
-# AG Kit temporary and backup data
+# AG Kit local state and migration data
+.ag-kit/
 .temp_ag_kit/
 .ag-kit-backups/
 

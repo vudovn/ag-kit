@@ -7,7 +7,33 @@ Starting with `2026.5.13`, this project uses calendar versioning in `YYYY.M.D` f
 
 ## [Unreleased]
 
-No unreleased changes.
+### Added
+- Introduced AG Kit v2 as a lean multi-runtime operating layer with one resident core, 18 hot-loaded top-level skills, four permanent agents, one gated development spine, and 16 capability-aware runtime targets.
+- Added evolving Markdown-first project memory with optional SQLite/FTS5 acceleration, temporal validity, supersession, candidate-to-durable promotion, dream/archive maintenance, and opt-in cross-project brain search.
+- Added runtime discovery and lifecycle commands including `runtime detect`, `runtime install-present`, doctor states, ownership manifests, backups, and drift-preserving uninstall.
+- Added project-specific team assembly, independent read-only cross-model audit, MCP SDK v2 bridge, runtime-neutral routing, bounded command sandbox, deterministic context compression, structured handoffs, local observability/dashboard, evidence-backed personalization/privacy controls, and portable DESIGN.md contracts.
+- Added native Antigravity PostToolUse observability and regression coverage for npm-style CLI/hook symlink execution.
+
+### Changed
+- Made `shared/` the canonical runtime-neutral source of truth; Antigravity `.agents/` is now a generated/native projection with zero legacy workflow files.
+- Natural-language plan/spec/brainstorm/architecture intent now activates the project flow before multi-file mutation even when a runtime has no slash-command UI. Continue/resume intent loads handoff plus relevant durable memory first.
+- Command sandbox now prefers project Python virtual environments for bare `python`/`python3` execution while preserving explicitly requested interpreters.
+- Rewrote README, CLI, parity, migration, security, release, and runtime-instruction documentation around the v2 architecture; web install copy in English, Vietnamese, Chinese, and Japanese now reflects the lean inventory and Node.js 22 requirement.
+- Unified top-level and runtime CLI help so v2, context, auto-discovery, lifecycle, and legacy migration commands are discoverable from the published package.
+- Pinned both v2 runtime installs and legacy init/update downloads to the repository tag matching the CLI version by default; `--branch` remains an explicit development/ref override.
+- Added documentation-link integrity to local `ag-kit preflight` while keeping package dry-run/audits, web checks, and Dependency Review as full CI gates.
+
+### Fixed
+- Hardened Antigravity safety-hook direct-run detection with realpath + file-URL resolution so npm/symlink and Windows-style paths cannot leave command tools waiting without a decision payload.
+- Added regression coverage for both the public CLI dispatcher and the legacy lifecycle entrypoint when invoked through npm-style symlinks.
+- Rejected filesystem root and user home across project state, memory/team writers, direct runtime installation, lifecycle operations, and MCP runtime status.
+- Fixed MCP runtime status to report all lifecycle manifests for multi-runtime projects, with legacy single-runtime metadata only as a compatibility fallback.
+- Added repository documentation-link validation and release-safety assertions so stale runtime inventory, deleted local docs, and preflight/CI claim drift fail automated checks.
+- Contained context artifact output through realpath-aware ancestor checks to prevent symlink-parent escape.
+
+### Security
+- Kept external cross-audit reviewers on read-only snapshots rather than writable project mounts, and kept cross-project memory opt-in without automatic home-directory crawling.
+- Upgraded the web app to the patched Next.js 16.3.3 line and sharp 0.35.4 while retaining blocking production dependency audits and immutable GitHub Action SHAs.
 
 ## [2026.8.31] - 2026-08-31
 

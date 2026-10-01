@@ -2,96 +2,138 @@
 
 ## Supported versions
 
-AG Kit uses calendar versioning. Security fixes are provided for the latest published release. Upgrade the CLI and toolkit before reporting an issue already fixed in a newer release.
+AG Kit uses calendar versioning. Security fixes are provided for the latest published release. Upgrade the CLI and runtime projections before reporting an issue already fixed in a newer release.
 
 ## Reporting a vulnerability
 
 Use GitHub private vulnerability reporting or the repository Security Advisory flow. Do not publish suspected secrets, exploitable command payloads, private paths, prompt contents, source code, or proof-of-concept data in a public issue.
 
-Include only sanitized information:
+Include only sanitized information: affected version/runtime, OS/tool versions, affected hook/MCP/adapter/CLI path, minimal reproduction steps, expected impact, observed behavior, and known mitigations.
 
-- affected AG Kit, CLI, web, and `.agents` versions;
-- Antigravity build/channel and operating system;
-- Node.js and Python versions;
-- affected hook, MCP server, plugin file, agent, skill, workflow, CLI command, CI job, or deployment path;
-- minimal reproduction steps with credentials and private data removed;
-- expected impact, observed behavior, and known mitigations.
+## Threat model
 
-## Runtime threat model
+AG Kit assumes prompts, repository content, tool arguments, MCP responses, reviewer output, dependencies, and runtime configuration may be untrusted.
 
-The Antigravity integration assumes prompts, repository content, tool arguments, MCP responses, and third-party dependencies may be untrusted.
+Primary risks include unsafe tool use, destructive commands, secret leakage, compromised MCP/reviewer tools, adapter drift, accidental overwrite of user files, path/symlink escape, stale memory, host hook/config changes, and supply-chain compromise.
 
-Primary risks:
+AG Kit reduces these risks but is not an operating-system sandbox. Keep host permissions, workspace trust, least-privilege credentials, code review, and human approval enabled.
 
-- prompt or repository instructions inducing unsafe tool use;
-- destructive shell commands reaching a trusted host;
-- secrets embedded in MCP configuration or logs;
-- malicious or compromised MCP servers;
-- plugin artifact tampering or stale generated content;
-- local/global configuration conflict during synchronization;
-- upstream hook-payload changes causing false blocks or workspace lockout;
-- dependency or GitHub Actions supply-chain compromise.
+## Runtime-neutral architecture boundary
 
-AG Kit reduces these risks but is not a sandbox. Keep Antigravity permissions, workspace trust, operating-system isolation, least-privilege credentials, code review, and human approval enabled.
+`shared/` is canonical. Runtime-specific code belongs under `runtimes/<runtime>/`; generated host trees are projections.
 
-## Native hook security boundary
+Security invariants:
 
-`.agents/hooks.json` registers a `PreToolUse` hook for `run_command`. The policy reads at most 1 MiB of JSON from stdin, performs no network request, and blocks only high-confidence patterns:
+- no runtime is the product's primary runtime or canonical source;
+- adapter capability claims must match `platform-capabilities.json`;
+- root validation/workflow gates remain runtime-neutral;
+- host-native hooks/plugins are adapter evidence, not global assumptions;
+- generated projections may not silently fork reusable policy from `shared/`.
 
-- recursive deletion of a Unix filesystem root;
-- filesystem formatting commands;
-- raw-disk overwrite with `dd`;
-- Windows drive formatting;
-- recursive forced deletion of a Windows drive root.
+## One lifecycle, explicit ownership
 
-Normal project cleanup such as deleting `dist/` or `node_modules/` is intentionally allowed.
+AG Kit v2 has one lifecycle for every runtime:
 
-Recognized destructive commands fail closed with a non-zero exit code. Invalid JSON, oversized input, or an unrecognized payload shape fails open with a warning to avoid an upstream schema change locking every tool call. Treat such warnings as compatibility incidents and investigate before production use.
+```bash
+ag-kit runtime install <runtime>
+ag-kit runtime doctor <runtime>
+ag-kit runtime uninstall <runtime>
+```
 
-To temporarily disable only the AG Kit hook, set `"enabled": false` in `.agents/hooks.json` and reopen the workspace. Do not disable Antigravity's own permission controls. Report false positives and payload-shape changes privately when data may be sensitive.
+The old Antigravity-only managed-tree lifecycle is removed.
+
+Security properties:
+
+- runtime install records pre-install state and ownership before mutation;
+- runtime uninstall restores/removes only state AG Kit can prove it owns;
+- later user drift is preserved;
+- `.ag-kit/memory/` is preserved by runtime uninstall;
+- filesystem root and the user home directory are rejected as project roots;
+- user-global-only integrations are staged for explicit activation rather than silently mutated;
+- published CLI runtime installs resolve to `v<CLI_VERSION>` by default; `--branch` is an explicit reviewed-ref override.
+
+For migration from pre-v2 Antigravity projects, commit or externally back up the project first, then install the Antigravity adapter through this same lifecycle. Version control/external backup is the recovery boundary for pre-v2 state not owned by a v2 adapter.
+
+## Project containment
+
+Project-local state lives under `.ag-kit/` where possible. Context artifact writes use realpath-aware containment so symlink parents cannot escape the project. Machine-readable project paths are normalized for portability without weakening filesystem checks.
+
+## Host-native hook boundaries
+
+Native hooks supplement host permissions; they never replace runtime trust controls, sandboxing, or human review.
+
+For Antigravity, the adapter may project narrow command-safety and privacy-minimal observability hooks. Safety rules block only high-confidence destructive root/disk patterns; invalid/oversized payloads fail toward the host/human permission boundary rather than inventing a command.
+
+Prompt-quality hooks are fail-open and must not persist raw prompts in telemetry. Automatic prompt interception is enabled only where the adapter has a current, verified hook contract and lifecycle/trust semantics are understood.
+
+Observability hooks may record bounded metadata such as sanitized tool name, status, runtime/session identifiers, and trace IDs. They must not record prompt bodies, command arguments, file contents, or secrets.
 
 ## MCP security boundary
 
-`.agents/mcp_config.json` is an example workspace source and must not contain real credentials in version control.
+The MCP server is local stdio:
 
-`sync-mcp.mjs`:
+```bash
+ag-kit mcp serve
+```
 
-- defaults to check-only behavior;
-- refuses `--apply` while placeholders remain;
-- preserves same-name existing servers unless `--force` is explicitly supplied;
-- creates a timestamped backup before replacing an existing target file;
-- writes only to the selected Antigravity suite or CLI target.
+Runtime adapters wire the `ag-kit` MCP entry only for project-scoped formats AG Kit has verified. Global-only integrations are staged for explicit activation. Lifecycle manifests let doctor/uninstall reason about ownership without treating arbitrary user configuration as AG Kit state.
 
-Review MCP server source, requested permissions, network destinations, and data-retention policy before enabling it. Prefer environment-based secret injection where supported. Rotate any credential that appears in a commit, log, artifact, issue, or chat transcript.
+Review any MCP server source, permissions, network destinations, and data-retention policy before enabling it. Prefer environment-based secret injection where supported.
 
-## Plugin and artifact security
+## Memory, semantic retrieval, brain, and personalization
 
-The plugin builder reads repository files only. It does not copy environment variables or home-directory configuration. Review the generated `dist/antigravity-plugin/` directory and `PLUGIN_CONTENTS.json` before installation.
+Project memory is local-first and human-readable Markdown. SQLite/FTS5, graph, and semantic indexes are disposable acceleration layers rather than hidden canonical stores.
 
-Do not install an artifact when:
+The local semantic tier is opt-in. Model download is not implicit; index rebuilds must not turn raw memory into a second canonical store.
 
-- its version differs from `.agents/VERSION`;
-- the content inventory is missing or unexpected;
-- it contains a real MCP credential;
-- it was generated from an unreviewed branch;
-- required CI or Dependency Review checks failed.
+Cross-project brain behavior is opt-in:
 
-## Update and rollback safety
+- projects must be explicitly registered;
+- AG Kit does not recursively crawl `$HOME`;
+- cross-project search is read-only with respect to searched projects;
+- kill switches can disable cross-project behavior.
 
-`ag-kit update` uses a managed-file manifest and merge strategy by default. Local modifications are not silently overwritten. Conflicts produce an incoming copy and JSON report, while pre-update backups support `ag-kit rollback`.
+Personalization injection is off by default, preferences require evidence and cross-session confirmation, disclosures can be logged locally, `AG_KIT_PROFILE_KILL=1` overrides stored settings, and forget removes related egress state.
 
-Global MCP synchronization has a separate timestamped backup and must be restored separately when rolling back the toolkit.
+Current user instructions override stale stored memory/preferences. Conflicts should be surfaced rather than silently resolved in favor of old state.
+
+## Cross-audit boundary
+
+External reviewer CLIs receive bounded snapshot chunks in temporary workspaces. They do not receive a writable source-project mount.
+
+- calling-model lineage can be excluded;
+- independent lineages run with bounded concurrency and timeout handling;
+- findings are consensus/contested rather than auto-applied;
+- reviewer output is untrusted analysis;
+- trace IDs correlate evidence without granting write authority;
+- no reviewer result authorizes a mutation by itself.
+
+## Context artifacts and command sandbox
+
+`ag-kit run` executes without shell interpolation by default, stores full command output under project-local sandbox state, and returns a bounded summary.
+
+Bare `python` / `python3` may resolve to a project virtualenv. Explicit interpreter paths are not rewritten.
+
+`ag-kit compress` is non-destructive by default. Explicit overwrite creates a backup. Handoff artifacts should contain compact continuation facts, not raw conversation dumps or secrets.
+
+## Generated artifacts and release evidence
+
+Runtime artifact builders must consume reviewed repository input only and must not copy environment variables or user-home configuration.
+
+Do not install/publish generated artifacts when version metadata disagrees, expected inventory is missing, secrets/private config appear, source is unreviewed, runtime drift/CI/Dependency Review/audit is failing, or deterministic benchmark evidence is missing.
+
+The benchmark receipt is local/deterministic evidence for memory recall, routing, compression, and runtime lifecycle. It does not fabricate a no-AG-Kit baseline or require paid providers.
 
 ## Repository and release baseline
 
 The repository expects:
 
 - immutable commit-SHA references for GitHub Actions;
-- least-privilege `GITHUB_TOKEN` permissions;
-- protected `main`, `production`, and `npm` environments;
-- npm Trusted Publishing through OIDC instead of a long-lived npm token;
+- least-privilege workflow permissions;
+- npm Trusted Publishing through OIDC rather than long-lived npm tokens;
 - private vulnerability reporting, Dependabot, secret scanning, and push protection where available;
-- Toolkit validation, Antigravity native contract, CLI tests, web checks, Dependency Review, and production dependency audits before release;
-- hands-on Antigravity smoke testing before a release PR leaves Draft.
+- `V2 core validation`, `CLI tests and package validation`, `CLI Windows compatibility`, `Web lint, typecheck, build, and audit`, `Runtime contracts`, and `Dependency Review` before release;
+- production dependency audits plus documentation link/claim integrity;
+- representative multi-runtime packaged lifecycle smoke before leaving Draft.
 
 See [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md) and [.github/RELEASE_SETUP.md](.github/RELEASE_SETUP.md).

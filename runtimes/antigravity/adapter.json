@@ -1,0 +1,1 @@
+{"schema":1,"runtime":"antigravity","tier":"first-class","rules":".agents/rules","skills":".agents/skills","agents":".agents/agents","hooks":".agents/hooks.json","mcp":".agents/mcp_config.json","plugins":".agents/plugins","supports":{"rules":true,"skills":true,"agents":true,"hooks":true,"mcp":true,"plugins":true}}

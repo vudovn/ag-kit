@@ -13,11 +13,11 @@
     "@base-ui/react": "^1.1.0",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@next/mdx": "16.2.10",
+    "@next/mdx": "16.3.3",
     "@types/mdx": "^2.0.13",
     "class-variance-authority": "^0.7.1",
     "lucide-react": "^0.562.0",
-    "next": "^16.2.11",
+    "next": "16.3.3",
     "next-themes": "^0.4.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -31,7 +31,7 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.3.3",
     "gray-matter": "^4.0.3",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-pretty-code": "^0.14.1",
@@ -44,6 +44,6 @@
   "overrides": {
     "nanoid": "^3.3.18",
     "postcss": "8.5.23",
-    "sharp": "0.35.3"
+    "sharp": "0.35.4"
   }
 }
