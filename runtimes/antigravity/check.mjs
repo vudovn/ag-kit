@@ -8,6 +8,17 @@ const readJson=file=>JSON.parse(fs.readFileSync(file,'utf8'));
 const add=(r,severity,phase,code,file,message)=>r.findings.push({severity,phase,code,file,message});
 const countSkills=dir=>fs.existsSync(dir)?fs.readdirSync(dir,{withFileTypes:true}).filter(e=>e.isDirectory()&&fs.existsSync(path.join(dir,e.name,'SKILL.md'))).length:0;
 const countMd=dir=>fs.existsSync(dir)?fs.readdirSync(dir).filter(x=>x.endsWith('.md')).length:0;
+const readAgentMetadata=file=>{
+  const text=fs.readFileSync(file,'utf8');
+  const block=text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if(!block)return {};
+  const metadata={};
+  for(const line of block[1].split(/\r?\n/)){
+    const match=line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.+?)\s*$/);
+    if(match)metadata[match[1]]=match[2].replace(/^['"]|['"]$/g,'');
+  }
+  return metadata;
+};
 
 export function diagnose(root){
   const report={runtime:'antigravity',root,passed:true,counts:{},phases:{},findings:[]};
@@ -22,7 +33,14 @@ export function diagnose(root){
   if(rules.length!==1||rules[0]!=='ag-kit-v2.md')add(report,'error','projection','rules.projection','.agents/rules','Expected only ag-kit-v2.md projected from shared core');
   try{const mcp=readJson(path.join(base,'mcp_config.json'));report.counts.mcpServers=Object.keys(mcp.mcpServers||{}).length;if(!mcp.mcpServers)add(report,'error','mcp','mcp.servers','.agents/mcp_config.json','mcpServers must be an object');}catch(e){add(report,'error','mcp','mcp.invalid','.agents/mcp_config.json',e.message);}
   try{const hooks=readJson(path.join(base,'hooks.json'));const handlers=Object.values(hooks).filter(v=>v&&typeof v==='object').flatMap(v=>v.PreToolUse||[]).flatMap(v=>v.hooks||[]).length;report.counts.hooks=handlers;if(!handlers)add(report,'error','hooks','hooks.empty','.agents/hooks.json','At least one safety hook is required');}catch(e){add(report,'error','hooks','hooks.invalid','.agents/hooks.json',e.message);}
-  for(const name of ['scout','architect','builder','reviewer'])if(!fs.existsSync(path.join(base,'agents',`${name}.md`)))add(report,'error','projection','agent.missing',`.agents/agents/${name}.md`,'Required projected agent missing');
+  for(const name of ['scout','architect','builder','reviewer']){
+    const relative=`.agents/agents/${name}.md`;
+    const file=path.join(base,'agents',`${name}.md`);
+    if(!fs.existsSync(file)){add(report,'error','projection','agent.missing',relative,'Required projected agent missing');continue;}
+    const metadata=readAgentMetadata(file);
+    if(metadata.name!==name)add(report,'error','projection','agent.name',relative,`Agent frontmatter name must be ${name}`);
+    if(!metadata.description)add(report,'error','projection','agent.description',relative,'Agent frontmatter requires a non-empty description for runtime discovery and delegation');
+  }
   for(const name of ['ag-core','ag-workflow','ag-verify','ag-cross-audit'])if(!fs.existsSync(path.join(base,'skills',name,'SKILL.md')))add(report,'error','projection','skill.missing',`.agents/skills/${name}/SKILL.md`,'Required projected skill missing');
   try{const plugin=readJson(path.join(base,'plugins/ag-kit/plugin.json'));if(!plugin.name||!plugin.description)add(report,'error','plugin','plugin.shape','.agents/plugins/ag-kit/plugin.json','plugin requires name and description');}catch(e){add(report,'error','plugin','plugin.invalid','.agents/plugins/ag-kit/plugin.json',e.message);}
   for(const file of ['shared/core/CORE.md','platform-capabilities.json','scripts/check-v2.mjs','scripts/sync-runtime-projections.mjs','runtimes/antigravity/adapter.json'])if(!fs.existsSync(path.join(root,file)))add(report,'error','validation','file.missing',file,'Required runtime-neutral validation input missing');

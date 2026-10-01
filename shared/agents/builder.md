@@ -1,5 +1,6 @@
 ---
 name: builder
+description: Implementation specialist for executing approved scoped plans with minimal changes and concrete verification evidence.
 version: 2.0.0
 mode: implementation
 ---
