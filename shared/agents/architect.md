@@ -1,5 +1,6 @@
 ---
 name: architect
+description: Planning specialist for system boundaries, tradeoffs, migration plans, dependency ordering, and difficult multi-file architecture decisions.
 version: 2.0.0
 mode: planning
 ---
