@@ -1,41 +1,16 @@
 {
-  "name": "ag-kit",
-  "version": "2026.8.31",
-  "description": "Antigravity-first AI agent engineering kit with rules, skills, workflows, orchestration, MCP guidance, and safety hooks",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vudovn/ag-kit.git"
-  },
-  "homepage": "https://github.com/vudovn/ag-kit#readme",
-  "bugs": {
-    "url": "https://github.com/vudovn/ag-kit/issues"
-  },
-  "keywords": [
-    "ag-kit",
-    "antigravity",
-    "ai",
-    "agent",
-    "orchestration",
-    "skills",
-    "workflows"
-  ],
-  "author": "vudovn",
-  "license": "MIT",
-  "private": true,
-  "engines": {
-    "node": ">=22"
-  },
-  "scripts": {
-    "generate:agents": "python .agents/scripts/generate_manifest.py .agents && python .agents/scripts/dependency_graph.py .agents",
-    "check:agents": "python .agents/scripts/generate_manifest.py .agents --check && python .agents/scripts/dependency_graph.py .agents --check && python .agents/scripts/validate_kit.py .agents",
-    "validate:toolkit": "python .agents/scripts/validate_kit.py .agents",
-    "test:toolkit": "python -m unittest discover -s .agents/scripts/tests -v",
-    "check:antigravity": "node .agents/hooks/antigravity-doctor.mjs",
-    "test:antigravity": "node --test .agents/hooks/tests/antigravity.test.mjs",
-    "build:antigravity-plugin": "node .agents/hooks/build-plugin.mjs",
-    "test:cli": "npm --prefix cli test",
-    "lint:web": "npm --prefix web run lint",
-    "typecheck:web": "npm --prefix web run typecheck",
-    "build:web": "npm --prefix web run build"
+  "name":"ag-kit","version":"2026.8.31","description":"Lean multi-runtime AI agent operating layer with a tiny shared core, hot-loaded skills, domain packs, workflow gates, and verified runtime adapters","repository":{"type":"git","url":"git+https://github.com/vudovn/ag-kit.git"},"homepage":"https://github.com/vudovn/ag-kit#readme","bugs":{"url":"https://github.com/vudovn/ag-kit/issues"},"keywords":["ag-kit","ai","agent","multi-runtime","skills","workflow","mcp"],"author":"vudovn","license":"MIT","private":true,"engines":{"node":">=22"},
+  "scripts":{
+    "check:v2":"node scripts/check-v2.mjs",
+    "check:docs":"node scripts/check-doc-links.mjs && node scripts/check-doc-claims.mjs",
+    "test:v2":"node --test engine/tests/*.test.mjs",
+    "benchmark:v2":"node scripts/benchmark-v2.mjs",
+    "sync:runtimes":"node scripts/sync-runtime-projections.mjs",
+    "check:runtimes":"node scripts/check-runtime-contracts.mjs && node scripts/sync-runtime-projections.mjs --check",
+    "test:runtimes":"node scripts/run-runtime-adapter-tests.mjs",
+    "build:runtimes":"node scripts/build-runtime-adapters.mjs",
+    "build:runtime-artifacts":"node scripts/build-runtime-artifacts.mjs",
+    "memory":"node engine/memory.mjs","team":"node engine/team.mjs","cross-audit":"node engine/cross-audit.mjs","preflight":"node engine/preflight.mjs",
+    "test:cli":"npm --prefix cli test","lint:web":"npm --prefix web run lint","typecheck:web":"npm --prefix web run typecheck","build:web":"npm --prefix web run build"
   }
 }

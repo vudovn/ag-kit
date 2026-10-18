@@ -1,0 +1,1 @@
+{"schema":1,"runtime":"openclaw","tier":"bridge","rules":"AGENTS.md","skills":null,"agents":null,"hooks":null,"mcp":"openclaw mcp registry","supports":{"rules":true,"skills":false,"agents":false,"hooks":false,"mcp":true,"plugins":false},"notes":"Project AGENTS.md is portable; MCP registry is managed by OpenClaw CLI rather than a project JSON file."}

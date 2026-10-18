@@ -1,11 +1,11 @@
 {
-  "$schema": "hooks/antigravity-hooks.schema.json",
-  "enabled": true,
-  "PreToolUse": [
-    {
-      "matcher": "run_command",
-      "command": "node .agents/hooks/validate-tool-call.mjs",
-      "timeout": 10
-    }
-  ]
+  "$schema": "hooks/hooks.schema.json",
+  "safety-gate": {
+    "enabled": true,
+    "PreToolUse": [{"matcher":"run_command","hooks":[{"type":"command","command":"node .agents/hooks/validate-tool-call.mjs","timeout":10}]}]
+  },
+  "observability": {
+    "enabled": true,
+    "PostToolUse": [{"matcher":"*","hooks":[{"type":"command","command":"node .agents/hooks/observe-tool-use.mjs","timeout":5}]}]
+  }
 }

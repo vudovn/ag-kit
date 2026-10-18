@@ -1,0 +1,1 @@
+{"schema":1,"runtime":"aider","tier":"bridge","rules":"CONVENTIONS.md","skills":null,"agents":null,"hooks":null,"mcp":null,"supports":{"rules":true,"skills":false,"agents":false,"hooks":false,"mcp":false,"plugins":false},"notes":"Aider consumes AG Kit as read-only conventions; no MCP parity claim."}

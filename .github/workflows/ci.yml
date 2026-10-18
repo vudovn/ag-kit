@@ -5,103 +5,172 @@ on:
   push:
     branches: ["main"]
 
-permissions:
-  contents: read
-
+permissions: {contents: read}
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   toolkit:
-    name: Toolkit validation
+    name: V2 core validation
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check out repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: 22}
+      - run: npm run check:v2
+      - run: npm run check:docs
+      - run: npm run test:v2
+      - name: Run deterministic v2 benchmark receipt
+        env:
+          AG_KIT_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run benchmark:v2 -- --output dist/evidence/benchmark-v2.json
+      - name: Upload deterministic benchmark receipt
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          python-version: "3.12"
-
-      - name: Install validator dependencies
-        run: python -m pip install --disable-pip-version-check PyYAML
-
-      - name: Check component registry and dependency graph
-        run: |
-          python .agents/scripts/generate_manifest.py .agents --check
-          python .agents/scripts/dependency_graph.py .agents --check
-
-      - name: Validate AG Kit structure
-        run: python .agents/scripts/validate_kit.py .agents
-
-      - name: Run toolkit regression tests
-        run: python -m unittest discover -s .agents/scripts/tests -v
-
-      - name: Compile Python utilities
-        run: python -m compileall -q .agents
+          name: ag-kit-v2-benchmark-${{ github.event.pull_request.head.sha || github.sha }}
+          path: dist/evidence/benchmark-v2.json
+          if-no-files-found: error
+          retention-days: 14
+      - run: npm run check:runtimes
+      - run: npm run test:runtimes
+      - run: npm run build:runtimes
+      - run: npm run build:runtime-artifacts
 
   cli:
     name: CLI tests and package validation
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: cli
+    timeout-minutes: 15
+    defaults: {run: {working-directory: cli}}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: 22, cache: npm, cache-dependency-path: cli/package-lock.json}
+      - run: npm ci
+      - run: npm test
+      - run: npm pack --dry-run
+      - name: Smoke packaged CLI lifecycle
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          AG_KIT_SMOKE_REF: ${{ github.head_ref || github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_TGZ="$(npm pack --silent)"
+          PREFIX="$(mktemp -d)"
+          RUNTIME_ROOT="$(mktemp -d)"
+          trap 'rm -rf "$PREFIX" "$RUNTIME_ROOT"; rm -f "$PACKAGE_TGZ"' EXIT
+          npm install --prefix "$PREFIX" "$PWD/$PACKAGE_TGZ" >/dev/null
+          CLI="$PREFIX/node_modules/.bin/ag-kit"
+          "$CLI" --version >/dev/null
 
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: cli/package-lock.json
+          # Exercise representative runtime ownership shapes through the real npm binary.
+          for RUNTIME in antigravity claude codex qwen; do
+            PROJECT="$RUNTIME_ROOT/$RUNTIME"
+            mkdir -p "$PROJECT"
+            case "$RUNTIME" in
+              antigravity)
+                mkdir -p "$PROJECT/.agents"
+                printf '%s\n' 'restore-after-runtime-uninstall' > "$PROJECT/.agents/user-owned.txt"
+                ;;
+              claude)
+                mkdir -p "$PROJECT/.claude"
+                printf '%s\n' 'restore-after-runtime-uninstall' > "$PROJECT/.claude/user-owned.txt"
+                ;;
+              codex)
+                printf '%s\n' 'user-owned AGENTS instructions' > "$PROJECT/AGENTS.md"
+                ;;
+              qwen)
+                mkdir -p "$PROJECT/.qwen"
+                cat > "$PROJECT/.qwen/settings.json" <<'JSON'
+          {
+            "mcpServers": {
+              "user": { "command": "user-mcp", "args": [] }
+            },
+            "hooks": {
+              "UserPromptSubmit": [
+                {
+                  "matcher": "user",
+                  "hooks": [
+                    { "type": "command", "command": "user-hook" }
+                  ]
+                }
+              ]
+            }
+          }
+          JSON
+                ;;
+            esac
 
-      - name: Install dependencies
-        run: npm ci
+            "$CLI" memory init --path "$PROJECT" >/dev/null
+            "$CLI" runtime install "$RUNTIME" --path "$PROJECT" --branch "$AG_KIT_SMOKE_REF" > "$PROJECT/runtime-install.json"
+            test -f "$PROJECT/.ag-kit/runtime-installs/$RUNTIME.json"
 
-      - name: Run tests
-        run: npm test
+            if [ "$RUNTIME" = qwen ]; then
+              node - "$PROJECT/.qwen/settings.json" <<'NODE'
+          const fs = require('fs');
+          const file = process.argv[2];
+          const settings = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (!settings.mcpServers?.user) throw new Error('user MCP missing after Qwen install');
+          if (!settings.mcpServers?.['ag-kit']) throw new Error('AG Kit MCP missing after Qwen install');
+          const hooks = JSON.stringify(settings.hooks || {});
+          if (!hooks.includes('user-hook')) throw new Error('user Qwen hook missing after install');
+          if (!hooks.includes('ag-kit prompt-hook qwen')) throw new Error('AG Kit Qwen prompt hook missing after install');
+          NODE
+            fi
 
-      - name: Validate package contents
-        run: npm pack --dry-run
+            "$CLI" runtime doctor "$RUNTIME" --path "$PROJECT" > "$PROJECT/runtime-doctor.json"
+            grep -q '"status": "live"' "$PROJECT/runtime-doctor.json"
+            "$CLI" runtime uninstall "$RUNTIME" --path "$PROJECT" > "$PROJECT/runtime-uninstall.json"
+            test -d "$PROJECT/.ag-kit/memory"
+            "$CLI" runtime doctor "$RUNTIME" --path "$PROJECT" > "$PROJECT/runtime-after-uninstall.json"
+            grep -q '"status": "untouched"' "$PROJECT/runtime-after-uninstall.json"
 
-      - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+            case "$RUNTIME" in
+              antigravity) grep -q '^restore-after-runtime-uninstall$' "$PROJECT/.agents/user-owned.txt" ;;
+              claude) grep -q '^restore-after-runtime-uninstall$' "$PROJECT/.claude/user-owned.txt" ;;
+              codex) grep -q '^user-owned AGENTS instructions$' "$PROJECT/AGENTS.md" ;;
+              qwen)
+                node - "$PROJECT/.qwen/settings.json" <<'NODE'
+          const fs = require('fs');
+          const file = process.argv[2];
+          const settings = JSON.parse(fs.readFileSync(file, 'utf8'));
+          if (!settings.mcpServers?.user) throw new Error('user MCP missing after Qwen uninstall');
+          if (settings.mcpServers?.['ag-kit']) throw new Error('AG Kit MCP survived Qwen uninstall');
+          const hooks = JSON.stringify(settings.hooks || {});
+          if (!hooks.includes('user-hook')) throw new Error('user Qwen hook missing after uninstall');
+          if (hooks.includes('ag-kit prompt-hook qwen')) throw new Error('AG Kit Qwen prompt hook survived uninstall');
+          NODE
+                ;;
+            esac
+          done
+      - run: npm audit --omit=dev --audit-level=high
+
+  cli-windows:
+    name: CLI Windows compatibility
+    runs-on: windows-latest
+    timeout-minutes: 10
+    defaults: {run: {working-directory: cli}}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: 22, cache: npm, cache-dependency-path: cli/package-lock.json}
+      - run: npm ci
+      - run: npm test
+      - run: npm pack --dry-run
 
   web:
     name: Web lint, typecheck, build, and audit
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: web
+    defaults: {run: {working-directory: web}}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: web/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Build
-        run: npm run build
-
-      - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: 22, cache: npm, cache-dependency-path: web/package-lock.json}
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high

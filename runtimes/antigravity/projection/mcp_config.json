@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ag-kit": {
+      "command": "ag-kit",
+      "args": ["mcp", "serve"]
+    }
+  }
+}

@@ -1,6 +1,0 @@
-{
-  "name": "ag-kit",
-  "version": "0.0.0",
-  "description": "Antigravity-first agent engineering kit with rules, skills, workflows, orchestration, MCP guidance, and safety hooks.",
-  "contextFileName": "GEMINI.md"
-}

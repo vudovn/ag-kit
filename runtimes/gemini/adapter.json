@@ -1,0 +1,1 @@
+{"schema":1,"runtime":"gemini","tier":"first-class","rules":"GEMINI.md","skills":".gemini/skills","agents":null,"hooks":".gemini/settings.json","mcp":".gemini/settings.json","plugins":null,"supports":{"rules":true,"skills":true,"agents":false,"hooks":true,"mcp":true,"plugins":false}}

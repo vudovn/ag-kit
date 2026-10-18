@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+import { isDirectRun } from '../cli/lib/direct-run.js';
+export { initMemory, addMemory, recallMemory, rebuildMemoryIndex, memoryStatus } from '../cli/lib/v2-engine.js';
+import { initMemory, addMemory, recallMemory, rebuildMemoryIndex, memoryStatus, parseArgs } from '../cli/lib/v2-engine.js';
+if(isDirectRun(import.meta.url)){const a=parseArgs(process.argv.slice(2));const [cmd,...rest]=a._;const root=a.path||process.cwd();if(cmd==='init')console.log(initMemory(root));else if(cmd==='add')console.log(JSON.stringify(addMemory({root,text:rest.join(' '),kind:a.kind||'learning',title:a.title||''}),null,2));else if(cmd==='recall')console.log(JSON.stringify(recallMemory({root,query:rest.join(' '),limit:a.limit||5}),null,2));else if(cmd==='reindex')console.log(JSON.stringify(rebuildMemoryIndex(root),null,2));else if(cmd==='status')console.log(JSON.stringify(memoryStatus(root),null,2));else{console.error('Usage: memory <init|add|recall|reindex|status>');process.exitCode=1;}}

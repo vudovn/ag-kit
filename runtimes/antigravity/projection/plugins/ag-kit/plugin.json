@@ -1,0 +1,5 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "ag-kit",
+  "description": "AG Kit rules, skills, agents, MCP guidance, and safety hooks for Google Antigravity"
+}

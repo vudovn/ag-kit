@@ -1,0 +1,31 @@
+name: Runtime Compatibility
+
+on:
+  pull_request:
+    paths: ['runtimes/**','shared/**','.agents/**','platform-capabilities.json','scripts/*runtime*.mjs','package.json','.github/workflows/runtime-compatibility.yml']
+  push:
+    branches: [main]
+    paths: ['runtimes/**','shared/**','.agents/**','platform-capabilities.json','scripts/*runtime*.mjs','package.json','.github/workflows/runtime-compatibility.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  runtimes:
+    name: Runtime contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with: {node-version: 22}
+      - name: Check runtime contracts and committed projections
+        run: npm run check:runtimes
+      - name: Run runtime adapter regression tests
+        run: npm run test:runtimes
+      - name: Build runtime projections
+        run: npm run build:runtimes
+      - name: Build and verify native runtime artifacts
+        run: |
+          npm run build:runtime-artifacts
+          test -f dist/runtime-artifacts/ARTIFACTS.json

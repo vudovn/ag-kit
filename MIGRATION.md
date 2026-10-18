@@ -1,158 +1,194 @@
-# Migrating AG Kit
+# Migrating to AG Kit v2
 
-This guide covers upgrades across AG Kit releases, including the Antigravity-native runtime layer and subsequent feature releases up to `2026.8.31`.
+AG Kit v2 replaces the old Antigravity-centered managed-tree CLI with one runtime-neutral lifecycle. This guide is for projects upgrading from the `2026.8.31` generation or earlier.
 
-## Upgrading to `2026.8.31`
+The important change is structural: there is no second `init/update/rollback/status` lifecycle anymore. Every host, including Antigravity, is installed and verified through `ag-kit runtime ...`.
 
-### What changes in `2026.8.31`
-- **Design Gatekeeper**: `app-builder` now requires a `DESIGN.md` (visual language tokens and rationale) at the project root before frontend implementation begins.
-- **AI & Game Application Support**: Added detection for full-stack AI/Chatbot apps (Vercel AI SDK streaming, pgvector) and routed Game development to `game-developer`.
-- **Template & CSS Paths**: Standardized `src/app/globals.css` across Next.js templates and updated `@prisma/client` runtime dependencies.
-- **Web & SEO**: Schema.org JSON-LD structured data (`SoftwareApplication`, `FAQPage`), Web App Manifest, and custom 404 page.
+## What changes in v2
 
-All existing user code, custom agents, and modified skills are preserved by `ag-kit update` using the default merge strategy.
+- `shared/` is the canonical runtime-neutral source of truth.
+- `packs/` holds cold domain/reference knowledge.
+- `runtimes/<runtime>/` contains thin capability-aware adapters.
+- Generated host trees such as `.agents/`, `.claude/`, `.gemini/`, managed instruction files, and plugin folders are projections, not canonical implementations.
+- The resident surface is **1 core, 18 hot-loaded skills, 4 permanent agents, 1 development spine**.
+- Legacy `.agents/workflows/` is gone. QUICK, STANDARD, and DEEP are modes of one flow engine.
+- No runtime is the product's primary runtime.
 
----
-
-## Migrating to the Antigravity-native runtime (`2026.7.26`+)
-
-The release adds an Antigravity runtime layer:
-
-- `.agents/antigravity.json` — machine-readable runtime contract;
-- `.agents/hooks.json` — native Antigravity hook registration;
-- `.agents/hooks/` — safety policy, doctor, MCP sync, plugin builder, schemas, and tests;
-- Antigravity-specific CI and production documentation.
-
-The only behavior enabled by default is a narrow `PreToolUse` safety gate for the `run_command` tool. It blocks high-confidence root/disk destructive commands and allows ordinary project cleanup.
-
-
-## Before upgrading
+## Before migrating
 
 1. Commit or stash project work.
-2. Confirm the current AG Kit installation is healthy:
+2. Make an external backup if the project contains important runtime-specific customizations.
+3. Install the v2 CLI.
+4. Detect the runtimes already present:
 
 ```bash
-npm run check:agents
+ag-kit runtime detect
 ```
 
-3. Preview the update:
+If the project was an older Antigravity-only AG Kit installation, do **not** run the removed managed-tree commands. Install the Antigravity adapter through the unified lifecycle:
 
 ```bash
-ag-kit update --dry-run
+ag-kit runtime install antigravity
+ag-kit runtime doctor antigravity
 ```
 
-4. Review any locally modified `.agents` files shown by the plan.
-
-## Upgrade
+During a pre-release review, use the reviewed branch/ref explicitly:
 
 ```bash
-ag-kit update
+ag-kit runtime install antigravity --branch <reviewed-ref>
 ```
 
-AG Kit creates a backup before changing managed files. It does not silently replace locally modified managed files; conflicts receive an incoming copy and a machine-readable report.
+After a release tag exists, omit `--branch`; the published CLI resolves runtime source from its matching `v<CLI_VERSION>` tag.
 
-## Post-upgrade validation
+## Migrate additional runtimes
+
+Install detected runtimes in one pass:
 
 ```bash
-npm run check:agents
-npm run check:antigravity
-npm run test:antigravity
-npm run build:antigravity-plugin
+ag-kit runtime install-present
+ag-kit runtime doctor
 ```
 
-Expected result:
-
-- toolkit validation passes;
-- Antigravity Doctor reports no errors;
-- a warning for `YOUR_API_KEY` is expected until the MCP example is configured;
-- Antigravity regression tests pass;
-- `dist/antigravity-plugin/` is created successfully.
-
-## Antigravity workspace smoke test
-
-Open the project as a trusted Antigravity workspace and verify:
-
-1. `.agents/rules/`, `.agents/skills/`, and `.agents/workflows/` are discovered;
-2. `/coordinate` and `/orchestrate` are available;
-3. a normal command such as `npm test` is allowed;
-4. the safety hook blocks a mocked destructive payload:
+Or install adapters explicitly:
 
 ```bash
-printf '%s' '{"tool_args":{"CommandLine":"rm -rf /"}}' \
-  | node .agents/hooks/validate-tool-call.mjs
+ag-kit runtime install claude
+ag-kit runtime install codex
+ag-kit runtime install gemini
 ```
 
-Do not execute a real destructive command to test the hook.
+Each runtime install records ownership/lifecycle state under `.ag-kit/runtime-installs/` and snapshots paths the adapter is about to touch. Project-scoped config is preferred. Integrations that only expose user-global configuration are staged for explicit activation instead of being silently mutated.
+
+## Existing `.agents` customizations
+
+An older project may already contain `.agents/` files that are not owned by AG Kit. Keep them backed up/committed before migration.
+
+The v2 Antigravity adapter treats `.agents/` as a runtime projection. Lifecycle state and backups are used so doctor/uninstall can distinguish AG Kit-managed projection state from later user drift. The release smoke test specifically covers a pre-existing user-owned file under `.agents/` and verifies it survives install/uninstall.
+
+Do not manually copy the Antigravity tree into other runtime folders. Use the matching adapter.
+
+## Memory and continuity
+
+Initialize project memory after or before installing runtime projections:
+
+```bash
+ag-kit memory init
+ag-kit memory status
+ag-kit memory recall "package manager"
+ag-kit handoff quick "Paused after verification" --next "Review remaining issues"
+ag-kit handoff show
+```
+
+Markdown under `.ag-kit/memory/` is canonical. SQLite/FTS5 and the optional local semantic tier are rebuildable acceleration layers only.
+
+For large context artifacts:
+
+```bash
+ag-kit compress docs/long-context.md
+```
+
+Compression writes a separate compact artifact by default. `--write` is explicit and creates a backup before replacement.
+
+## Workflow migration
+
+Do **not** recreate `.agents/workflows/` or depend on old `/coordinate`, `/orchestrate`, `/plan`, or similar v1 workflow files.
+
+Use natural-language intent or the flow CLI:
+
+```bash
+ag-kit flow start "Ship account recovery" --mode standard
+ag-kit flow artifact "Compared approaches and selected signed one-time tokens"
+ag-kit flow approve "Shape approved"
+ag-kit flow status
+```
+
+Modes:
+
+- QUICK: FRAME → PLAN → EXECUTE → VERIFY
+- STANDARD: FRAME → SHAPE → PLAN → EXECUTE → VERIFY → SHIP
+- DEEP: FRAME → RECON → SHAPE → PLAN → WAVES → VERIFY → CROSS_AUDIT → SHIP
+
+User gates do not auto-advance. Verification boundaries require fresh mechanical evidence.
 
 ## MCP migration
 
-The repository's `.agents/mcp_config.json` remains the workspace source. It contains an example placeholder and is not automatically copied into the home directory.
-
-Review first:
+The v2 MCP bridge is served by the CLI:
 
 ```bash
-node .agents/hooks/sync-mcp.mjs --check
-node .agents/hooks/sync-mcp.mjs --print
+ag-kit mcp serve
 ```
 
-After replacing placeholders, explicitly apply to one target:
+Verified project-scoped adapters wire the MCP entry where supported. Check actual lifecycle/wiring state with:
 
 ```bash
-node .agents/hooks/sync-mcp.mjs --apply --target suite
-node .agents/hooks/sync-mcp.mjs --apply --target cli
+ag-kit runtime doctor
 ```
 
-Rules:
+## Runtime projection examples
 
-- unresolved placeholders block `--apply`;
-- existing server names are preserved unless `--force` is supplied;
-- an existing target file is backed up before writing;
-- credentials must remain outside version control.
+- Antigravity → `.agents/`
+- Claude → `.claude/` plus managed `CLAUDE.md`
+- Codex → managed `AGENTS.md` plus `.codex-plugin/`
+- Gemini → `.gemini/` plus managed `GEMINI.md`
 
-## Safety hook compatibility
+Host-specific hooks/plugins stay inside their adapter boundary. Richer native surfaces do not make a runtime primary.
 
-The hook fails open when Antigravity sends invalid JSON or an unrecognized command payload. This avoids locking the entire workspace after an upstream payload change. Valid, recognized destructive commands fail closed with a non-zero exit code.
+## Validation after migration
 
-To temporarily disable only the AG Kit hook:
-
-```json
-{
-  "enabled": false
-}
-```
-
-Keep Antigravity's native permission and workspace-trust controls enabled. Report payload compatibility issues privately when logs may contain prompts, paths, command arguments, or secrets.
-
-## Plugin migration
-
-Plugin installation is optional. Build and inspect it first:
+For a consumer project:
 
 ```bash
-npm run build:antigravity-plugin
-agy plugin install ./dist/antigravity-plugin
-agy plugin list
+ag-kit runtime doctor
+ag-kit memory status
+ag-kit preflight
 ```
 
-The repository-native `.agents/` directory remains the project source of truth. Avoid simultaneously editing generated plugin content and source `.agents` files.
-
-## Rollback
-
-To restore the pre-upgrade toolkit backup:
+For AG Kit repository development:
 
 ```bash
-ag-kit rollback
+npm run check:v2
+npm run check:docs
+npm run test:v2
+npm run benchmark:v2 -- --output dist/evidence/benchmark-v2.json
+npm run check:runtimes
+npm run test:runtimes
+npm run build:runtimes
+npm run build:runtime-artifacts
+npm run test:cli
+npm run lint:web
+npm run typecheck:web
+npm run build:web
 ```
 
-After rollback, reopen Antigravity so it reloads the previous workspace configuration. If a global MCP file was explicitly synchronized, restore its timestamped `.ag-kit-backup-*` file separately.
+## Rollback / removal in v2
 
-## Compatibility summary
+There is no generic managed-tree rollback command in v2.
 
-| Area | Migration impact |
+To remove one runtime adapter:
+
+```bash
+ag-kit runtime uninstall <runtime>
+```
+
+Uninstall uses lifecycle ownership metadata and pre-install backups. It restores/removes only state whose ownership can be proven, preserves user drift, and keeps `.ag-kit/memory/` by default.
+
+If a migration needs to be reverted beyond adapter-owned state, use the project backup or version-control commit created before migration. This is intentionally clearer than maintaining a second hidden lifecycle alongside runtime adapters.
+
+## Compatibility notes
+
+| Area | v2 behavior |
 | --- | --- |
-| Agent, skill, workflow names | No breaking rename |
-| Memory schema | No breaking change |
-| CLI init/update/rollback | Existing merge-aware behavior retained |
-| Antigravity hook | New and enabled by default |
-| MCP home-directory config | Never changed automatically |
-| Plugin | Optional new packaging path |
-| Other AI runtimes | Markdown may remain usable, but no production runtime guarantee |
+| Canonical source | `shared/` + `packs/` |
+| Runtime implementation | `runtimes/<runtime>/` adapters |
+| Host trees | generated/managed projections |
+| Primary runtime | none |
+| Lifecycle | one `runtime install/doctor/uninstall` model |
+| Legacy managed-tree CLI | removed |
+| Legacy workflow files | removed; one flow engine replaces them |
+| Slash-command dependency | removed; natural-language intent is first-class |
+| Memory | local Markdown canonical store under `.ag-kit/` |
+| Runtime config | project-scoped when verified; global-only changes are explicit |
+| Runtime uninstall | ownership-aware; preserves user drift and memory |
+| Cross-project memory | opt-in registry only; no automatic `$HOME` crawl |
+
+Historical pre-v2 behavior remains available in Git history and the changelog. New work should not restore the old Antigravity-only CLI, duplicate canonical runtime trees, or silently mutate user-global configuration.

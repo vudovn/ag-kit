@@ -5,245 +5,237 @@
 <h1 align="center">AG KIT</h1>
 
 <p align="center">
-  Bộ công cụ kỹ nghệ AI Agent ưu tiên Antigravity, gồm rules, skills, agent chuyên môn, workflows, bộ nhớ dài hạn, hướng dẫn MCP, điều phối và native safety hook.
+  Lớp vận hành multi-runtime gọn cho AI coding agents: một shared core, skill tải theo nhu cầu, local-first memory, gated execution, context economy, privacy controls và independent verification.
 </p>
 
-<div align="center">
-  <a href="https://unikorn.vn/p/antigravity-kit?ref=unikorn" target="_blank"><img src="https://unikorn.vn/api/widgets/badge/antigravity-kit?theme=dark" alt="AG Kit trên Unikorn.vn" width="210" height="54" /></a>
-  <a href="https://trendshift.io/repositories/21490" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21490" alt="AG Kit trên Trendshift" width="250" height="55" /></a>
-  <a href="https://launch.j2team.dev/products/antigravity-kit" target="_blank"><img src="https://launch.j2team.dev/badge/antigravity-kit/dark" alt="AG Kit trên J2TEAM Launch" width="250" height="54" /></a>
-</div>
-
 <p align="center">
-  <strong>Runtime production chính: Google Antigravity</strong><br/>
-  <a href="./README.md">English</a> · <a href="./MIGRATION.md">Hướng dẫn migration</a> · <a href="./PRODUCTION_CHECKLIST.md">Checklist production</a> · <a href="./SECURITY.md">Bảo mật</a>
+  <a href="./README.md">English</a> · <a href="./docs/RUNTIMES.md">Runtimes</a> · <a href="./docs/PARITY_IJFW.md">IJFW parity</a> · <a href="./MIGRATION.md">Migration</a> · <a href="./SECURITY.md">Bảo mật</a>
 </p>
 
 ---
 
-## Hồ sơ production
+## AG Kit v2 là gì?
 
-AG Kit cài một workspace contract hoàn chỉnh trong `.agents/`. Antigravity là runtime được hỗ trợ chính thức cho production trong bản phát hành này. Các công cụ khác có thể đọc nội dung Markdown, nhưng hành vi runtime ngoài Antigravity không nằm trong cam kết tương thích production.
+AG Kit runtime-neutral từ lõi. Behavior dùng chung chỉ tồn tại một lần trong `shared/`; từng runtime adapter dịch nó sang native surface của host mà không biến thành fork riêng.
 
-| Năng lực | Cách triển khai production |
-| --- | --- |
-| Khám phá rules và skills | `.agents/rules/`, `.agents/skills/`, `.agents/workflows/` |
-| Điều hướng chuyên gia | 20 agent chuyên môn và intelligent-routing skills |
-| Ngữ cảnh dài hạn | `.agents/memory/` và hướng dẫn context compression |
-| Điều phối | `/coordinate`, `/orchestrate`, `/agents` và `/tasks` của Antigravity |
-| MCP | Cấu hình workspace cùng công cụ đồng bộ có review và backup |
-| An toàn tool | Native `PreToolUse` gate cho các lệnh phá hủy có độ chắc chắn cao |
-| Đóng gói | Plugin bundle cục bộ kèm inventory SHA-256 |
-| Xác thực | Toolkit CI, Antigravity Doctor, regression tests, Dependency Review, CLI và web checks |
+- **1 resident core** — rule vận hành luôn bật nhưng rất nhỏ.
+- **18 hot-loaded skills** — chỉ vào context khi task cần.
+- **4 permanent agents** — `scout`, `architect`, `builder`, `reviewer`.
+- **1 development spine** — QUICK / STANDARD / DEEP với gate rõ ràng.
+- **16 runtime targets** — chia tier theo capability thật, không giả parity.
+- **Domain packs** — knowledge sâu giữ lạnh đến lúc cần.
+- **Local-first memory** — Markdown canonical; FTS/semantic chỉ là lớp tăng tốc tùy chọn, có thể rebuild.
+- **Executable evidence** — preflight, runtime doctor, cross-audit, receipts, benchmark artifacts, dependency audit và CI.
 
-Safety hook được thiết kế hẹp: chặn xóa filesystem root, format ổ đĩa và ghi đè raw disk, nhưng vẫn cho phép cleanup thông thường như xóa `dist/` hoặc `node_modules/`. Hook không thay thế permission, workspace trust, sandbox hay phê duyệt của người dùng trong Antigravity.
+```text
+shared/                  # behavior canonical, runtime-neutral
+├── core/                # tiny always-on core
+├── skills/              # hot-loaded skills
+├── agents/              # scout / architect / builder / reviewer
+└── flows/               # một development spine
 
-## Yêu cầu
-
-- Node.js 22 trở lên cho tooling Antigravity ở cấp repository.
-- Python 3.10 trở lên cho validator và utility scripts.
-- Workspace Google Antigravity đáng tin cậy.
-- Git để cập nhật, review và rollback an toàn.
-
-CLI được publish hiện hỗ trợ Node.js 18 trở lên; bộ kiểm tra Antigravity chạy trên Node.js 22.
-
-## Bắt đầu nhanh
-
-### Cài vào dự án
-
-```bash
-npx @vudovn/ag-kit init
+packs/                   # cold domain/reference knowledge
+runtimes/                # thin adapters theo capability
+engine/                  # memory / planning / audit / preflight / observability
+cli/                     # lifecycle, MCP, context, memory, audit tools
 ```
 
-Hoặc cài CLI toàn cục:
+Những host tree như `.agents/`, `.claude/` hay `.gemini/` chỉ là projection do adapter tạo. `shared/` vẫn là source of truth.
+
+## Runtime coverage
+
+| Tier | Runtime |
+| --- | --- |
+| First-class | Antigravity, Claude, Codex, Gemini, Qwen, Kimi, Cline |
+| Connected | Cursor, Windsurf, GitHub Copilot |
+| Bridge | OpenCode, OpenClaw, Aider, Wayland, Hermes, Pi |
+
+Contract machine-readable nằm ở [`platform-capabilities.json`](platform-capabilities.json). Không runtime nào là primary runtime của AG Kit.
+
+## Cài đặt
+
+Yêu cầu Node.js **22+** và Git.
 
 ```bash
 npm install -g @vudovn/ag-kit
-ag-kit init
+ag-kit runtime detect
+ag-kit runtime install-present
+ag-kit runtime doctor
 ```
 
-Không thêm `.agents/` vào `.gitignore` khi cần Antigravity index rules, skills và workflows. Để giữ thư mục này ở local mà không tắt discovery, thêm `.agents/` vào `.git/info/exclude`.
-
-### Kiểm tra workspace
+Cài package chỉ cài CLI. Project chỉ thay đổi sau khi bạn chủ động cài runtime adapter.
 
 ```bash
-npm run check:agents
-npm run check:antigravity
-npm run test:antigravity
+ag-kit runtime install claude
+ag-kit runtime doctor claude
+ag-kit runtime uninstall claude
 ```
 
-`check:antigravity` chỉ đọc, không thay đổi file. MCP example mặc định chứa `YOUR_API_KEY`, vì vậy doctor thông thường sẽ cảnh báo cho đến khi placeholder được cấu hình. Chỉ dùng strict mode sau khi đã xử lý toàn bộ placeholder:
+Mỗi runtime install có ownership manifest và pre-install backup. Uninstall chỉ gỡ/restore state AG Kit sở hữu khi chứng minh được ownership, giữ user drift và mặc định giữ project memory.
+
+### Migrate project Antigravity đời cũ
+
+CLI managed-tree Antigravity-only đời cũ đã bị loại bỏ. Commit hoặc backup project, sau đó migrate bằng đúng lifecycle chung:
 
 ```bash
-node .agents/hooks/antigravity-doctor.mjs --strict
+ag-kit runtime install antigravity
+ag-kit runtime doctor antigravity
 ```
 
-### Mở bằng Antigravity
+Xem [`MIGRATION.md`](MIGRATION.md) để biết chi tiết backup/recovery từ pre-v2.
 
-Sau khi mở repository dưới dạng trusted workspace:
-
-1. Xác nhận các slash command như `/plan`, `/coordinate`, `/orchestrate` được nhận diện.
-2. Xác nhận skill phù hợp được chọn từ `.agents/skills/`.
-3. Chạy một lệnh bình thường như `npm test` và kiểm tra lệnh được cho phép.
-4. Kiểm tra safety hook bằng payload giả lập, không chạy lệnh phá hủy thật:
+## Memory và continuity
 
 ```bash
-printf '%s' '{"tool_args":{"CommandLine":"rm -rf /"}}' \
-  | node .agents/hooks/validate-tool-call.mjs
+ag-kit memory init
+ag-kit memory add "Repo dùng pnpm" --kind convention --session s1
+ag-kit memory recall "package manager" --session s2
+ag-kit memory dream
+ag-kit memory status
+
+ag-kit memory semantic status
+ag-kit memory semantic on
+ag-kit memory semantic rebuild
+
+ag-kit brain register .
+ag-kit brain search "deployment convention"
 ```
 
-Lệnh phải trả exit code khác 0 và in `BLOCKED by AG Kit`.
+Markdown dưới `.ag-kit/memory/` là canonical. SQLite/FTS5 và semantic tier local chỉ là acceleration layer có thể rebuild. Semantic mặc định tắt. Cross-project recall phải opt-in và không bao giờ tự crawl `$HOME`.
 
-## Cập nhật an toàn và rollback
-
-AG Kit cập nhật theo cơ chế merge-aware. File do người dùng sở hữu và file managed đã sửa cục bộ được giữ nguyên theo mặc định.
+Tạo handoff:
 
 ```bash
-ag-kit update --dry-run          # Xem chính xác kế hoạch cập nhật
-ag-kit update                    # Merge an toàn và tạo backup
-ag-kit update --strategy replace # Thay toàn bộ có chủ đích, vẫn tạo backup
-ag-kit rollback                  # Khôi phục backup gần nhất
+ag-kit handoff create --goal "hoàn tất runtime rollout" --state "core đang xanh" --next "run full CI"
+ag-kit handoff show
 ```
 
-Metadata được lưu trong `.agents/.ag-kit/`; backup nằm tại `.ag-kit-backups/`, bên ngoài managed toolkit tree. Đọc [MIGRATION.md](MIGRATION.md) trước khi nâng một bản cài đặt cũ lên bản Antigravity-native.
-
-## Tích hợp Antigravity native
-
-### Runtime contract
-
-`.agents/antigravity.json` khai báo sáu giai đoạn tích hợp và các capability Antigravity CLI mà AG Kit sử dụng. File này không tự đặt một minimum semantic version khi tài liệu upstream chưa công bố version floor rõ ràng.
-
-### Native safety hook
-
-Antigravity đọc `.agents/hooks.json` và đăng ký:
-
-```json
-{
-  "enabled": true,
-  "PreToolUse": [
-    {
-      "matcher": "run_command",
-      "command": "node .agents/hooks/validate-tool-call.mjs",
-      "timeout": 10
-    }
-  ]
-}
-```
-
-Để tạm tắt hook khi điều tra lỗi tương thích, đặt `"enabled": false`, mở lại workspace và báo cáo payload theo kênh riêng nếu có thể chứa dữ liệu nhạy cảm. Không xóa permission controls của Antigravity.
-
-### Cấu hình MCP
-
-Xem kế hoạch merge mà không ghi vào home directory:
+## Một development spine
 
 ```bash
-node .agents/hooks/sync-mcp.mjs --check
-node .agents/hooks/sync-mcp.mjs --print
+ag-kit prompt-check "update it"
+ag-kit route "thiết kế migration nhiều service"
+ag-kit flow start "Ship account recovery" --mode deep
+ag-kit flow artifact "Đã so sánh phương án"
+ag-kit flow waves '[{"id":"foundation","mode":"parallel","tasks":["A","B"],"dependsOn":[]}]'
+ag-kit flow ready
+ag-kit flow wave-complete foundation "Foundation verified"
+ag-kit flow approve "approved"
 ```
 
-Sau khi thay placeholder, áp dụng rõ ràng vào một target:
+Mỗi gated phase cần artifact trước khi approve. Boundary VERIFY/CROSS_AUDIT cần mechanical evidence mới. DEEP mode dùng dependency waves rõ ràng trước khi ship.
+
+Specialist theo dự án chỉ sinh tạm thời:
 
 ```bash
-node .agents/hooks/sync-mcp.mjs --apply --target suite
-node .agents/hooks/sync-mcp.mjs --apply --target cli
+ag-kit team --archetype auto --name product-v2 --brief "Ship an toàn"
 ```
 
-Server trùng tên được giữ nguyên trừ khi dùng `--force`. Công cụ tạo backup có timestamp trước khi thay đổi target đã tồn tại. Không commit credential MCP thật.
-
-### Build và kiểm tra plugin
+## Context economy
 
 ```bash
-npm run build:antigravity-plugin
+ag-kit run npm test
+ag-kit run npm run build --max-lines 30
+ag-kit compress docs/long-context.md
 ```
 
-Review `dist/antigravity-plugin/` trước khi cài. Bundle gồm skills, agents, rules, workflow commands đã chuyển đổi, native hook, MCP example và `PLUGIN_CONTENTS.json` chứa SHA-256.
+Full command output nằm dưới `.ag-kit/session-sandbox/`; caller chỉ nhận bounded summary. Compression deterministic và mặc định không ghi đè source.
+
+## Independent cross-audit
 
 ```bash
-agy plugin install ./dist/antigravity-plugin
-agy plugin list
+ag-kit cross-audit --probe
+ag-kit cross-audit . --reviewers 3 --exclude-lineage openai
 ```
 
-Cài plugin là tùy chọn; `.agents/` trong repository vẫn là source of truth của dự án.
+Reviewer lineage khác chỉ nhận bounded snapshot chunk trong temp directory, không có writable source mount. Nhiều lineage có thể chạy bounded-parallel; finding được tách consensus/contested và có traceable receipt.
 
-## Thành phần đi kèm
-
-| Thành phần | Số lượng | Mục đích |
-| --- | ---: | --- |
-| Agents | 20 | Vai trò chuyên môn và điều phối |
-| Skills | 47 | Tri thức domain tải theo nhu cầu và helper có thể chạy |
-| Workflows | 13 | Quy trình slash command lặp lại được |
-| Rules | 6 | Ràng buộc routing, safety, design và coding toàn workspace |
-| Memory topics | 4 topic bắt buộc cùng index | Quy ước, quyết định, preference và feedback dài hạn |
-
-Mỗi agent, skill, workflow và rule có hợp đồng SemVer. `.agents/manifest.json`, `.agents/manifest.lock.json` và `.agents/DEPENDENCY_GRAPH.md` giúp toolkit có thể tái tạo và phát hiện drift.
+## Observability và privacy
 
 ```bash
-npm run generate:agents
-npm run check:agents
+ag-kit observe turn --runtime claude --input 1200 --output 300 --cached 500 --cost 0.02
+ag-kit dashboard summary
+ag-kit dashboard start
 ```
 
-## Workflows thường dùng
+Local ledger có giới hạn/rotation, rollup theo runtime/trace và dashboard chỉ bind localhost. AG Kit chỉ ghi giá trị đo được hoặc integration truyền rõ ràng, không tự bịa savings multiplier.
 
-| Lệnh | Mục đích |
-| --- | --- |
-| `/brainstorm` | Phân tích phương án và kiến trúc trước khi code |
-| `/coordinate` | Chạy song song các tác vụ research/review có thể tách rời rồi tổng hợp |
-| `/create` | Tạo tính năng hoặc ứng dụng theo các gate có cấu trúc |
-| `/debug` | Phân tích nguyên nhân gốc dựa trên bằng chứng |
-| `/deploy` | Thực hiện pre-flight và quy trình triển khai production |
-| `/enhance` | Thay đổi codebase hiện tại một cách an toàn |
-| `/orchestrate` | Lập kế hoạch, xin phê duyệt, giao việc và verify |
-| `/plan` | Tạo kế hoạch và checklist triển khai |
-| `/preview` | Quản lý preview server cục bộ |
-| `/remember` | Lưu thông tin bền vững vào memory |
-| `/status` | Tóm tắt công việc và blocker |
-| `/test` | Thiết kế và chạy kiểm thử |
-| `/verify` | Chứng minh thay đổi bằng thực thi thay vì chỉ đọc code |
+Personalization là evidence-backed và opt-in:
 
-## Gate release và production
+```bash
+ag-kit personalize status
+ag-kit personalize learn "Dùng prose gọn" --evidence "User rút ngắn report" --session s1
+ag-kit personalize inject on
+ag-kit personalize forget all
+```
 
-Release candidate chưa được xem là production-approved cho đến khi toàn bộ automated checks và smoke test Antigravity trong [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md) hoàn tất.
+`AG_KIT_PROFILE_KILL=1` là hard kill switch.
 
-Các GitHub check bắt buộc:
+## Design và MCP
 
-- Toolkit validation
-- CLI tests and package validation
-- Web lint, typecheck, build, and audit
-- Antigravity native contract
-- Dependency Review
+```bash
+ag-kit design init --template graphite --brand "Acme"
+ag-kit design check
+ag-kit mcp serve
+```
 
-AG Kit không yêu cầu auto-merge, auto-deploy hay tự động đồng bộ MCP. Thay đổi production phải có thể review và rollback.
+`DESIGN.md` mang design intent portable xuyên runtime. MCP bridge cố ý giữ surface nhỏ và runtime-neutral.
+
+## Runtime adapters
+
+Mỗi adapter nằm dưới `runtimes/<runtime>/` và khai capability đã verify trong `platform-capabilities.json`.
+
+- Antigravity có thể project native rules, skills, agents, hooks, MCP và plugin packaging.
+- Claude có native skills/agents và project integration.
+- Codex nhận portable instructions, skills và hook/plugin surface khi đã verify.
+- Connected/bridge target chỉ expose đúng surface AG Kit kiểm chứng được.
+
+Native richness của một adapter không biến runtime đó thành trung tâm sản phẩm.
+
+## Validation repo
+
+```bash
+npm run check:v2
+npm run check:docs
+npm run test:v2
+npm run benchmark:v2 -- --output dist/evidence/benchmark-v2.json
+npm run check:runtimes
+npm run test:runtimes
+npm run build:runtimes
+npm run build:runtime-artifacts
+npm run test:cli
+npm run lint:web
+npm run typecheck:web
+npm run build:web
+```
+
+`check:runtimes` khóa invariant runtime-neutral. `check:docs` kiểm link và claim machine-checkable. CI còn publish deterministic benchmark receipt cho memory recall, routing, compression và runtime lifecycle.
+
+## Nguyên tắc
+
+1. **Context là budget.**
+2. **Behavior khác knowledge.** Skill hành động; pack cung cấp tri thức.
+3. **Một source, nhiều runtime.**
+4. **Không có primary runtime.** Native richness nằm sau adapter boundary.
+5. **Capability claim phải machine-checkable.**
+6. **Memory phải human-readable và user-owned.**
+7. **Judgment phải explicit.** Không silent phase approval.
+8. **Verification phải tạo evidence.**
+9. **Privacy phải inspect được và có kill switch.**
+10. **Một lifecycle duy nhất.** `runtime install/doctor/uninstall` thay thế lifecycle ẩn theo từng runtime.
+
+AG Kit v2 tự triển khai các feature class hữu ích kiểu IJFW nhưng giữ code, naming, lifecycle model và privacy posture riêng. Xem [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md).
 
 ## Tài liệu
 
-- [Chi tiết tích hợp Antigravity](.agents/hooks/README.md)
-- [Hướng dẫn migration](MIGRATION.md)
-- [Checklist phát hành production](PRODUCTION_CHECKLIST.md)
-- [Security policy và runtime threat model](SECURITY.md)
-- [Kiến trúc luồng agent](AGENT_FLOW.md)
-- [Kiến trúc toolkit](.agents/ARCHITECTURE.md)
-- [Changelog](CHANGELOG.md)
-- [Cấu hình release](.github/RELEASE_SETUP.md)
-
-## Tham chiếu và bản quyền
-
-AG Kit là triển khai mã nguồn mở nguyên bản của các mô hình kỹ nghệ agent dựa trên Markdown. Dự án không chứa source file độc quyền. Quyết định tích hợp runtime dựa trên tài liệu và codelab Antigravity công khai được liên kết trong [.agents/hooks/README.md](.agents/hooks/README.md).
-
-## Ủng hộ dự án
-
-<p align="center">
-  <a href="https://buymeacoffee.com/vudovn" target="_blank"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
-</p>
-
-<p align="center"> - hoặc - </p>
-
-<p align="center">
-  <img src="https://img.vietqr.io/image/mbbank-0779440918-compact.jpg" alt="Ủng hộ dự án qua VietQR" width="200" />
-</p>
-
-<p align="center">
-  <code>CA: Gjpatn3d24dCRhUng7F37K6xJba4R8SDBC18xs1Apump</code>
-</p>
+- [`docs/ARCHITECTURE_V2.md`](docs/ARCHITECTURE_V2.md) — kiến trúc
+- [`docs/RUNTIMES.md`](docs/RUNTIMES.md) — runtime tiers/adapters
+- [`docs/PARITY_IJFW.md`](docs/PARITY_IJFW.md) — functional parity map
+- [`MIGRATION.md`](MIGRATION.md) — hướng dẫn migration
+- [`PRODUCTION_CHECKLIST.md`](PRODUCTION_CHECKLIST.md) — release checklist
+- [`SECURITY.md`](SECURITY.md) — security model
+- [`AGENT_FLOW.md`](AGENT_FLOW.md) — flow architecture
+- [`CHANGELOG.md`](CHANGELOG.md) — release history
 
 ## Giấy phép
 

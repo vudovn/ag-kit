@@ -1,13 +1,8 @@
 {
   "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp",
-        "--api-key",
-        "YOUR_API_KEY"
-      ]
+    "ag-kit": {
+      "command": "ag-kit",
+      "args": ["mcp", "serve"]
     }
   }
 }

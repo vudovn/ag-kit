@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
+import path from 'node:path';
 import process from 'node:process';
+import {pathToFileURL} from 'node:url';
 
 const BLOCK_RULES = [
   {
@@ -30,19 +33,13 @@ const BLOCK_RULES = [
   }
 ];
 
-function readStdin() {
-  return new Promise((resolve, reject) => {
-    let input = '';
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', chunk => {
-      input += chunk;
-      if (input.length > 1024 * 1024) {
-        reject(new Error('hook payload exceeds 1 MiB'));
-      }
-    });
-    process.stdin.on('end', () => resolve(input));
-    process.stdin.on('error', reject);
-  });
+async function readStdin() {
+  let input = '';
+  for await (const chunk of process.stdin) {
+    input += chunk;
+    if (input.length > 1024 * 1024) throw new Error('hook payload exceeds 1 MiB');
+  }
+  return input;
 }
 
 function firstString(...values) {
@@ -53,7 +50,7 @@ function firstString(...values) {
 }
 
 export function extractCommand(payload) {
-  const args = payload?.tool_args ?? payload?.toolArgs ?? payload?.arguments ?? {};
+  const args = payload?.toolCall?.args ?? payload?.tool_args ?? payload?.toolArgs ?? payload?.arguments ?? {};
   return firstString(
     args.CommandLine,
     args.commandLine,
@@ -73,39 +70,47 @@ export function evaluateCommand(command) {
   return {allowed: true, rule: null, reason: 'no destructive command pattern matched'};
 }
 
+export function hookDecision(payload) {
+  const command = extractCommand(payload);
+  if (!command) {
+    return {decision: 'allow', reason: 'AG Kit safety gate: no command payload detected.'};
+  }
+
+  const result = evaluateCommand(command);
+  if (!result.allowed) {
+    return {decision: 'deny', reason: `AG Kit blocked ${result.rule}: ${result.reason}.`};
+  }
+
+  return {decision: 'allow', reason: 'AG Kit safety gate: command passed destructive-operation checks.'};
+}
+
 async function main() {
   let raw;
   try {
     raw = await readStdin();
   } catch (error) {
-    console.error(`AG Kit hook warning: ${error.message}`);
-    return 0;
+    console.log(JSON.stringify({decision: 'force_ask', reason: `AG Kit could not read the hook payload: ${error.message}`}));
+    return;
   }
 
   let payload;
   try {
     payload = JSON.parse(raw || '{}');
   } catch {
-    console.error('AG Kit hook warning: Antigravity sent invalid JSON; allowing the call to avoid a runtime-wide lockout.');
-    return 0;
+    console.log(JSON.stringify({decision: 'force_ask', reason: 'AG Kit received invalid hook JSON; manual approval required.'}));
+    return;
   }
 
-  const command = extractCommand(payload);
-  if (!command) {
-    console.log('AG Kit hook: no command payload detected; allowed.');
-    return 0;
-  }
-
-  const result = evaluateCommand(command);
-  if (!result.allowed) {
-    console.error(`BLOCKED by AG Kit (${result.rule}): ${result.reason}.`);
-    return 1;
-  }
-
-  console.log('APPROVED by AG Kit: command passed the destructive-operation gate.');
-  return 0;
+  console.log(JSON.stringify(hookDecision(payload)));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  process.exitCode = await main();
-}
+const resolveEntryHref = (entry) => {
+  try {
+    return pathToFileURL(fs.realpathSync(path.resolve(entry))).href;
+  } catch {
+    return null;
+  }
+};
+
+const isDirectRun = process.argv[1] && resolveEntryHref(process.argv[1]) === import.meta.url;
+if (isDirectRun) await main();
