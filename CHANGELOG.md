@@ -30,10 +30,11 @@ Starting with `2026.5.13`, this project uses calendar versioning in `YYYY.M.D` f
 - Fixed MCP runtime status to report all lifecycle manifests for multi-runtime projects, with legacy single-runtime metadata only as a compatibility fallback.
 - Added repository documentation-link validation and release-safety assertions so stale runtime inventory, deleted local docs, and preflight/CI claim drift fail automated checks.
 - Contained context artifact output through realpath-aware ancestor checks to prevent symlink-parent escape.
+- Fixed `engine/memory`, `engine/team`, `engine/cross-audit`, and `engine/preflight` silently exiting without running when invoked from a path containing spaces or non-ASCII characters, on Windows, or through a symlink.
 
 ### Security
 - Kept external cross-audit reviewers on read-only snapshots rather than writable project mounts, and kept cross-project memory opt-in without automatic home-directory crawling.
-- Upgraded the web app to the patched Next.js 16.3.3 line and sharp 0.35.4 while retaining blocking production dependency audits and immutable GitHub Action SHAs.
+- Upgraded the web app to Next.js and `@next/mdx` 16.4.2, sharp 0.35.5, and source-map-js 1.2.2 to clear critical/high production advisories, while retaining blocking production dependency audits and immutable GitHub Action SHAs.
 
 ## [2026.8.31] - 2026-08-31
 
