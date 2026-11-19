@@ -1,6 +1,6 @@
 ---
 name: request-routing
-version: 1.0.0
+version: 1.1.0
 priority: P0
 trigger: always_on
 ---
@@ -77,6 +77,49 @@ When auto-applying an agent, inform the user:
 
 > 🔴 **Self-Check Trigger:** Every time you are about to write code or create UI, ask yourself:
 > "Have I completed the Agent Routing Checklist?" If NO → Complete it first.
+
+---
+
+## 🧭 WORKFLOW INTENT DECISION TREE (STEP 3)
+
+**When a request maps to a workflow or slash command, route directly to the optimal procedure:**
+
+### 🔄 End-to-End SDLC Lifecycle
+
+```
+[ Discovery: /brainstorm ] ──► [ Task Plan: /plan ] ──► [ Scaffold: /create ] ──► [ Refine: /enhance ]
+                                                                                         │
+   ┌─────────────────────────────────────────────────────────────────────────────────────┘
+   ▼
+[ Run Tests: /test ] ──► [ Live Proof: /verify ] ──► [ Production: /deploy ] ──► [ Remember: /remember ]
+         │
+         ▼ (Failures)
+[ Triage & Fix: /debug ] ──► (Verify Fix) ──► [ /test ]
+```
+
+### 🎯 Intent-to-Workflow Decision Matrix
+
+| User Intent / Signal Keywords | Primary Workflow | Key Agents & Skills | Next Step Chaining |
+|-------------------------------|:----------------:|---------------------|:------------------:|
+| "I have an idea", "explore options", "brainstorm", vague requirements | `/brainstorm` | `project-planner` + `brainstorming` | ➔ `/plan` |
+| "Plan this", "breakdown tasks", "create roadmap", architectural design | `/plan` | `project-planner` + `plan-writing`, `plan-review` | ➔ `/create` or `/enhance` |
+| "Build new app", "create feature from scratch", "scaffold project" | `/create` | `app-builder`, `orchestrator` | ➔ `/enhance` or `/test` |
+| "Refactor", "improve", "add field", "style UI", modify existing code | `/enhance` | Domain specialist (`frontend`, `backend`, etc.) | ➔ `/test` |
+| "Cross-domain initiative", "multi-phase project", full execution | `/orchestrate` | `orchestrator` + domain specialists | ➔ `/test` or `/verify` |
+| "Run in parallel", "distribute tasks", multiple agents/threads | `/coordinate` | `coordinator` + `coordinator-mode` | ➔ `/verify` |
+| "Bug", "error", "failing test", "incident", "CrashLoopBackOff", 500 | `/debug` | `debugger` + `systematic-debugging`, `verify-changes` | ➔ `/test` or `/verify` |
+| "Run test suite", "check unit tests", "integration tests", "coverage" | `/test` | `test-engineer` + `testing-patterns`, `tdd-workflow` | ➔ `/verify` or `/deploy` |
+| "Prove it works", "verify live", empirical execution check | `/verify` | `debugger` / `test-engineer` + `verify-changes` | ➔ `/deploy` |
+| "Show me", "preview UI", "render in browser", visual inspection | `/preview` | `frontend-specialist` + browser sidecar | ➔ `/verify` |
+| "Deploy to prod", "ship release", staging rollout, publish | `/deploy` | `devops-engineer` + `deployment-procedures` | ➔ `/remember` |
+| "Remember this preference", "save decision", "add to project memory" | `/remember` | Memory manager + `MEMORY.md` | Flow Complete |
+| "Project health", "what's pending", "status overview" | `/status` | `orchestrator` | Next pending task |
+
+### 🛡️ Workflow Routing Guardrails
+1. **Never Skip Planning for Complex Work:** Requests involving `COMPLEX CODE` or `NEW APP` must route through `/brainstorm` ➔ `/plan` before code generation.
+2. **Strict Circuit Breaker on Debugging:** Never loop indefinitely on failures. `/debug` enforces a hard limit of `max_iterations: 2` before escalating via `escalation-report.md`.
+3. **Always Verify Before Deploy:** Code must never flow directly from `/create` or `/enhance` to `/deploy` without running `/test` and `/verify`.
+4. **Lean Dispatching:** Do not invoke heavy multi-agent workflows (`/coordinate` or `/orchestrate`) for single-file or localized edits; use direct inline edits with the domain specialist.
 
 ---
 
