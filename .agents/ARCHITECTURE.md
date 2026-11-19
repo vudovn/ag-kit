@@ -122,7 +122,7 @@ Specialist AI personas for different domains.
 
 ---
 
-## 🧩 Skills (47)
+## 🧩 Skills (48)
 
 Modular knowledge domains that agents can load on-demand based on task context. Each skill has a `when_to_use` frontmatter field for conditional/intelligent loading.
 
@@ -184,6 +184,7 @@ Modular knowledge domains that agents can load on-demand based on task context. 
 | `architecture`  | System design patterns     |
 | `plan-writing`  | Task planning, breakdown   |
 | `brainstorming` | Socratic questioning       |
+| `plan-review`   | 8-point plan critique & auto-improvement |
 
 ### Mobile
 
@@ -367,7 +368,7 @@ For command details and prerequisites, see [scripts/README.md](scripts/README.md
 | Metric              | Value                             |
 | ------------------- | --------------------------------- |
 | **Total Agents**    | 20 (1 major upgrade in 2026.5.13) |
-| **Total Skills**    | 47                                |
+| **Total Skills**    | 48                                |
 | **Total Workflows** | 13 (+2 new in 2026.5.13)          |
 | **Toolkit Utilities** | 7 user-facing + 2 internal modules |
 | **Antigravity Utilities** | 4 runtime utilities              |
