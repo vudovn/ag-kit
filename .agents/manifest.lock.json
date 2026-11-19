@@ -47,7 +47,7 @@
     "rules/core-protocol.md": "647becf363128a82e65ed9628f9ab82b0142692825b7f94f0e264ad6d1cacba2",
     "rules/design-rules.md": "73ee8f120e85939d04a7153bd7d2336cfb7d3025c9c6fc4b9003eca97e3f228b",
     "rules/quick-reference.md": "f077e962ea7ad1a5afc51efca8f3d27c68b895398e0f0f153c118a9cb635593c",
-    "rules/request-routing.md": "2e5e04fc7b500e77c41d3875e4cf3769c83243d78dc419e441b2944aceecbb4d",
+    "rules/request-routing.md": "415d32d3e65f8ef9c128b2913b36f8755e6050c9bb579a0cae0808f27305c36b",
     "rules/universal-rules.md": "8f03f437aa32909f473573c75754b671cb47344de82a18c4f8926db6a41c2388",
     "schemas/component-frontmatter.schema.json": "8fed5bf3e4b374589b48a95086d864d186424202ef011d39a698e475089fef7e",
     "schemas/manifest-lock.schema.json": "0f55921773dca0e66aa814ecb78e1414a28a907d401bc3b948755323a4213dc0",
@@ -221,6 +221,6 @@
     "workflows/verify.md": "2dc26bcbe24c7e71571953da75629521ea3d7a0a444a7101e3601b39864971fc"
   },
   "kitVersion": "2026.8.31",
-  "manifestSha256": "2f662eae86d5fe5842cb3daf8558395f50c541d43c692710e067386224531035",
+  "manifestSha256": "4b48f4842c9a80ff9a2b3c1192d4c60a27e91f886638a7c18fad1928624e7aab",
   "schemaVersion": "1.0.0"
 }
