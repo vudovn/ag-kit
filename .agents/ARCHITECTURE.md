@@ -260,6 +260,26 @@ Slash command procedures. Invoke with `/command`.
 | `/test`          | Run tests                                      |
 | `/verify`        | **NEW** Prove code works by running it         |
 
+### Workflow Sequence & Chaining Lifecycle
+
+Every non-terminal workflow ends with a **🔗 Next Step** suggestion to guide users through the development lifecycle:
+
+```mermaid
+flowchart LR
+    brainstorm["/brainstorm"] --> plan["/plan"]
+    plan --> create["/create"]
+    plan --> orchestrate["/orchestrate"]
+    create --> verify["/verify"]
+    orchestrate --> verify
+    enhance["/enhance"] --> verify
+    debug["/debug"] --> verify
+    debug --> test["/test"]
+    test --> deploy["/deploy"]
+    verify -->|pass| deploy
+    verify -->|fail| debug
+    deploy --> status["/status"]
+```
+
 ---
 
 ## 🎯 Skill Loading Protocol (Conditional)

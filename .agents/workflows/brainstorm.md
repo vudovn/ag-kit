@@ -116,3 +116,10 @@ What direction would you like to explore?
 - **Visual when helpful** - use diagrams for architecture
 - **Honest tradeoffs** - don't hide complexity
 - **Defer to user** - present options, let them decide
+
+---
+
+## 🔗 Next Step
+
+After exploring options and choosing a direction:
+→ Run `/plan <chosen option>` to create an actionable implementation plan.

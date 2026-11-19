@@ -75,3 +75,10 @@ RULES:
 /verify build passes after refactoring
 /verify the new component renders correctly
 ```
+
+---
+
+## 🔗 Next Step
+
+- If verification passes: → Run `/deploy` for release pre-flight checks.
+- If issues or failures are detected: → Run `/debug` to investigate root causes.

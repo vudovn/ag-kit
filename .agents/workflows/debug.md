@@ -106,3 +106,10 @@ When `/debug` is triggered:
 - **Test hypotheses** - don't guess randomly
 - **Explain why** - not just what to fix
 - **Prevent recurrence** - add tests, validation
+
+---
+
+## 🔗 Next Step
+
+After applying the fix and preventive measures:
+→ Run `/verify` to prove the bug is resolved, or `/test` to add regression test cases.

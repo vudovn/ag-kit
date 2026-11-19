@@ -66,3 +66,10 @@ This command adds features or makes updates to existing application.
 - Get approval for major changes
 - Warn on conflicting requests (e.g., "use Firebase" when project uses PostgreSQL)
 - Commit each change with git
+
+---
+
+## 🔗 Next Step
+
+After changes are applied and previewed:
+→ Run `/verify` to confirm enhancements pass verification without regression.
