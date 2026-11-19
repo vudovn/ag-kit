@@ -28,6 +28,7 @@ The Memory System provides **persistent, searchable memory** that survives acros
 ├── project-conventions.md ← Topic file: coding standards, patterns
 ├── tech-decisions.md      ← Topic file: past architectural decisions
 ├── feedback-history.md    ← Topic file: what user liked/disliked
+├── issues-resolved.md     ← Topic file: resolved bugs & root causes
 └── [topic-name].md        ← Additional topic files as needed
 ```
 
