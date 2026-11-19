@@ -191,6 +191,27 @@
       ],
       "version": "1.0.0"
     },
+    "linux-infra-sre": {
+      "model": "inherit",
+      "path": "agent/linux-infra-sre.md",
+      "requires": {
+        "skills": {
+          "bash-linux": "^1.0.0",
+          "clean-code": "^2.0.0",
+          "server-management": "^1.0.0",
+          "systematic-debugging": "^1.0.0"
+        }
+      },
+      "tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash",
+        "Edit",
+        "Write"
+      ],
+      "version": "1.0.0"
+    },
     "mobile-developer": {
       "model": "inherit",
       "path": "agent/mobile-developer.md",
@@ -199,6 +220,28 @@
           "clean-code": "^2.0.0",
           "design-spec": "^1.0.0",
           "mobile-design": "^1.0.0"
+        }
+      },
+      "tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash",
+        "Edit",
+        "Write"
+      ],
+      "version": "1.0.0"
+    },
+    "openshift-sre": {
+      "model": "inherit",
+      "path": "agent/openshift-sre.md",
+      "requires": {
+        "skills": {
+          "bash-linux": "^1.0.0",
+          "clean-code": "^2.0.0",
+          "deployment-procedures": "^1.0.0",
+          "server-management": "^1.0.0",
+          "systematic-debugging": "^1.0.0"
         }
       },
       "tools": [

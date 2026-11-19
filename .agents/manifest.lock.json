@@ -1,7 +1,7 @@
 {
   "$schema": "schemas/manifest-lock.schema.json",
   "components": {
-    "ARCHITECTURE.md": "d76626492126b02b5562ec8a88bc9fcc5401932c252ede64415c98a1805fa392",
+    "ARCHITECTURE.md": "694e7a5608a77cd1e89a5e17f3df38b3e5b5ea5c53d937c72e52b344add6b897",
     "CHANGELOG.md": "c29cb325d278be44ad662d91c86c180cf01c05d008f77cf4b3f0bd42de8c46f8",
     "README.md": "d6a29fbc3367f5ab5739f84bad71710879119d1b697b6a18943dcdad5e2ec654",
     "VERSION": "94bc11e2a5617c66e6d2f849e14be6579c44c90d0f985d80ce4dc96dff46fa94",
@@ -14,7 +14,9 @@
     "agent/explorer-agent.md": "e326feb00e9b609f167aa40ddf62561ded0b0e03fee385da760492c79ccb71d4",
     "agent/frontend-specialist.md": "a381e047cec9f9bea3f96075e5b10ca087428d8dee2f6f42e94119968f476115",
     "agent/game-developer.md": "dcf76d9bc8d220bb801094eed091255118b7aff9203a8a7b98e10128030dcfd8",
+    "agent/linux-infra-sre.md": "0b36b2806bf1679f0010842af6f1492529c99ecad8972672a5e98d4d2ad968bc",
     "agent/mobile-developer.md": "cf9d2ebc6015dc3e2aab092711b111a22cb822e36b3f12d4e351818ecfab6677",
+    "agent/openshift-sre.md": "ccdbe0c232ba75750c3b34013e249deca49e91c5c6f3fb8626b395c5be891b14",
     "agent/orchestrator.md": "ad8bc39b0ea88df822df4597a0eec90424eb1cbd4418213c29a6f33ced3e5269",
     "agent/penetration-tester.md": "842b8684209208fd03dbf181f8fe7b5e84933732fe3d4f1bd8bf18af338b67cb",
     "agent/performance-optimizer.md": "932e6ac2b3f1ecbdf230f9b2ea326208f1f829217ca5066cb46c6bfe5e44c873",
@@ -221,6 +223,6 @@
     "workflows/verify.md": "2dc26bcbe24c7e71571953da75629521ea3d7a0a444a7101e3601b39864971fc"
   },
   "kitVersion": "2026.8.31",
-  "manifestSha256": "2f662eae86d5fe5842cb3daf8558395f50c541d43c692710e067386224531035",
+  "manifestSha256": "ffb20f860d524c17b083c4c46aba507eb6bb1eecb7e326787092c8448817c109",
   "schemaVersion": "1.0.0"
 }
