@@ -1,7 +1,7 @@
 {
   "$schema": "schemas/manifest-lock.schema.json",
   "components": {
-    "ARCHITECTURE.md": "d76626492126b02b5562ec8a88bc9fcc5401932c252ede64415c98a1805fa392",
+    "ARCHITECTURE.md": "2fe847ad1a5633571f1d5efd37c940021adc60e0f075d3be427002f1a84fba8c",
     "CHANGELOG.md": "c29cb325d278be44ad662d91c86c180cf01c05d008f77cf4b3f0bd42de8c46f8",
     "README.md": "d6a29fbc3367f5ab5739f84bad71710879119d1b697b6a18943dcdad5e2ec654",
     "VERSION": "94bc11e2a5617c66e6d2f849e14be6579c44c90d0f985d80ce4dc96dff46fa94",
@@ -209,7 +209,7 @@
     "workflows/brainstorm.md": "ea1afbfdf20318962fe18e067ff779b560325aa85b2378a9024f31d789dda399",
     "workflows/coordinate.md": "f786cd07db35d49849f4d4155df378b9a4bd1539f3501a90547056683535b268",
     "workflows/create.md": "11d5cb3a60b71db9d6a8184bcc3f5c6e27f3b005a8b9c38c2ea6d60c6623a553",
-    "workflows/debug.md": "1a6fbfe0ea48a3590d08c8db842b7cf9b7906f953b10e24cd525b7fd6b53070d",
+    "workflows/debug.md": "0a473dc666d86de0e2da850eb6004864fcf32c53ceae462ad8e0f778a200d97c",
     "workflows/deploy.md": "f3141b4125f8c49c6cb34986a75473589a2b4d53ca9ac092b9677a0c0186c158",
     "workflows/enhance.md": "fd913ca826afb2e2cbd54a4e316cf3ea5d779d56e02ae3b0a8cc99feecdbc736",
     "workflows/orchestrate.md": "00d3469acb4d465b8d7b54fb42524bb36cd45ee2cd2c8b997b2b57b35cdc8f6f",
@@ -221,6 +221,6 @@
     "workflows/verify.md": "2dc26bcbe24c7e71571953da75629521ea3d7a0a444a7101e3601b39864971fc"
   },
   "kitVersion": "2026.8.31",
-  "manifestSha256": "2f662eae86d5fe5842cb3daf8558395f50c541d43c692710e067386224531035",
+  "manifestSha256": "62afbe7e918e5f047f30a0220b3f69eecdd75a22e90abe226d6412f2407dc8bd",
   "schemaVersion": "1.0.0"
 }

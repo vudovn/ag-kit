@@ -249,7 +249,7 @@ Slash command procedures. Invoke with `/command`.
 | `/brainstorm`    | Socratic discovery                             |
 | `/coordinate`    | **NEW** Advanced multi-agent coordination      |
 | `/create`        | Create new features                            |
-| `/debug`         | Debug issues                                   |
+| `/debug`         | Progressive triage, verification & circuit breaker |
 | `/deploy`        | Deploy application                             |
 | `/enhance`       | Improve existing code                          |
 | `/orchestrate`   | Multi-agent coordination                       |
