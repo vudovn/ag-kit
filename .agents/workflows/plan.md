@@ -92,3 +92,10 @@ Next steps:
 /plan mobile app for fitness tracking
 /plan SaaS dashboard with analytics
 ```
+
+---
+
+## 🔗 Next Step
+
+After the plan is reviewed and approved:
+→ Run `/create` (or `/orchestrate` for multi-agent execution) to implement the approved plan.

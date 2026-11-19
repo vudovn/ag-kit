@@ -147,3 +147,10 @@ describe('AuthService', () => {
 - **Descriptive test names**
 - **Arrange-Act-Assert pattern**
 - **Mock external dependencies**
+
+---
+
+## 🔗 Next Step
+
+When all test suites and regressions pass:
+→ Run `/deploy` to prepare release deployment with pre-flight checks.

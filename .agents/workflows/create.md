@@ -66,3 +66,10 @@ If request is unclear, ask these questions:
 - Who will use it?
 
 Use defaults, add details later.
+
+---
+
+## 🔗 Next Step
+
+Once scaffolding, building, and dev preview are complete:
+→ Run `/verify` to execute tests and prove application behavior before deployment.

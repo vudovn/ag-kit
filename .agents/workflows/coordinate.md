@@ -75,3 +75,10 @@ Next steps:
 - [ ] [Action item 1]
 - [ ] [Action item 2]
 ```
+
+---
+
+## 🔗 Next Step
+
+After multi-agent coordination deliverables are produced:
+→ Run `/verify` to validate implementation changes across domains before release.

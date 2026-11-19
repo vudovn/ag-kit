@@ -244,3 +244,10 @@ Before completing orchestration, verify:
 ---
 
 **Begin orchestration now. Select 3+ agents, execute sequentially, run verification scripts, synthesize results.**
+
+---
+
+## 🔗 Next Step
+
+Once multi-agent implementation and synthesis report are complete:
+→ Run `/verify` to execute full integration test suite, followed by `/deploy` for release.

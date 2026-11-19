@@ -179,3 +179,10 @@ Run `/deploy rollback` if needed.
 /deploy production
 /deploy rollback
 ```
+
+---
+
+## 🔗 Next Step
+
+After deployment completes:
+→ Run `/status` to monitor runtime health, task state, and release status.
