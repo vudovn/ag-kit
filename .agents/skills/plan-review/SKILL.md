@@ -42,3 +42,4 @@ Ensure the plan does not contain these common anti-patterns:
 ## Output Format
 
 When reviewing a plan, silently evaluate the 8 criteria and assign a score. Then present the final plan to the user along with its score and any remaining warnings.
+

@@ -1,7 +1,7 @@
 {
   "$schema": "schemas/manifest-lock.schema.json",
   "components": {
-    "ARCHITECTURE.md": "d76626492126b02b5562ec8a88bc9fcc5401932c252ede64415c98a1805fa392",
+    "ARCHITECTURE.md": "a286da9d3478bd0db10b57999c80274d0bbcc81ae548a81e190ec4d8101aa461",
     "CHANGELOG.md": "c29cb325d278be44ad662d91c86c180cf01c05d008f77cf4b3f0bd42de8c46f8",
     "README.md": "d6a29fbc3367f5ab5739f84bad71710879119d1b697b6a18943dcdad5e2ec654",
     "VERSION": "94bc11e2a5617c66e6d2f849e14be6579c44c90d0f985d80ce4dc96dff46fa94",
@@ -183,6 +183,7 @@
     "skills/performance-profiling/SKILL.md": "91bd2041ab8447ad6fc6fa16d4e0e414adc2ee38e4df6fd27f1810e4e982ca0c",
     "skills/performance-profiling/scripts/bundle_analyzer.py": "f626e41febb7f56ac68e3870e1b53f3c85560ee3d5ac5b720fdfb0fbb353eccc",
     "skills/performance-profiling/scripts/lighthouse_audit.py": "45157873f60d7649b2224f90ddef6caa9f0f02848ab2e62af6adefecb6741067",
+    "skills/plan-review/SKILL.md": "fe06c2552cf17e303858dc93449d0cc61a326c75e7fb3a7b183522ae7a6ffc9c",
     "skills/plan-writing/SKILL.md": "2698f0dcae134d9ef587d4a2e00bc6901a251b24691f393faf581917bf80b248",
     "skills/powershell-windows/SKILL.md": "a2e47e73f225ca24627e2d7109a9805acfeb4b59e8ac4c683ef8994dea8e432f",
     "skills/python-patterns/SKILL.md": "bab8eb299ef8f97bfdf8dc9d68a19ab1f84b9a1e86a852a84b7fa943d97cc2f6",
@@ -221,6 +222,6 @@
     "workflows/verify.md": "2dc26bcbe24c7e71571953da75629521ea3d7a0a444a7101e3601b39864971fc"
   },
   "kitVersion": "2026.8.31",
-  "manifestSha256": "2f662eae86d5fe5842cb3daf8558395f50c541d43c692710e067386224531035",
+  "manifestSha256": "0604b48bc6d72175f462d6ac7a7cfd9d9cc7035691739d0b8c9300601eb9c821",
   "schemaVersion": "1.0.0"
 }
