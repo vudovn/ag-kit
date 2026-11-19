@@ -1164,7 +1164,8 @@
       "artifactOutputs": [
         "root-cause",
         "fix-summary",
-        "verification-report"
+        "verification-report",
+        "escalation-report"
       ],
       "path": "workflows/debug.md",
       "requires": {
@@ -1176,7 +1177,7 @@
           "verify-changes"
         ]
       },
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     "deploy": {
       "artifactOutputs": [
