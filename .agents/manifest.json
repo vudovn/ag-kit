@@ -863,6 +863,50 @@
       "scripts": [],
       "version": "1.0.0"
     },
+    "openshift-ansible": {
+      "allowedTools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash"
+      ],
+      "path": "skills/openshift-ansible/SKILL.md",
+      "scripts": [],
+      "version": "1.0.0"
+    },
+    "openshift-gitops": {
+      "allowedTools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash"
+      ],
+      "path": "skills/openshift-gitops/SKILL.md",
+      "scripts": [],
+      "version": "1.0.0"
+    },
+    "openshift-gpu": {
+      "allowedTools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash"
+      ],
+      "path": "skills/openshift-gpu/SKILL.md",
+      "scripts": [],
+      "version": "1.0.0"
+    },
+    "openshift-platform": {
+      "allowedTools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash"
+      ],
+      "path": "skills/openshift-platform/SKILL.md",
+      "scripts": [],
+      "version": "1.0.0"
+    },
     "parallel-agents": {
       "allowedTools": [
         "Read",

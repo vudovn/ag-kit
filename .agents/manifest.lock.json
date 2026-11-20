@@ -1,7 +1,7 @@
 {
   "$schema": "schemas/manifest-lock.schema.json",
   "components": {
-    "ARCHITECTURE.md": "d76626492126b02b5562ec8a88bc9fcc5401932c252ede64415c98a1805fa392",
+    "ARCHITECTURE.md": "26f36cb5192fca735db2f1ee8da1006da3cf47d4831a0637ecc8036e7810df56",
     "CHANGELOG.md": "c29cb325d278be44ad662d91c86c180cf01c05d008f77cf4b3f0bd42de8c46f8",
     "README.md": "d6a29fbc3367f5ab5739f84bad71710879119d1b697b6a18943dcdad5e2ec654",
     "VERSION": "94bc11e2a5617c66e6d2f849e14be6579c44c90d0f985d80ce4dc96dff46fa94",
@@ -179,6 +179,24 @@
     "skills/nextjs-react-expert/scripts/convert_rules.py": "848034fec008ec808851ea91f698b9032dab199eadb9f9bfbc5fd5b8f14d0108",
     "skills/nextjs-react-expert/scripts/react_performance_checker.py": "aae59d1e0aa1b58acd3fdac4701b3822956c6057d932794822ef4ee3342a7781",
     "skills/nodejs-best-practices/SKILL.md": "da0e84eb6dd2f9784860209ce451725d32a5743a685084bd077d69503aa7e706",
+    "skills/openshift-ansible/SKILL.md": "a6183f31dfaa2811c00074108972da1c7b356e992451ec0e2d19a889c5936f93",
+    "skills/openshift-ansible/references/aap-controller.md": "66605e2b8beb91201dc58c380adb1150acedd4d0f57d6d712ae6ccb4652c9054",
+    "skills/openshift-ansible/references/idempotency.md": "9d49aed629aa4d0080addf66db51c89797b006f88de5c88b4461603fe38edc44",
+    "skills/openshift-ansible/references/playbook.md": "5b16e9ffe8f6232ead7234dd0c67f02d9c97f757e6715b235598e252a386a688",
+    "skills/openshift-gitops/SKILL.md": "2836ce1304ec2fa1c988d54129fa50306096dc4678d0b635616c09980cece83b",
+    "skills/openshift-gitops/references/appproject-rbac.md": "3b2d86757bdb4d1185aeeddb4861dbe052ceef16b6508ccf5ca73e295edeec02",
+    "skills/openshift-gitops/references/sync-drift.md": "bec56d37405e421d5f27b4f50ba75cf4abf06f29bdcb15623baa70546d12e93c",
+    "skills/openshift-gitops/references/webhook.md": "94bc5fbee9e0800fdf26e96a688e2f3b9b4c711e241e60a8f26063ba67f7e466",
+    "skills/openshift-gpu/SKILL.md": "ae224bd77f6ff0b5e7feffa002e7feacf7f95179793cb41b48e305dc8daec5fe",
+    "skills/openshift-gpu/references/device-plugin.md": "7b667b9fc9ca0199dfbd6579c5b4684f2055074878bac338a4e331fade66311a",
+    "skills/openshift-gpu/references/mig-timeslicing.md": "be79470d6a6ab4df73303e5315899ff355cdfd196691f4d4be4591d44dc971f7",
+    "skills/openshift-gpu/references/nfd-driver.md": "6ee56d227366d4bd9435ef1c0a6ab8d747b197400ea9b2d5fa7c827f749c6c30",
+    "skills/openshift-gpu/references/scheduling.md": "37799d9b45fead178b9f4da4bde075d34b93fee6803b27bdb57df7937079ebee",
+    "skills/openshift-platform/SKILL.md": "899997c9835f8d89bc61bb4468e552902d3facfdb83a9083bce74d9797a9af94",
+    "skills/openshift-platform/references/rbac-scc.md": "b6a60bf88f59f51628178f69bb3e5f591643f6a44c7c954808c344dc1db3c1f3",
+    "skills/openshift-platform/references/runtime.md": "946393770a5121fe76c656bc0c626cb1bfbb3b5ec773c6045aadb81233847221",
+    "skills/openshift-platform/references/scheduling.md": "4d35263222a51b85b867020739e611ce6babbd3ae891fb0645a03568da4cd28f",
+    "skills/openshift-platform/references/storage-network.md": "1fe08488b5253fed9f4b83d5b0f5c8213a4e3bfbdd9082124eb7ba5186832447",
     "skills/parallel-agents/SKILL.md": "f61769e3ba2298d8311bdf75b2a69c0138640422255ed9449286c10e224e7892",
     "skills/performance-profiling/SKILL.md": "91bd2041ab8447ad6fc6fa16d4e0e414adc2ee38e4df6fd27f1810e4e982ca0c",
     "skills/performance-profiling/scripts/bundle_analyzer.py": "f626e41febb7f56ac68e3870e1b53f3c85560ee3d5ac5b720fdfb0fbb353eccc",
@@ -221,6 +239,6 @@
     "workflows/verify.md": "2dc26bcbe24c7e71571953da75629521ea3d7a0a444a7101e3601b39864971fc"
   },
   "kitVersion": "2026.8.31",
-  "manifestSha256": "2f662eae86d5fe5842cb3daf8558395f50c541d43c692710e067386224531035",
+  "manifestSha256": "aaee96b4cde6f47243899f21a83dcda186dd7f32bdcfefba1659524f6be97ea0",
   "schemaVersion": "1.0.0"
 }
